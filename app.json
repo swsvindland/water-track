@@ -1,21 +1,24 @@
 {
   "expo": {
-    "name": "water-track",
+    "name": "Water Track",
     "slug": "water-track",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "heroui-native-app",
+    "scheme": "water-track",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.watertrack.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.watertrack.app",
+      "permissions": ["android.permission.health.WRITE_HYDRATION"]
     },
     "plugins": [
       "expo-router",
@@ -28,7 +31,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-localization",
+      "expo-background-task",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Water Track connects your drink log to Apple Health.",
+          "NSHealthUpdateUsageDescription": "Export the fluid volume and caffeine you log to Apple Health.",
+          "background": false
+        }
+      ],
+      "react-native-health-connect"
     ],
     "experiments": {
       "typedRoutes": true,

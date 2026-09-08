@@ -1,95 +1,105 @@
-import { eq, sql } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Button, Card } from "heroui-native";
-import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Text, View } from "react-native";
+import { Screen, Heading, Note } from "@/components/ui";
+import { DrinkList } from "@/components/drink-list";
+import { useApp } from "@/lib/store";
+import { estimateBac, inDay, totals } from "@/lib/metrics";
 
-import { useDatabase } from "@/db/provider";
-import { counters } from "@/db/schema";
-
-export default function HomeTab() {
-  const db = useDatabase();
-  const { data, error } = useLiveQuery(db.select().from(counters).where(eq(counters.id, 1)));
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const count = data[0]?.value;
-  const ready = count !== undefined && !error;
-
-  function updateCounter(action: "add" | "remove" | "reset") {
-    try {
-      db.update(counters)
-        .set({
-          value:
-            action === "reset"
-              ? 0
-              : action === "add"
-                ? sql`${counters.value} + 1`
-                : sql`max(0, ${counters.value} - 1)`,
-        })
-        .where(eq(counters.id, 1))
-        .run();
-      setSaveError(null);
-    } catch {
-      setSaveError("Couldn’t save your change. Please try again.");
-    }
-  }
-
+export default function Today() {
+  const { rows, settings, now, t, number, volume, locale } = useApp();
+  const active = rows.filter((d) => !d.deleted);
+  const today = active.filter((d) => inDay(d.consumedAt, now));
+  const total = totals(today);
+  const percent = Math.min(100, Math.floor((total.goalFluid / settings.goalMl) * 100));
+  const bac = estimateBac(active, settings.weightKg, settings.bodyWaterRatio, now);
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top", "left", "right"]}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 24 }}>
-        <View className="w-full max-w-lg self-center gap-6">
-          <View className="gap-2">
-            <Text accessibilityRole="header" className="text-3xl font-semibold text-foreground">
-              Water Counter
+    <Screen
+      title={t("today")}
+      subtitle={new Date(now).toLocaleDateString(locale, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      })}
+    >
+      <Card>
+        <Card.Body className="gap-4">
+          <Card.Title>{t("goalProgress")}</Card.Title>
+          <View className="flex-row items-end justify-between gap-4">
+            <Text className="text-5xl font-semibold tabular-nums text-foreground">
+              {number(percent)}%
             </Text>
-            <Text className="text-base text-muted">A little reminder to keep drinking.</Text>
+            <Text className="pb-1 text-muted">
+              {volume(total.goalFluid)} / {volume(settings.goalMl)}
+            </Text>
           </View>
-          <Card className="gap-6">
-            <Card.Body className="gap-2">
-              <Card.Title>Glasses of Water</Card.Title>
-              <Text
-                accessibilityLiveRegion="polite"
-                className="text-6xl font-semibold tabular-nums text-foreground"
-              >
-                {count ?? "—"}
-              </Text>
-              <Card.Description>Total since your last reset.</Card.Description>
-            </Card.Body>
-            <Card.Footer className="flex-col gap-3">
-              <Button className="w-full" isDisabled={!ready} onPress={() => updateCounter("add")}>
-                Add a glass
-              </Button>
-              <View className="w-full flex-row gap-3">
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  isDisabled={!ready || count === 0}
-                  onPress={() => updateCounter("remove")}
-                >
-                  Remove one
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant="ghost"
-                  isDisabled={!ready || count === 0}
-                  onPress={() => updateCounter("reset")}
-                >
-                  Reset
-                </Button>
-              </View>
-            </Card.Footer>
-          </Card>
-          <Text
-            accessibilityRole={error || saveError ? "alert" : undefined}
-            className={error || saveError ? "text-danger" : "text-muted"}
+          <View
+            accessibilityRole="progressbar"
+            accessibilityLabel={t("goalProgress")}
+            accessibilityValue={{ min: 0, max: 100, now: percent }}
+            className="h-3 overflow-hidden rounded-full bg-surface-secondary"
           >
-            {error
-              ? "Couldn’t read your saved count. Please reopen the app."
-              : (saveError ??
-                "Saved on this device. Close and reopen the app to pick up where you left off.")}
-          </Text>
+            <View className="h-full rounded-full bg-accent" style={{ width: `${percent}%` }} />
+          </View>
+          <Note>
+            {percent >= 100
+              ? t("goalReached")
+              : `${volume(Math.max(0, settings.goalMl - total.goalFluid))} ${t("remaining")}`}
+          </Note>
+        </Card.Body>
+      </Card>
+      <Button onPress={() => router.push("/drink")}>{t("addDrink")}</Button>
+      <View className="flex-row flex-wrap gap-x-8 gap-y-4">
+        {[
+          [t("fluids"), volume(total.fluid)],
+          [t("caffeine"), `${number(total.caffeine)} mg`],
+          [t("pureAlcohol"), `${number(total.alcohol, 1)} g`],
+        ].map(([label, value]) => (
+          <View key={label} className="gap-1">
+            <Note>{label}</Note>
+            <Text className="text-2xl font-semibold tabular-nums text-foreground">{value}</Text>
+          </View>
+        ))}
+      </View>
+      <View className="gap-3">
+        <Heading>{t("quickAdd")}</Heading>
+        <View className="flex-row flex-wrap gap-2">
+          {(JSON.parse(settings.presets) as number[]).map((ml, i) => (
+            <Button
+              key={i}
+              variant="outline"
+              onPress={() =>
+                router.push({ pathname: "/drink", params: { ml: String(ml), kind: "water" } })
+              }
+            >
+              {volume(ml)}
+            </Button>
+          ))}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+      <View>
+        <Heading>{t("drinks")}</Heading>
+        <DrinkList rows={today} />
+        {today.length > 0 && <Note>{t("editHint")}</Note>}
+      </View>
+      <Card>
+        <Card.Body className="gap-3">
+          <Card.Title>{t("bac")}</Card.Title>
+          {bac === null ? (
+            <Note>{t("bacSetup")}</Note>
+          ) : (
+            <Text className="text-3xl font-semibold tabular-nums text-foreground">
+              {new Intl.NumberFormat(locale, {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              }).format(bac)}
+              %
+            </Text>
+          )}
+          <Note>{t("bacWarning")}</Note>
+        </Card.Body>
+      </Card>
+      <Note>{t("goalNote")}</Note>
+    </Screen>
   );
 }
