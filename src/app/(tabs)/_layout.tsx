@@ -13,12 +13,12 @@ function TabIcon({ name, color }: { name: IoniconName; color: ColorValue }): JSX
 
 export default function TabsLayout(): JSX.Element {
   const { t } = useApp();
-  const [accent, background, muted] = useThemeColor(["accent", "background", "muted"]);
+  const [activeTint, background, muted] = useThemeColor(["link", "background", "muted"]);
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: accent,
+        tabBarActiveTintColor: activeTint,
         tabBarInactiveTintColor: muted,
         tabBarStyle: { backgroundColor: background },
       }}

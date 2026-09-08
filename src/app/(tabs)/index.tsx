@@ -4,9 +4,15 @@ import { randomUUID } from "expo-crypto";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences } from "@/db/schema";
 import { favoriteIntake, type Favorite } from "@/lib/favorites";
-import { Button, Card, Slider } from "heroui-native";
+import {
+  SystemButton as Button,
+  SystemPanel,
+  SystemLabel,
+  SystemValue,
+  SystemSlider,
+} from "@/components/system";
 import { router } from "expo-router";
-import { AccessibilityInfo, Text, View } from "react-native";
+import { AccessibilityInfo, ScrollView, Text, View } from "react-native";
 import { Heading, Note } from "@/components/ui";
 import { SafeAreaView as NativeSafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
@@ -99,26 +105,31 @@ export default function Today() {
   const percent = Math.min(100, Math.floor((total.goalFluid / settings.goalMl) * 100));
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]} className="bg-background">
-      <View
-        className="w-full max-w-xl flex-1 self-center px-5 py-2"
-        style={{ gap: height < 650 ? 4 : 12 }}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
         onLayout={(event) => setHeight(event.nativeEvent.layout.height)}
       >
-        <View className="flex-row items-center justify-between gap-3">
-          <Text accessibilityRole="header" className="text-2xl font-semibold text-foreground">
-            {t("today")}
-          </Text>
-          <Text className="text-sm text-muted">
-            {new Date(now).toLocaleDateString(locale, { month: "short", day: "numeric" })}
-          </Text>
-        </View>
-        <Card>
-          <Card.Body className="gap-2">
+        <View className="w-full max-w-xl grow self-center gap-4 p-4">
+          <View className="flex-row flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+            <Text
+              accessibilityRole="header"
+              className="text-3xl font-semibold tracking-tight text-foreground"
+            >
+              {t("today")}
+            </Text>
+            <SystemLabel>
+              {new Date(now).toLocaleDateString(locale, { month: "short", day: "numeric" })}
+            </SystemLabel>
+          </View>
+          <SystemPanel>
+            <SystemLabel>{t("goalProgress")}</SystemLabel>
             <View className="flex-row items-center justify-between gap-2">
               <View className="flex-1">
-                <Text className="text-2xl font-semibold tabular-nums text-foreground">
+                <SystemValue className="text-4xl font-medium">
                   {volume(total.goalFluid)}
-                </Text>
+                </SystemValue>
                 <Note>
                   {t("goal")}: {volume(settings.goalMl)} · {number(percent)}%
                 </Note>
@@ -131,123 +142,117 @@ export default function Today() {
               accessibilityRole="progressbar"
               accessibilityLabel={t("goalProgress")}
               accessibilityValue={{ min: 0, max: 100, now: percent }}
-              className="h-2 overflow-hidden rounded-full bg-surface-secondary"
+              className="h-1 overflow-hidden rounded-sm bg-surface-secondary"
             >
-              <View className="h-full rounded-full bg-accent" style={{ width: `${percent}%` }} />
+              <View className="h-full bg-accent" style={{ width: `${percent}%` }} />
             </View>
-            <View className="flex-row justify-between gap-2">
-              <Text className="text-sm text-muted">
-                {t("caffeine")}: {number(total.caffeine)} mg
-              </Text>
-              <Text className="text-sm text-muted">
-                {t("pureAlcohol")}: {number(total.alcohol, 1)} g
-              </Text>
+            <View className="flex-row flex-wrap justify-between gap-4 border-t border-border pt-4">
+              <View className="gap-1">
+                <SystemLabel>{t("caffeine")}</SystemLabel>
+                <SystemValue className="text-base">{number(total.caffeine)} mg</SystemValue>
+              </View>
+              <View className="gap-1">
+                <SystemLabel>{t("pureAlcohol")}</SystemLabel>
+                <SystemValue className="text-base">{number(total.alcohol, 1)} g</SystemValue>
+              </View>
             </View>
             {showBac && <BacSummary rows={active} now={now} bac={bac} />}
-          </Card.Body>
-        </Card>
-        <View className="flex-1 gap-2">
-          <View className="flex-row items-center justify-between gap-2">
-            <Heading>{t("quickAdd")}</Heading>
-            <Button variant="ghost" onPress={() => router.push("/favorites")}>
-              {t("manage")}
-            </Button>
-          </View>
-          <View className="flex-1 flex-row flex-wrap gap-2">
-            {favorites
-              .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-              .map((favorite) => (
-                <Button
-                  key={favorite.id}
-                  variant="secondary"
-                  className="h-auto min-h-12 flex-col gap-1 px-3 py-2"
-                  style={{ width: "48%", flexGrow: 1, maxHeight: 112 }}
-                  accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
-                  onPress={() => log(favorite, Date.now())}
-                >
-                  <Button.Label numberOfLines={2} className="text-lg text-center">
-                    {favorite.name || t(favorite.kind)}
-                  </Button.Label>
-                  <Text className="text-sm text-muted">{volume(selectedMl)}</Text>
-                </Button>
-              ))}
-            {!favorites.length && <Note>{t("favoriteEmpty")}</Note>}
-          </View>
-          {pages > 1 && (
-            <View className="flex-row items-center justify-between">
-              <Button
-                variant="ghost"
-                isDisabled={currentPage === 0}
-                onPress={() => setPage(currentPage - 1)}
-              >
-                {t("previousPicks")}
-              </Button>
-              <Note>
-                {number(currentPage + 1)} / {number(pages)}
-              </Note>
-              <Button
-                variant="ghost"
-                isDisabled={currentPage === pages - 1}
-                onPress={() => setPage(currentPage + 1)}
-              >
-                {t("nextPicks")}
+          </SystemPanel>
+          <View className="flex-1 gap-2">
+            <View className="flex-row items-center justify-between gap-2">
+              <Heading>{t("quickAdd")}</Heading>
+              <Button variant="ghost" onPress={() => router.push("/favorites")}>
+                {t("manage")}
               </Button>
             </View>
-          )}
-        </View>
-        <View className="gap-1">
-          <View className="flex-row items-center justify-between gap-2">
-            <Heading>{t("size")}</Heading>
-            <Text className="text-xl font-semibold tabular-nums text-foreground">
-              {volume(selectedMl)}
+            <View className="flex-1 flex-row flex-wrap gap-2">
+              {favorites
+                .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
+                .map((favorite) => (
+                  <Button
+                    key={favorite.id}
+                    variant="outline"
+                    className="h-auto min-h-24 items-start flex-col gap-2 bg-surface px-4 py-4"
+                    style={{ width: "48%", flexGrow: 1 }}
+                    accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
+                    onPress={() => log(favorite, Date.now())}
+                  >
+                    <Button.Label numberOfLines={2} className="text-base text-left text-foreground">
+                      {favorite.name || t(favorite.kind)}
+                    </Button.Label>
+                    <SystemValue className="text-sm text-muted">{volume(selectedMl)}</SystemValue>
+                  </Button>
+                ))}
+              {!favorites.length && <Note>{t("favoriteEmpty")}</Note>}
+            </View>
+            {pages > 1 && (
+              <View className="flex-row items-center justify-between">
+                <Button
+                  variant="ghost"
+                  isDisabled={currentPage === 0}
+                  onPress={() => setPage(currentPage - 1)}
+                >
+                  {t("previousPicks")}
+                </Button>
+                <Note>
+                  {number(currentPage + 1)} / {number(pages)}
+                </Note>
+                <Button
+                  variant="ghost"
+                  isDisabled={currentPage === pages - 1}
+                  onPress={() => setPage(currentPage + 1)}
+                >
+                  {t("nextPicks")}
+                </Button>
+              </View>
+            )}
+          </View>
+          <SystemPanel>
+            <View className="flex-row items-center justify-between gap-2">
+              <Heading>{t("size")}</Heading>
+              <SystemValue className="text-xl font-medium">{volume(selectedMl)}</SystemValue>
+            </View>
+            <SystemSlider
+              accessibilityLabel={t("size")}
+              accessibilityValue={{ text: volume(selectedMl) }}
+              value={selectedMl / factor}
+              minValue={Math.min(step, savedMl / factor)}
+              maxValue={maxSize}
+              step={step}
+              onChange={(value) =>
+                setDraftMl((typeof value === "number" ? value : value[0]) * factor)
+              }
+              onChangeEnd={(value) =>
+                selectSize((typeof value === "number" ? value : value[0]) * factor)
+              }
+            />
+            <View className="flex-row justify-between">
+              <Note>{volume(Math.min(step * factor, savedMl))}</Note>
+              <Note>{volume(maxSize * factor)}</Note>
+            </View>
+          </SystemPanel>
+          <View className="min-h-11 flex-row items-center justify-between gap-2">
+            <Text
+              accessibilityRole={error ? "alert" : undefined}
+              numberOfLines={2}
+              className={`flex-1 text-sm ${error ? "text-danger" : "text-muted"}`}
+            >
+              {error || last?.label || t("sizeHint")}
             </Text>
+            {last && (
+              <Button variant="ghost" onPress={undo}>
+                {t("undo")}
+              </Button>
+            )}
           </View>
-          <Slider
-            value={selectedMl / factor}
-            minValue={Math.min(step, savedMl / factor)}
-            maxValue={maxSize}
-            step={step}
-            onChange={(value) =>
-              setDraftMl((typeof value === "number" ? value : value[0]) * factor)
-            }
-            onChangeEnd={(value) =>
-              selectSize((typeof value === "number" ? value : value[0]) * factor)
-            }
+          <Button
+            variant="outline"
+            onPress={() => router.push({ pathname: "/drink", params: { ml: String(selectedMl) } })}
           >
-            <Slider.Track className="my-5" hitSlop={16}>
-              <Slider.Fill />
-              <Slider.Thumb
-                accessibilityLabel={t("size")}
-                accessibilityValue={{ text: volume(selectedMl) }}
-              />
-            </Slider.Track>
-          </Slider>
-          <View className="flex-row justify-between">
-            <Note>{volume(Math.min(step * factor, savedMl))}</Note>
-            <Note>{volume(maxSize * factor)}</Note>
-          </View>
+            {t("moreOptions")}
+          </Button>
         </View>
-        <View className="min-h-11 flex-row items-center justify-between gap-2">
-          <Text
-            accessibilityRole={error ? "alert" : undefined}
-            numberOfLines={2}
-            className={`flex-1 text-sm ${error ? "text-danger" : "text-muted"}`}
-          >
-            {error || last?.label || t("sizeHint")}
-          </Text>
-          {last && (
-            <Button variant="ghost" onPress={undo}>
-              {t("undo")}
-            </Button>
-          )}
-        </View>
-        <Button
-          variant="outline"
-          onPress={() => router.push({ pathname: "/drink", params: { ml: String(selectedMl) } })}
-        >
-          {t("moreOptions")}
-        </Button>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
