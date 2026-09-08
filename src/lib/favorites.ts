@@ -8,7 +8,36 @@ export type Favorite = {
   caffeine: number;
   abv: number;
   color?: FavoriteColor;
+  showOnHome?: boolean;
 };
+
+// Stable IDs match the original seeded favorites. Missing presets stay hidden so
+// upgrading never restores a drink that someone previously removed.
+export const popularDrinks: Favorite[] = [
+  { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+  { id: "coffee", kind: "coffee", name: "", ml: 240, caffeine: 95, abv: 0 },
+  { id: "tea", kind: "tea", name: "", ml: 240, caffeine: 40, abv: 0 },
+  { id: "energy", kind: "energy", name: "", ml: 473, caffeine: 160, abv: 0 },
+  { id: "preworkout", kind: "preworkout", name: "", ml: 300, caffeine: 200, abv: 0 },
+  { id: "alcohol", kind: "alcohol", name: "", ml: 355, caffeine: 0, abv: 5 },
+];
+
+export function isPopularDrink(favorite: Favorite) {
+  return popularDrinks.some((drink) => drink.id === favorite.id);
+}
+
+export function drinkCatalog(saved: Favorite[]): Favorite[] {
+  return [
+    ...saved,
+    ...popularDrinks
+      .filter((drink) => !saved.some((favorite) => favorite.id === drink.id))
+      .map((drink) => ({ ...drink, showOnHome: false })),
+  ];
+}
+
+export function homeFavorites(saved: Favorite[]): Favorite[] {
+  return saved.filter((favorite) => favorite.showOnHome !== false);
+}
 
 export function favoriteIntake(favorite: Favorite, volumeMl: number) {
   const caffeineMg = (favorite.caffeine * volumeMl) / favorite.ml;

@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import { router } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { eq } from "drizzle-orm";
-import { Button } from "heroui-native";
+import { Button, Switch } from "heroui-native";
 import { Screen, Field, Choices, Heading, Note } from "@/components/ui";
 import { useDatabase } from "@/db/provider";
 import { preferences } from "@/db/schema";
 import { useApp } from "@/lib/store";
 import { defaults, kinds, OZ_ML, parseNumber, type DrinkKind } from "@/lib/metrics";
 import {
+  drinkCatalog,
+  isPopularDrink,
   favoriteColor,
   favoriteColorClasses,
   favoriteColors,
@@ -18,9 +20,9 @@ import {
 } from "@/lib/favorites";
 
 export default function Favorites() {
-  const { settings, t } = useApp();
+  const { settings, t, volume, number } = useApp();
   const db = useDatabase();
-  const favorites = JSON.parse(settings.favorites) as Favorite[];
+  const favorites = drinkCatalog(JSON.parse(settings.favorites) as Favorite[]);
   const factor = settings.units === "us" ? OZ_ML : 1;
   const [editing, setEditing] = useState<Favorite | null>(null);
   const [color, setColor] = useState<FavoriteColor | undefined>();
@@ -71,6 +73,7 @@ export default function Favorites() {
     }
     const favorite: Favorite = {
       id: editing!.id,
+      showOnHome: editing!.showOnHome ?? true,
       name: name.trim(),
       kind,
       color,
@@ -147,7 +150,7 @@ export default function Favorites() {
           >
             {t("cancel")}
           </Button>
-          {favorites.some((f) => f.id === editing.id) && (
+          {!isPopularDrink(editing) && favorites.some((f) => f.id === editing.id) && (
             <Button
               variant="danger-soft"
               onPress={() => persist(favorites.filter((f) => f.id !== editing.id))}
@@ -158,20 +161,57 @@ export default function Favorites() {
         </>
       ) : (
         <>
-          <View className="gap-3">
-            {favorites.map((favorite) => (
-              <Button
-                key={favorite.id}
-                variant="secondary"
-                className={favoriteColorClasses[favoriteColor(favorite)].background}
-                onPress={() => edit(favorite)}
-              >
-                <Button.Label className={favoriteColorClasses[favoriteColor(favorite)].foreground}>
-                  {favorite.name || t(favorite.kind)}
-                </Button.Label>
-              </Button>
-            ))}
-          </View>
+          <Note>{t("favoritesVisibilityHint")}</Note>
+          {[
+            { title: t("popularDrinks"), drinks: favorites.filter(isPopularDrink) },
+            {
+              title: t("customDrinks"),
+              drinks: favorites.filter((drink) => !isPopularDrink(drink)),
+            },
+          ].map((section) => (
+            <View key={section.title} className="gap-3">
+              <Heading>{section.title}</Heading>
+              {!section.drinks.length && <Note>{t("customDrinksEmpty")}</Note>}
+              {section.drinks.map((favorite) => (
+                <View key={favorite.id} className="flex-row items-center gap-3 py-2">
+                  <View className="flex-1 gap-1">
+                    <Text className="text-base font-medium text-foreground">
+                      {favorite.name || t(favorite.kind)}
+                    </Text>
+                    <Note>
+                      {volume(favorite.ml)}
+                      {favorite.caffeine > 0 ? ` · ${number(favorite.caffeine)} mg` : ""}
+                      {favorite.abv > 0 ? ` · ${number(favorite.abv)}%` : ""}
+                    </Note>
+                  </View>
+                  <Button
+                    variant="secondary"
+                    className={favoriteColorClasses[favoriteColor(favorite)].background}
+                    accessibilityLabel={`${t("editDrink")}: ${favorite.name || t(favorite.kind)}`}
+                    onPress={() => edit(favorite)}
+                  >
+                    <Button.Label
+                      className={favoriteColorClasses[favoriteColor(favorite)].foreground}
+                    >
+                      {t("editFavorite")}
+                    </Button.Label>
+                  </Button>
+                  <Switch
+                    accessibilityLabel={`${t("showOnHome")}: ${favorite.name || t(favorite.kind)}`}
+                    isSelected={favorite.showOnHome !== false}
+                    onSelectedChange={(showOnHome) =>
+                      persist(
+                        favorites.map((drink) =>
+                          drink.id === favorite.id ? { ...drink, showOnHome } : drink
+                        )
+                      )
+                    }
+                  />
+                </View>
+              ))}
+            </View>
+          ))}
+          <Note>{t("defaultsNote")}</Note>
           <Button
             onPress={() => edit({ id: randomUUID(), name: "", kind: "other", ...defaults.other })}
           >

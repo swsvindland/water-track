@@ -9,6 +9,7 @@ import {
   favoriteIntake,
   favoriteColor,
   favoriteColorClasses,
+  homeFavorites,
   type Favorite,
 } from "@/lib/favorites";
 import {
@@ -55,7 +56,7 @@ export default function Today() {
   const bac = estimateBac(active, settings.weightKg, settings.bodyWaterRatio, now);
   const showBac = bac !== null && bac > 0;
   const pageSize = 6;
-  const favorites = JSON.parse(settings.favorites) as Favorite[];
+  const favorites = homeFavorites(JSON.parse(settings.favorites) as Favorite[]);
   const pages = Math.max(1, Math.ceil(favorites.length / pageSize));
 
   const [error, setError] = useState("");

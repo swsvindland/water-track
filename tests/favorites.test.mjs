@@ -1,6 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { favoriteIntake, favoriteColor, favoriteColors } from "../src/lib/favorites.ts";
+import {
+  favoriteIntake,
+  favoriteColor,
+  favoriteColors,
+  drinkCatalog,
+  homeFavorites,
+  popularDrinks,
+} from "../src/lib/favorites.ts";
 
 const energy = { id: "monster", kind: "energy", name: "Monster", ml: 500, caffeine: 160, abv: 0 };
 test("quick logging scales caffeine to the selected serving and retains custom names", () => {
@@ -43,4 +50,34 @@ test("saved palette choices survive serialization and override drink defaults", 
     assert.equal(favoriteColor(saved), color);
     assert.deepEqual(favoriteIntake(saved, 250), favoriteIntake(energy, 250));
   }
+});
+
+test("catalog preserves legacy selections and recipes without restoring removed defaults", () => {
+  const customWater = { ...popularDrinks[0], ml: 600, color: "blue" };
+  const saved = [energy, customWater];
+  const catalog = drinkCatalog(saved);
+  assert.deepEqual(homeFavorites(catalog), saved);
+  assert.deepEqual(
+    catalog.find((drink) => drink.id === "water"),
+    customWater
+  );
+  assert.equal(new Set(catalog.map((drink) => drink.id)).size, catalog.length);
+  assert.deepEqual(homeFavorites(drinkCatalog([])), []);
+});
+
+test("visibility persists independently of recipes and can be enabled again", () => {
+  const catalog = drinkCatalog([energy]);
+  const hidden = catalog.map((drink) => ({ ...drink, showOnHome: false }));
+  const reopened = drinkCatalog(JSON.parse(JSON.stringify(hidden)));
+  assert.deepEqual(homeFavorites(reopened), []);
+  assert.deepEqual(
+    reopened.find((drink) => drink.id === energy.id),
+    { ...energy, showOnHome: false }
+  );
+  const enabled = reopened.map((drink) => ({ ...drink, showOnHome: drink.id === "tea" }));
+  assert.deepEqual(
+    homeFavorites(enabled).map((drink) => drink.id),
+    ["tea"]
+  );
+  assert.equal(favoriteIntake(homeFavorites(enabled)[0], 120).caffeineMg, 20);
 });
