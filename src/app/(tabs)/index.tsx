@@ -1,9 +1,16 @@
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useThemeColor } from "heroui-native";
 import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "expo-crypto";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences } from "@/db/schema";
-import { favoriteIntake, type Favorite } from "@/lib/favorites";
+import {
+  favoriteIntake,
+  favoriteColor,
+  favoriteColorClasses,
+  type Favorite,
+} from "@/lib/favorites";
 import {
   SystemButton as Button,
   SystemPanel,
@@ -12,11 +19,12 @@ import {
   SystemSlider,
 } from "@/components/system";
 import { router } from "expo-router";
-import { AccessibilityInfo, ScrollView, Text, View } from "react-native";
+import { AccessibilityInfo, Text, View } from "react-native";
 import { Heading, Note } from "@/components/ui";
 import { SafeAreaView as NativeSafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { useApp } from "@/lib/store";
+import { HomeCarousel } from "@/components/home-carousel";
 import { BacSummary } from "@/components/bac-summary";
 import { estimateBac, inDay, totals, OZ_ML } from "@/lib/metrics";
 
@@ -25,6 +33,7 @@ const SafeAreaView = withUniwind(NativeSafeAreaView);
 export default function Today() {
   const { rows, settings, now, t, number, volume, locale } = useApp();
   const db = useDatabase();
+  const foreground = useThemeColor("foreground");
   const savedMl = settings.quickMl ?? settings.defaultMl;
   const [draftMl, setDraftMl] = useState<number | null>(null);
   const selectedMl = draftMl ?? savedMl;
@@ -41,14 +50,14 @@ export default function Today() {
     ) * step
   );
   const [height, setHeight] = useState(650);
-  const [page, setPage] = useState(0);
+  const compact = height < 700;
   const active = rows.filter((d) => !d.deleted);
   const bac = estimateBac(active, settings.weightKg, settings.bodyWaterRatio, now);
   const showBac = bac !== null && bac > 0;
-  const pageSize = height < (showBac ? 630 : 550) ? 2 : 4;
+  const pageSize = 6;
   const favorites = JSON.parse(settings.favorites) as Favorite[];
   const pages = Math.max(1, Math.ceil(favorites.length / pageSize));
-  const currentPage = Math.min(page, pages - 1);
+
   const [error, setError] = useState("");
   const [last, setLast] = useState<{ id: string; label: string } | null>(null);
   function selectSize(ml: number) {
@@ -105,109 +114,121 @@ export default function Today() {
   const percent = Math.min(100, Math.floor((total.goalFluid / settings.goalMl) * 100));
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]} className="bg-background">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+      <View
+        className="flex-1 min-h-0"
         onLayout={(event) => setHeight(event.nativeEvent.layout.height)}
       >
-        <View className="w-full max-w-xl grow self-center gap-4 p-4">
-          <View className="flex-row flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <View
+          className={`w-full max-w-xl flex-1 min-h-0 self-center px-4 ${compact ? "gap-1 py-2" : "gap-3 py-4"}`}
+        >
+          <View className="flex-row flex-wrap items-center justify-between gap-3 border-b border-border pb-2">
             <Text
               accessibilityRole="header"
               className="text-3xl font-semibold tracking-tight text-foreground"
             >
               {t("today")}
             </Text>
-            <SystemLabel>
-              {new Date(now).toLocaleDateString(locale, { month: "short", day: "numeric" })}
-            </SystemLabel>
+            <View className="flex-row items-center gap-2">
+              <SystemLabel>
+                {new Date(now).toLocaleDateString(locale, { month: "short", day: "numeric" })}
+              </SystemLabel>
+              <Button
+                isIconOnly
+                variant="ghost"
+                accessibilityLabel={t("moreOptions")}
+                onPress={() =>
+                  router.push({ pathname: "/drink", params: { ml: String(selectedMl) } })
+                }
+              >
+                <Ionicons name="add-outline" size={24} color={foreground} />
+              </Button>
+            </View>
           </View>
-          <SystemPanel>
-            <SystemLabel>{t("goalProgress")}</SystemLabel>
-            <View className="flex-row items-center justify-between gap-2">
-              <View className="flex-1">
-                <SystemValue className="text-4xl font-medium">
-                  {volume(total.goalFluid)}
-                </SystemValue>
-                <Note>
-                  {t("goal")}: {volume(settings.goalMl)} · {number(percent)}%
-                </Note>
-              </View>
-              <Button variant="ghost" onPress={() => router.push("/today-details")}>
-                {t("details")}
-              </Button>
-            </View>
-            <View
-              accessibilityRole="progressbar"
-              accessibilityLabel={t("goalProgress")}
-              accessibilityValue={{ min: 0, max: 100, now: percent }}
-              className="h-1 overflow-hidden rounded-sm bg-surface-secondary"
-            >
-              <View className="h-full bg-accent" style={{ width: `${percent}%` }} />
-            </View>
-            <View className="flex-row flex-wrap justify-between gap-4 border-t border-border pt-4">
-              <View className="gap-1">
-                <SystemLabel>{t("caffeine")}</SystemLabel>
-                <SystemValue className="text-base">{number(total.caffeine)} mg</SystemValue>
-              </View>
-              <View className="gap-1">
-                <SystemLabel>{t("pureAlcohol")}</SystemLabel>
-                <SystemValue className="text-base">{number(total.alcohol, 1)} g</SystemValue>
-              </View>
-            </View>
-            {showBac && <BacSummary rows={active} now={now} bac={bac} />}
-          </SystemPanel>
-          <View className="flex-1 gap-2">
-            <View className="flex-row items-center justify-between gap-2">
-              <Heading>{t("quickAdd")}</Heading>
-              <Button variant="ghost" onPress={() => router.push("/favorites")}>
-                {t("manage")}
-              </Button>
-            </View>
-            <View className="flex-1 flex-row flex-wrap gap-2">
-              {favorites
-                .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-                .map((favorite) => (
-                  <Button
-                    key={favorite.id}
-                    variant="outline"
-                    className="h-auto min-h-24 items-start flex-col gap-2 bg-surface px-4 py-4"
-                    style={{ width: "48%", flexGrow: 1 }}
-                    accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
-                    onPress={() => log(favorite, Date.now())}
-                  >
-                    <Button.Label numberOfLines={2} className="text-base text-left text-foreground">
-                      {favorite.name || t(favorite.kind)}
-                    </Button.Label>
-                    <SystemValue className="text-sm text-muted">{volume(selectedMl)}</SystemValue>
-                  </Button>
-                ))}
-              {!favorites.length && <Note>{t("favoriteEmpty")}</Note>}
-            </View>
-            {pages > 1 && (
-              <View className="flex-row items-center justify-between">
-                <Button
-                  variant="ghost"
-                  isDisabled={currentPage === 0}
-                  onPress={() => setPage(currentPage - 1)}
-                >
-                  {t("previousPicks")}
-                </Button>
-                <Note>
-                  {number(currentPage + 1)} / {number(pages)}
-                </Note>
-                <Button
-                  variant="ghost"
-                  isDisabled={currentPage === pages - 1}
-                  onPress={() => setPage(currentPage + 1)}
-                >
-                  {t("nextPicks")}
+          <HomeCarousel label={t("goalProgress")}>
+            <SystemPanel className={compact ? "gap-2 p-3" : "gap-3"}>
+              <SystemLabel>{t("goalProgress")}</SystemLabel>
+              <View className="flex-row items-center justify-between gap-2">
+                <View className="flex-1">
+                  <SystemValue className="text-4xl font-medium">
+                    {volume(total.goalFluid)}
+                  </SystemValue>
+                  <Note>
+                    {t("goal")}: {volume(settings.goalMl)} · {number(percent)}%
+                  </Note>
+                </View>
+                <Button variant="ghost" onPress={() => router.push("/today-details")}>
+                  {t("details")}
                 </Button>
               </View>
+              <View
+                accessibilityRole="progressbar"
+                accessibilityLabel={t("goalProgress")}
+                accessibilityValue={{ min: 0, max: 100, now: percent }}
+                className="h-1 overflow-hidden rounded-sm bg-surface-secondary"
+              >
+                <View className="h-full bg-accent" style={{ width: `${percent}%` }} />
+              </View>
+              <View className="flex-row flex-wrap justify-between gap-4 border-t border-border pt-2">
+                <View className="gap-1">
+                  <SystemLabel>{t("caffeine")}</SystemLabel>
+                  <SystemValue className="text-base">{number(total.caffeine)} mg</SystemValue>
+                </View>
+                <View className="gap-1">
+                  <SystemLabel>{t("pureAlcohol")}</SystemLabel>
+                  <SystemValue className="text-base">{number(total.alcohol, 1)} g</SystemValue>
+                </View>
+              </View>
+            </SystemPanel>
+            {showBac && (
+              <SystemPanel className="flex-1 justify-center">
+                <BacSummary rows={active} now={now} bac={bac} />
+              </SystemPanel>
             )}
+          </HomeCarousel>
+          <View className="flex-1 min-h-0 gap-1">
+            <HomeCarousel label={t("favorites")} fill>
+              {Array.from({ length: pages }, (_, pageIndex) => (
+                <View key={pageIndex} className="flex-1 gap-2">
+                  {[0, 1, 2].map((rowIndex) => (
+                    <View key={rowIndex} className="flex-1 flex-row gap-2">
+                      {favorites
+                        .slice(
+                          pageIndex * pageSize + rowIndex * 2,
+                          pageIndex * pageSize + rowIndex * 2 + 2
+                        )
+                        .map((favorite) => (
+                          <Button
+                            key={favorite.id}
+                            variant="secondary"
+                            className={`h-auto min-h-12 flex-1 flex-row items-center justify-between gap-2 px-3 py-2 ${favoriteColorClasses[favoriteColor(favorite)].background}`}
+                            accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
+                            onPress={() => log(favorite, Date.now())}
+                          >
+                            <Button.Label
+                              numberOfLines={2}
+                              className={`flex-1 text-base font-semibold text-left ${favoriteColorClasses[favoriteColor(favorite)].foreground}`}
+                            >
+                              {favorite.name || t(favorite.kind)}
+                            </Button.Label>
+                            <Ionicons
+                              name="add-circle-outline"
+                              size={22}
+                              color={foreground}
+                              accessible={false}
+                            />
+                          </Button>
+                        ))}
+                      {favorites.length === pageIndex * pageSize + rowIndex * 2 + 1 && (
+                        <View className="flex-1" />
+                      )}
+                    </View>
+                  ))}
+                  {!favorites.length && <Note>{t("favoriteEmpty")}</Note>}
+                </View>
+              ))}
+            </HomeCarousel>
           </View>
-          <SystemPanel>
+          <SystemPanel className="gap-0 px-3 py-2">
             <View className="flex-row items-center justify-between gap-2">
               <Heading>{t("size")}</Heading>
               <SystemValue className="text-xl font-medium">{volume(selectedMl)}</SystemValue>
@@ -226,33 +247,25 @@ export default function Today() {
                 selectSize((typeof value === "number" ? value : value[0]) * factor)
               }
             />
-            <View className="flex-row justify-between">
-              <Note>{volume(Math.min(step * factor, savedMl))}</Note>
-              <Note>{volume(maxSize * factor)}</Note>
-            </View>
           </SystemPanel>
-          <View className="min-h-11 flex-row items-center justify-between gap-2">
-            <Text
-              accessibilityRole={error ? "alert" : undefined}
-              numberOfLines={2}
-              className={`flex-1 text-sm ${error ? "text-danger" : "text-muted"}`}
-            >
-              {error || last?.label || t("sizeHint")}
-            </Text>
-            {last && (
-              <Button variant="ghost" onPress={undo}>
-                {t("undo")}
-              </Button>
-            )}
-          </View>
-          <Button
-            variant="outline"
-            onPress={() => router.push({ pathname: "/drink", params: { ml: String(selectedMl) } })}
-          >
-            {t("moreOptions")}
-          </Button>
+          {(error || last) && (
+            <View className="min-h-11 flex-row items-center justify-between gap-2">
+              <Text
+                accessibilityRole={error ? "alert" : undefined}
+                numberOfLines={2}
+                className={`flex-1 text-sm ${error ? "text-danger" : "text-muted"}`}
+              >
+                {error || last?.label}
+              </Text>
+              {last && (
+                <Button variant="ghost" onPress={undo}>
+                  {t("undo")}
+                </Button>
+              )}
+            </View>
+          )}
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

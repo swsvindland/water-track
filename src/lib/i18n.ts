@@ -1,4 +1,20 @@
 const en = {
+  blue: "Blue",
+  teal: "Teal",
+  olive: "Olive",
+  terracotta: "Terracotta",
+  plum: "Plum",
+
+  favoriteButtonColor: "Button color",
+  automaticColor: "Automatic",
+  cyan: "Cyan",
+  brown: "Brown",
+  sage: "Sage",
+  amber: "Amber",
+  violet: "Violet",
+  rose: "Rose",
+  slate: "Slate",
+
   bacTrend: "Estimated BAC over the last 6 hours",
   sixHoursAgo: "6h ago",
   now: "Now",
@@ -130,6 +146,22 @@ const en = {
   notFound: "This drink is no longer available.",
 };
 const es: typeof en = {
+  blue: "Azul",
+  teal: "Verde azulado",
+  olive: "Oliva",
+  terracotta: "Terracota",
+  plum: "Ciruela",
+
+  favoriteButtonColor: "Color del botón",
+  automaticColor: "Automático",
+  cyan: "Cian",
+  brown: "Marrón",
+  sage: "Salvia",
+  amber: "Ámbar",
+  violet: "Violeta",
+  rose: "Rosa",
+  slate: "Pizarra",
+
   bacTrend: "Alcoholemia estimada en las últimas 6 horas",
   sixHoursAgo: "Hace 6 h",
   now: "Ahora",

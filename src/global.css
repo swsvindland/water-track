@@ -33,6 +33,32 @@
 }
 
 @theme inline {
+  --color-favorite-blue: var(--favorite-blue);
+  --color-favorite-blue-foreground: var(--favorite-blue-foreground);
+  --color-favorite-teal: var(--favorite-teal);
+  --color-favorite-teal-foreground: var(--favorite-teal-foreground);
+  --color-favorite-olive: var(--favorite-olive);
+  --color-favorite-olive-foreground: var(--favorite-olive-foreground);
+  --color-favorite-terracotta: var(--favorite-terracotta);
+  --color-favorite-terracotta-foreground: var(--favorite-terracotta-foreground);
+  --color-favorite-plum: var(--favorite-plum);
+  --color-favorite-plum-foreground: var(--favorite-plum-foreground);
+
+  --color-favorite-cyan: var(--favorite-cyan);
+  --color-favorite-cyan-foreground: var(--favorite-cyan-foreground);
+  --color-favorite-brown: var(--favorite-brown);
+  --color-favorite-brown-foreground: var(--favorite-brown-foreground);
+  --color-favorite-sage: var(--favorite-sage);
+  --color-favorite-sage-foreground: var(--favorite-sage-foreground);
+  --color-favorite-amber: var(--favorite-amber);
+  --color-favorite-amber-foreground: var(--favorite-amber-foreground);
+  --color-favorite-violet: var(--favorite-violet);
+  --color-favorite-violet-foreground: var(--favorite-violet-foreground);
+  --color-favorite-rose: var(--favorite-rose);
+  --color-favorite-rose-foreground: var(--favorite-rose-foreground);
+  --color-favorite-slate: var(--favorite-slate);
+  --color-favorite-slate-foreground: var(--favorite-slate-foreground);
+
   --color-accent-soft: var(--accent-soft);
   --color-accent-soft-foreground: var(--accent-soft-foreground);
   --color-danger-soft: var(--danger-soft);
@@ -47,6 +73,33 @@
 @layer theme {
   :root {
     @variant light {
+      --favorite-blue: #edf3fb;
+      --favorite-blue-foreground: #395d8a;
+      --favorite-teal: #eaf5f2;
+      --favorite-teal-foreground: #31695f;
+      --favorite-olive: #f2f3e8;
+      --favorite-olive-foreground: #626732;
+      --favorite-terracotta: #faefe8;
+      --favorite-terracotta-foreground: #8a5136;
+      --favorite-plum: #f5edf5;
+      --favorite-plum-foreground: #7b4b79;
+
+      /* Restrained favorite tints; independent of status colors. */
+      --favorite-cyan: #ecfeff;
+      --favorite-cyan-foreground: #00788d;
+      --favorite-brown: #f4eee9;
+      --favorite-brown-foreground: #725039;
+      --favorite-sage: #edf4ee;
+      --favorite-sage-foreground: #46634a;
+      --favorite-amber: #faf2e3;
+      --favorite-amber-foreground: #7b5a20;
+      --favorite-violet: #f1eef8;
+      --favorite-violet-foreground: #65518a;
+      --favorite-rose: #f8edf0;
+      --favorite-rose-foreground: #8a4c61;
+      --favorite-slate: #eef2f5;
+      --favorite-slate-foreground: #4e606f;
+
       --background: #ffffff;
       --foreground: #15212b;
       --surface: #ffffff;
@@ -92,6 +145,33 @@
       --overlay-shadow: 0 16px 48px rgba(20, 40, 50, 0.14);
     }
     @variant dark {
+      --favorite-blue: #192638;
+      --favorite-blue-foreground: #a7c3e8;
+      --favorite-teal: #172e2b;
+      --favorite-teal-foreground: #95cec1;
+      --favorite-olive: #292c1c;
+      --favorite-olive-foreground: #c3c98e;
+      --favorite-terracotta: #33241e;
+      --favorite-terracotta-foreground: #e1b198;
+      --favorite-plum: #2d2030;
+      --favorite-plum-foreground: #d2acd1;
+
+      /* Restrained favorite tints; independent of status colors. */
+      --favorite-cyan: #0c2c35;
+      --favorite-cyan-foreground: #67d6e7;
+      --favorite-brown: #29211e;
+      --favorite-brown-foreground: #d6b397;
+      --favorite-sage: #1b2a24;
+      --favorite-sage-foreground: #a5c6aa;
+      --favorite-amber: #2c261b;
+      --favorite-amber-foreground: #dfc083;
+      --favorite-violet: #252236;
+      --favorite-violet-foreground: #bfb0e0;
+      --favorite-rose: #30212a;
+      --favorite-rose-foreground: #dfa8bb;
+      --favorite-slate: #172630;
+      --favorite-slate-foreground: #b0c3d0;
+
       --background: #071017;
       --foreground: #f3f6f7;
       --surface: #0d171e;

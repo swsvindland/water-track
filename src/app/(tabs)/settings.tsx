@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import { Button, Card } from "heroui-native";
 import { View } from "react-native";
 import { eq } from "drizzle-orm";
@@ -114,6 +115,9 @@ export default function Settings() {
   }
   return (
     <Screen title={t("settings")} subtitle={t("preferencesNote")}>
+      <Button variant="outline" onPress={() => router.push("/favorites")}>
+        {t("manage")}
+      </Button>
       <View className="gap-3">
         <Heading>{t("language")}</Heading>
         <Choices

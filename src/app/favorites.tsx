@@ -9,7 +9,13 @@ import { useDatabase } from "@/db/provider";
 import { preferences } from "@/db/schema";
 import { useApp } from "@/lib/store";
 import { defaults, kinds, OZ_ML, parseNumber, type DrinkKind } from "@/lib/metrics";
-import type { Favorite } from "@/lib/favorites";
+import {
+  favoriteColor,
+  favoriteColorClasses,
+  favoriteColors,
+  type Favorite,
+  type FavoriteColor,
+} from "@/lib/favorites";
 
 export default function Favorites() {
   const { settings, t } = useApp();
@@ -17,6 +23,7 @@ export default function Favorites() {
   const favorites = JSON.parse(settings.favorites) as Favorite[];
   const factor = settings.units === "us" ? OZ_ML : 1;
   const [editing, setEditing] = useState<Favorite | null>(null);
+  const [color, setColor] = useState<FavoriteColor | undefined>();
   const [name, setName] = useState("");
   const [kind, setKind] = useState<DrinkKind>("water");
   const [amount, setAmount] = useState("");
@@ -25,6 +32,7 @@ export default function Favorites() {
   const [error, setError] = useState("");
   function edit(favorite: Favorite) {
     setEditing(favorite);
+    setColor(favorite.color);
     setName(favorite.name || t(favorite.kind));
     setKind(favorite.kind);
     setAmount(String(Number((favorite.ml / factor).toFixed(2))));
@@ -65,6 +73,7 @@ export default function Favorites() {
       id: editing!.id,
       name: name.trim(),
       kind,
+      color,
       ml,
       caffeine: mg,
       abv: strength,
@@ -91,6 +100,29 @@ export default function Favorites() {
               setAbv(String(defaults[value].abv));
             }}
           />
+          <Heading>{t("favoriteButtonColor")}</Heading>
+          <View className="flex-row flex-wrap gap-2">
+            <Button
+              variant="outline"
+              accessibilityState={{ selected: color === undefined }}
+              onPress={() => setColor(undefined)}
+            >
+              {`${color === undefined ? "✓ " : ""}${t("automaticColor")}`}
+            </Button>
+            {favoriteColors.map((option) => (
+              <Button
+                key={option}
+                variant="secondary"
+                className={favoriteColorClasses[option].background}
+                accessibilityState={{ selected: color === option }}
+                onPress={() => setColor(option)}
+              >
+                <Button.Label className={favoriteColorClasses[option].foreground}>
+                  {`${color === option ? "✓ " : ""}${t(option)}`}
+                </Button.Label>
+              </Button>
+            ))}
+          </View>
           <Field
             label={`${t("referenceSize")} (${settings.units === "us" ? "fl oz" : "mL"})`}
             value={amount}
@@ -128,8 +160,15 @@ export default function Favorites() {
         <>
           <View className="gap-3">
             {favorites.map((favorite) => (
-              <Button key={favorite.id} variant="outline" onPress={() => edit(favorite)}>
-                {favorite.name || t(favorite.kind)}
+              <Button
+                key={favorite.id}
+                variant="secondary"
+                className={favoriteColorClasses[favoriteColor(favorite)].background}
+                onPress={() => edit(favorite)}
+              >
+                <Button.Label className={favoriteColorClasses[favoriteColor(favorite)].foreground}>
+                  {favorite.name || t(favorite.kind)}
+                </Button.Label>
               </Button>
             ))}
           </View>
