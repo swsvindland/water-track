@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useThemeColor } from "heroui-native";
+import { useThemeColor, useToast } from "heroui-native";
 import { eq, sql } from "drizzle-orm";
 import { randomUUID } from "expo-crypto";
 import { useDatabase } from "@/db/provider";
@@ -34,6 +34,7 @@ const SafeAreaView = withUniwind(NativeSafeAreaView);
 export default function Today() {
   const { rows, settings, now, t, number, volume, locale } = useApp();
   const db = useDatabase();
+  const { toast } = useToast();
   const foreground = useThemeColor("foreground");
   const savedMl = settings.quickMl ?? settings.defaultMl;
   const [draftMl, setDraftMl] = useState<number | null>(null);
@@ -60,7 +61,6 @@ export default function Today() {
   const pages = Math.max(1, Math.ceil(favorites.length / pageSize));
 
   const [error, setError] = useState("");
-  const [last, setLast] = useState<{ id: string; label: string } | null>(null);
   function selectSize(ml: number) {
     if (!Number.isFinite(ml) || ml < 1 || ml > 5000) {
       setError(t("invalidSize"));
@@ -89,25 +89,34 @@ export default function Today() {
         .values({ ...intake, id, consumedAt: timestamp, updatedAt: timestamp })
         .run();
       const label = `${t("logged")} · ${volume(selectedMl)} ${favorite.name || t(favorite.kind)}`;
-      setLast({ id, label });
+      toast.show({
+        id,
+        variant: "default",
+        label,
+        duration: 6000,
+        actionLabel: t("undo"),
+        onActionPress: ({ hide }) => {
+          if (undo(id, Date.now())) hide(id);
+        },
+      });
       setError("");
       AccessibilityInfo.announceForAccessibility(label);
     } catch {
       setError(t("saveError"));
     }
   }
-  function undo() {
-    if (!last) return;
+  function undo(id: string, timestamp: number) {
     try {
       db.update(drinks)
-        .set({ deleted: true, revision: sql`${drinks.revision} + 1`, updatedAt: Date.now() })
-        .where(eq(drinks.id, last.id))
+        .set({ deleted: true, revision: sql`${drinks.revision} + 1`, updatedAt: timestamp })
+        .where(eq(drinks.id, id))
         .run();
-      setLast(null);
       setError("");
       AccessibilityInfo.announceForAccessibility(t("undone"));
+      return true;
     } catch {
       setError(t("saveError"));
+      return false;
     }
   }
   const today = active.filter((d) => inDay(d.consumedAt, now));
@@ -249,20 +258,15 @@ export default function Today() {
               }
             />
           </SystemPanel>
-          {(error || last) && (
+          {!!error && (
             <View className="min-h-11 flex-row items-center justify-between gap-2">
               <Text
-                accessibilityRole={error ? "alert" : undefined}
+                accessibilityRole="alert"
                 numberOfLines={2}
-                className={`flex-1 text-sm ${error ? "text-danger" : "text-muted"}`}
+                className="flex-1 text-sm text-danger"
               >
-                {error || last?.label}
+                {error}
               </Text>
-              {last && (
-                <Button variant="ghost" onPress={undo}>
-                  {t("undo")}
-                </Button>
-              )}
             </View>
           )}
         </View>
