@@ -163,7 +163,12 @@ export default function Favorites() {
         <>
           <Note>{t("favoritesVisibilityHint")}</Note>
           {[
-            { title: t("popularDrinks"), drinks: favorites.filter(isPopularDrink) },
+            ...kinds
+              .map((kind) => ({
+                title: t(kind),
+                drinks: favorites.filter((drink) => isPopularDrink(drink) && drink.kind === kind),
+              }))
+              .filter((section) => section.drinks.length > 0),
             {
               title: t("customDrinks"),
               drinks: favorites.filter((drink) => !isPopularDrink(drink)),

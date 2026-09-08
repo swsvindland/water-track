@@ -2,17 +2,21 @@ export const OZ_ML = 29.5735295625;
 export const LB_KG = 0.45359237;
 export const kinds = [
   "water",
+  "juice",
+  "energy",
   "coffee",
   "tea",
-  "preworkout",
-  "energy",
+  "milk",
   "alcohol",
+  "preworkout",
   "other",
 ] as const;
 export type DrinkKind = (typeof kinds)[number];
 export const defaults: Record<DrinkKind, { ml: number; caffeine: number; abv: number }> = {
   other: { ml: 250, caffeine: 0, abv: 0 },
   water: { ml: 250, caffeine: 0, abv: 0 },
+  juice: { ml: 240, caffeine: 0, abv: 0 },
+  milk: { ml: 240, caffeine: 0, abv: 0 },
   coffee: { ml: 240, caffeine: 95, abv: 0 },
   tea: { ml: 240, caffeine: 40, abv: 0 },
   preworkout: { ml: 300, caffeine: 200, abv: 0 },

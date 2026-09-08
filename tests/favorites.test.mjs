@@ -81,3 +81,35 @@ test("visibility persists independently of recipes and can be enabled again", ()
   );
   assert.equal(favoriteIntake(homeFavorites(enabled)[0], 120).caffeineMg, 20);
 });
+
+test("expanded presets have unique IDs and valid recipes for every drink group", () => {
+  assert.equal(new Set(popularDrinks.map((drink) => drink.id)).size, popularDrinks.length);
+  for (const kind of [
+    "water",
+    "juice",
+    "energy",
+    "coffee",
+    "tea",
+    "milk",
+    "alcohol",
+    "preworkout",
+  ]) {
+    assert.ok(
+      popularDrinks.some((drink) => drink.kind === kind),
+      kind
+    );
+  }
+  for (const drink of popularDrinks) {
+    const intake = favoriteIntake(drink, drink.ml);
+    assert.equal(intake.caffeineMg, drink.caffeine);
+    assert.ok(drink.abv >= 0 && drink.abv <= 100);
+    if (drink.kind !== "alcohol") assert.equal(drink.abv, 0);
+  }
+});
+
+test("branded caffeine and spirit strength survive serving changes", () => {
+  const redBull = popularDrinks.find((drink) => drink.id === "red-bull-original");
+  assert.equal(favoriteIntake(redBull, 500).caffeineMg, 160);
+  const whiskey = popularDrinks.find((drink) => drink.id === "whiskey");
+  assert.equal(favoriteIntake(whiskey, 88).abv, 40);
+});

@@ -10,6 +10,8 @@ import { Note } from "./ui";
 export const icons: Record<DrinkKind, ComponentProps<typeof Ionicons>["name"]> = {
   other: "beaker-outline",
   water: "water-outline",
+  juice: "nutrition-outline",
+  milk: "cafe-outline",
   coffee: "cafe-outline",
   tea: "leaf-outline",
   preworkout: "barbell-outline",
