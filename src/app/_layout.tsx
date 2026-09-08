@@ -20,6 +20,8 @@ export default function RootLayout(): JSX.Element {
           <AppProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="today-details" options={{ presentation: "modal" }} />
+              <Stack.Screen name="favorites" options={{ presentation: "modal" }} />
               <Stack.Screen name="drink" options={{ presentation: "modal" }} />
             </Stack>
           </AppProvider>

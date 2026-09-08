@@ -16,6 +16,7 @@ export const counters = sqliteTable(
 export const drinks = sqliteTable("drinks", {
   id: text("id").primaryKey(),
   kind: text("kind").notNull(),
+  name: text("name"),
   volumeMl: real("volume_ml").notNull(),
   caffeineMg: real("caffeine_mg").notNull().default(0),
   abv: real("abv").notNull().default(0),
@@ -33,6 +34,12 @@ export const preferences = sqliteTable("preferences", {
   goalMl: real("goal_ml").notNull().default(2500),
   defaultMl: real("default_ml").notNull().default(250),
   presets: text("presets").notNull(),
+  quickMl: real("quick_ml"),
+  favorites: text("favorites")
+    .notNull()
+    .default(
+      '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},{"id":"energy","kind":"energy","name":"","ml":473,"caffeine":160,"abv":0},{"id":"coffee","kind":"coffee","name":"","ml":240,"caffeine":95,"abv":0},{"id":"tea","kind":"tea","name":"","ml":240,"caffeine":40,"abv":0}]'
+    ),
   weightKg: real("weight_kg"),
   bodyWaterRatio: real("body_water_ratio"),
   healthEnabled: integer("health_enabled", { mode: "boolean" }).notNull().default(false),

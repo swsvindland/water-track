@@ -1,8 +1,17 @@
 export const OZ_ML = 29.5735295625;
 export const LB_KG = 0.45359237;
-export const kinds = ["water", "coffee", "tea", "preworkout", "energy", "alcohol"] as const;
+export const kinds = [
+  "water",
+  "coffee",
+  "tea",
+  "preworkout",
+  "energy",
+  "alcohol",
+  "other",
+] as const;
 export type DrinkKind = (typeof kinds)[number];
 export const defaults: Record<DrinkKind, { ml: number; caffeine: number; abv: number }> = {
+  other: { ml: 250, caffeine: 0, abv: 0 },
   water: { ml: 250, caffeine: 0, abv: 0 },
   coffee: { ml: 240, caffeine: 95, abv: 0 },
   tea: { ml: 240, caffeine: 40, abv: 0 },
@@ -56,6 +65,38 @@ export function estimateBac(
     previous = d.consumedAt;
   }
   return Math.max(0, bac - ((now - previous) / 3600000) * 0.015);
+}
+
+// A six-hour history with exact drink events and zero crossings, including
+// alcohol carried over from before the visible window.
+export function bacHistory(
+  rows: Intake[],
+  weightKg: number | null,
+  ratio: number | null,
+  now: number
+) {
+  const start = now - 6 * 3600000;
+  const initial = estimateBac(rows, weightKg, ratio, start);
+  if (initial === null || !weightKg || !ratio) return [];
+  let bac = initial;
+  const points = [{ time: start, value: bac }];
+  let previous = start;
+  function advance(time: number) {
+    const zeroAt = previous + (bac / 0.015) * 3600000;
+    if (bac > 0 && zeroAt < time) points.push({ time: zeroAt, value: 0 });
+    bac = Math.max(0, bac - ((time - previous) / 3600000) * 0.015);
+    points.push({ time, value: bac });
+    previous = time;
+  }
+  for (const drink of rows
+    .filter((d) => d.abv > 0 && d.consumedAt > start && d.consumedAt <= now)
+    .sort((a, b) => a.consumedAt - b.consumedAt)) {
+    advance(drink.consumedAt);
+    bac += (alcoholGrams(drink) / (weightKg * 1000 * ratio)) * 100;
+    points.push({ time: drink.consumedAt, value: bac });
+  }
+  advance(now);
+  return points;
 }
 export function parseNumber(value: string) {
   if (!/^\d+(?:[.,]\d+)?$/.test(value.trim())) return NaN;

@@ -1,0 +1,3 @@
+ALTER TABLE `drinks` ADD `name` text;--> statement-breakpoint
+ALTER TABLE `preferences` ADD `quick_ml` real;--> statement-breakpoint
+ALTER TABLE `preferences` ADD `favorites` text DEFAULT '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},{"id":"energy","kind":"energy","name":"","ml":473,"caffeine":160,"abv":0},{"id":"coffee","kind":"coffee","name":"","ml":240,"caffeine":95,"abv":0},{"id":"tea","kind":"tea","name":"","ml":240,"caffeine":40,"abv":0}]' NOT NULL;

@@ -32,3 +32,27 @@ test("migrations preserve the legacy counter and support drink revisions and tom
   );
   db.close();
 });
+
+test("quick logging migration preserves records and persists favorites and selected size", () => {
+  const db = new DatabaseSync(":memory:");
+  for (const file of ["0000_fresh_doctor_faustus", "0001_serious_vin_gonzales"]) {
+    db.exec(readFileSync(new URL(`../drizzle/${file}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(`INSERT INTO preferences (id,language,units,presets) VALUES (1,'en','metric','[250,500]');
+    INSERT INTO drinks (id,kind,volume_ml,consumed_at,updated_at) VALUES ('old','water',250,1000,1000);`);
+  db.exec(readFileSync(new URL("../drizzle/0002_past_jane_foster.sql", import.meta.url), "utf8"));
+  const prefs = db.prepare("SELECT * FROM preferences").get();
+  assert.equal(prefs.quick_ml, null);
+  assert.equal(prefs.default_ml, 250);
+  assert.equal(JSON.parse(prefs.favorites).length, 4);
+  assert.equal(db.prepare("SELECT volume_ml FROM drinks WHERE id='old'").get().volume_ml, 250);
+  db.exec("UPDATE preferences SET quick_ml=500 WHERE id=1");
+  db.exec(`INSERT INTO drinks (id,kind,name,volume_ml,caffeine_mg,consumed_at,updated_at)
+    VALUES ('quick','energy','Monster',500,169.13,2000,2000)`);
+  assert.equal(db.prepare("SELECT quick_ml FROM preferences").get().quick_ml, 500);
+  assert.equal(db.prepare("SELECT name FROM drinks WHERE id='quick'").get().name, "Monster");
+  db.exec("UPDATE drinks SET deleted=1,revision=revision+1 WHERE id='quick'");
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM drinks WHERE deleted=0").get().n, 1);
+  assert.equal(db.prepare("SELECT quick_ml FROM preferences").get().quick_ml, 500);
+  db.close();
+});

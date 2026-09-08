@@ -34,6 +34,7 @@ export default function DrinkEditor() {
       )
     )
   );
+  const [name, setName] = useState(existing?.name ?? "");
   const [caffeine, setCaffeine] = useState(String(existing?.caffeineMg ?? 0));
   const [abv, setAbv] = useState(String(existing?.abv ?? 0));
   const [when, setWhen] = useState(() => localDateTime(existing?.consumedAt ?? Date.now()));
@@ -70,6 +71,7 @@ export default function DrinkEditor() {
     try {
       const values = {
         kind,
+        name: name.trim() || null,
         volumeMl,
         caffeineMg,
         abv: strength,
@@ -120,6 +122,13 @@ export default function DrinkEditor() {
     );
   return (
     <Screen title={t(existing ? "editDrink" : "addDrink")}>
+      <Field
+        label={t("drinkName")}
+        value={name}
+        onChangeText={setName}
+        maxLength={60}
+        placeholder={t(kind)}
+      />
       <Choices
         value={kind}
         options={kinds.map((value) => ({ value, label: t(value) }))}

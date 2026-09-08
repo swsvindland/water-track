@@ -25,10 +25,16 @@ export function AppProvider({ children }: PropsWithChildren) {
   const settings = prefs.data[0];
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 30000);
+    let timer: ReturnType<typeof setInterval> | undefined;
+    function startClock() {
+      setNow(Date.now());
+      timer = setInterval(() => setNow(Date.now()), 1000);
+    }
+    if (AppState.currentState === "active" || AppState.currentState === null) startClock();
     const subscription = AppState.addEventListener("change", (state) => {
+      clearInterval(timer);
       if (state === "active") {
-        setNow(Date.now());
+        startClock();
         void syncHealth().catch(() => {});
       }
     });
