@@ -11,7 +11,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.14",
@@ -20,12 +22,14 @@
     "@internationalized/date": "^3.12.4",
     "@internationalized/number": "^3.6.8",
     "@shopify/react-native-skia": "^2.11.2",
+    "drizzle-orm": "^0.45.2",
     "expo": "~57.0.18",
     "expo-constants": "~57.0.16",
     "expo-font": "~57.0.2",
     "expo-linking": "~57.0.8",
     "expo-router": "~57.0.17",
     "expo-splash-screen": "~57.0.8",
+    "expo-sqlite": "~57.0.2",
     "expo-status-bar": "~57.0.1",
     "heroui-native": "^1.0.9",
     "heroui-native-pro": "1.0.0-beta.10",
@@ -48,9 +52,15 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.15",
+    "babel-plugin-inline-import": "^3.0.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
     "eslint-config-expo": "~57.0.2",
     "prettier": "^3.8.3",
     "typescript": "~6.0.3"
+  },
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

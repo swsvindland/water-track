@@ -1,46 +1,41 @@
-# Welcome to your HeroUI Native app 👋
+# Water Track
 
-This is an [Expo](https://expo.dev) project preconfigured with
-[HeroUI Native](https://heroui.com/docs/native), [Uniwind](https://docs.uniwind.dev)
-(Tailwind CSS for React Native), and [Expo Router](https://docs.expo.dev/router/introduction)
-with a bottom-tab layout.
+A local-only Expo app for iOS and Android. Data is stored in `water-track.db` on the device using expo-sqlite and Drizzle ORM. No account, API, server, or cloud sync is needed.
 
-## Get started
+## Run
 
-1. Install dependencies
+Use Node.js 22.13+ (Node 24 LTS recommended) and pnpm 11.18.0.
 
-   ```bash
-   npm install
-   ```
+```sh
+pnpm install
+pnpm start --clear
+```
 
-2. Start the app
+Open in Expo Go on a compatible device, or use `pnpm ios` / `pnpm android` with a simulator. Restart Metro with `--clear` after changing Babel or migration bundling configuration. This setup targets native platforms; browser SQLite support is not configured.
 
-   ```bash
-   npx expo start
-   ```
+## Test persistence
 
-In the output, you'll find options to open the app in a
+1. On Home, tap **Add a glass** several times.
+2. Fully close and reopen the app. The count should remain.
+3. Try **Remove one** and **Reset**, then reopen again. The count cannot go below zero.
+4. An installed standalone build can run offline. Expo Go development still needs access to Metro to load the app bundle.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+The counter is a simple all-time total, not a daily log. Uninstalling the app or clearing its storage removes the local database. There is no application-level backup or sync.
 
-You can start developing by editing the files inside the **src/app** directory. The tabs themselves live under `src/app/(tabs)/`. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Database changes
 
-## What's preconfigured
+Edit `src/db/schema.ts`, then run:
 
-- **HeroUI Native** (`heroui-native`) wrapped in `HeroUINativeProvider` and `GestureHandlerRootView` in `src/app/_layout.tsx`
-- **Uniwind** + **Tailwind CSS** wired through `metro.config.js` and `src/global.css`
-- All HeroUI Native mandatory peer dependencies: `react-native-reanimated`, `react-native-gesture-handler`, `react-native-worklets`, `react-native-safe-area-context`, `react-native-svg`, `react-native-screens`
-- `@gorhom/bottom-sheet` for bottom-sheet UIs
-- `@expo/vector-icons` (Ionicons) for tab bar icons
-- TypeScript with `strict: true` and `@/*` path alias to `./src/*`
-- React Compiler enabled
+```sh
+pnpm db:generate
+pnpm db:check
+```
 
-## Learn more
+Commit the generated `drizzle/` directory, including SQL, snapshots, journal, and `migrations.js`. Drizzle Kit generates migrations during development; the app applies pending migrations on startup before rendering its screens. The initial counter is inserted only if missing, so reopening the app does not reset it. Failed initialization goes to the router error boundary.
 
-- [HeroUI Native components](https://heroui.com/docs/native) — full component reference
-- [Expo documentation](https://docs.expo.dev/) — Expo fundamentals and guides
-- [Uniwind documentation](https://docs.uniwind.dev) — Tailwind for React Native
-- [Expo Router](https://docs.expo.dev/router/introduction) — file-based routing
+`src/db/provider.tsx` owns the SQLite connection and exposes `useDatabase()`. SQLite change notifications drive Drizzle live queries. Counter updates use SQL arithmetic to avoid losing rapid taps. Babel inlines migration SQL and Metro recognizes `.sql` files. `pnpm-workspace.yaml` allows esbuild's install scripts for Drizzle Kit.
+
+```sh
+pnpm typecheck
+pnpm lint
+```
