@@ -21,10 +21,12 @@ export function validHealthWeight(kg: number, measuredAt: number, now = Date.now
 }
 
 export function bacWeight(settings: {
+  bacEnabled: boolean;
   healthEnabled: boolean;
   healthWeightKg: number | null;
   weightKg: number | null;
 }) {
+  if (!settings.bacEnabled) return null;
   return (settings.healthEnabled ? settings.healthWeightKg : null) ?? settings.weightKg;
 }
 

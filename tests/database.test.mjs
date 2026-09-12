@@ -109,3 +109,78 @@ test("expanded health migration preserves manual weight and queues existing drin
   assert.equal(record.synced_revision, 0);
   db.close();
 });
+
+test("removing quick-size presets preserves other preferences and drink history", () => {
+  const db = new DatabaseSync(":memory:");
+  const journal = JSON.parse(
+    readFileSync(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8")
+  );
+  for (const entry of journal.entries.filter((entry) => entry.idx < 5)) {
+    db.exec(readFileSync(new URL(`../drizzle/${entry.tag}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(`INSERT INTO preferences
+    (id,language,units,presets,quick_ml,weight_kg,body_water_ratio)
+    VALUES (1,'en','metric','[250,500]',500,80,0.68);
+    INSERT INTO drinks (id,kind,volume_ml,consumed_at,updated_at)
+    VALUES ('existing','water',250,1000,1000)`);
+  const before = db.prepare("SELECT * FROM preferences").get();
+  delete before.presets;
+  const last = journal.entries.find((entry) => entry.idx === 5);
+  db.exec(readFileSync(new URL(`../drizzle/${last.tag}.sql`, import.meta.url), "utf8"));
+  assert.deepEqual(db.prepare("SELECT * FROM preferences").get(), before);
+  assert.equal(db.prepare("SELECT volume_ml FROM drinks WHERE id='existing'").get().volume_ml, 250);
+  db.exec("DELETE FROM preferences");
+  db.exec("INSERT INTO preferences (id,language,units) VALUES (1,'system','us')");
+  assert.equal(db.prepare("SELECT default_ml FROM preferences").get().default_ml, 250);
+  db.close();
+});
+
+test("body-water default fills unset profiles and preserves selected profiles", () => {
+  for (const ratio of [null, 0.55, 0.68]) {
+    const db = new DatabaseSync(":memory:");
+    const journal = JSON.parse(
+      readFileSync(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8")
+    );
+    for (const entry of journal.entries.filter((entry) => entry.idx < 6)) {
+      db.exec(readFileSync(new URL(`../drizzle/${entry.tag}.sql`, import.meta.url), "utf8"));
+    }
+    db.prepare(
+      "INSERT INTO preferences (id,language,units,body_water_ratio,weight_kg) VALUES (1,'en','metric',?,80)"
+    ).run(ratio);
+    db.exec(readFileSync(new URL("../drizzle/0006_bumpy_gauntlet.sql", import.meta.url), "utf8"));
+    const prefs = db.prepare("SELECT * FROM preferences").get();
+    assert.equal(prefs.body_water_ratio, ratio ?? 0.55);
+    assert.equal(prefs.weight_kg, 80);
+    db.exec("DELETE FROM preferences");
+    db.exec("INSERT INTO preferences (id,language,units) VALUES (1,'system','metric')");
+    assert.equal(
+      db.prepare("SELECT body_water_ratio FROM preferences").get().body_water_ratio,
+      0.55
+    );
+    db.close();
+  }
+});
+
+test("BAC switch defaults off for existing and new profiles while preserving profile values", () => {
+  const db = new DatabaseSync(":memory:");
+  const journal = JSON.parse(
+    readFileSync(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8")
+  );
+  for (const entry of journal.entries.filter((entry) => entry.idx < 7)) {
+    db.exec(readFileSync(new URL(`../drizzle/${entry.tag}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(
+    "INSERT INTO preferences (id,language,units,weight_kg,body_water_ratio) VALUES (1,'en','metric',80,0.68)"
+  );
+  db.exec(readFileSync(new URL("../drizzle/0007_burly_mindworm.sql", import.meta.url), "utf8"));
+  const prefs = db.prepare("SELECT * FROM preferences").get();
+  assert.equal(prefs.bac_enabled, 0);
+  assert.equal(prefs.weight_kg, 80);
+  assert.equal(prefs.body_water_ratio, 0.68);
+  db.exec("DELETE FROM preferences");
+  db.exec("INSERT INTO preferences (id,language,units) VALUES (1,'system','metric')");
+  const fresh = db.prepare("SELECT * FROM preferences").get();
+  assert.equal(fresh.bac_enabled, 0);
+  assert.equal(fresh.body_water_ratio, 0.55);
+  db.close();
+});

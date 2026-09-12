@@ -64,7 +64,13 @@ export function AppProvider({ children }: PropsWithChildren) {
     } else if (settings?.healthEnabled === false) {
       void unregisterBackgroundSync().catch(() => {});
     }
-  }, [settings?.healthEnabled, settings?.weightKg, settings?.bodyWaterRatio, drinkRevisions]);
+  }, [
+    settings?.bacEnabled,
+    settings?.healthEnabled,
+    settings?.weightKg,
+    settings?.bodyWaterRatio,
+    drinkRevisions,
+  ]);
   if (records.error || prefs.error)
     return (
       <View className="flex-1 justify-center p-6 bg-background">

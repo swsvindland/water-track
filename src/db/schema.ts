@@ -34,7 +34,6 @@ export const preferences = sqliteTable("preferences", {
   units: text("units").notNull(),
   goalMl: real("goal_ml").notNull().default(2500),
   defaultMl: real("default_ml").notNull().default(250),
-  presets: text("presets").notNull(),
   quickMl: real("quick_ml"),
   favorites: text("favorites")
     .notNull()
@@ -42,7 +41,8 @@ export const preferences = sqliteTable("preferences", {
       '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},{"id":"energy","kind":"energy","name":"","ml":473,"caffeine":160,"abv":0},{"id":"coffee","kind":"coffee","name":"","ml":240,"caffeine":95,"abv":0},{"id":"tea","kind":"tea","name":"","ml":240,"caffeine":40,"abv":0}]'
     ),
   weightKg: real("weight_kg"),
-  bodyWaterRatio: real("body_water_ratio"),
+  bacEnabled: integer("bac_enabled", { mode: "boolean" }).notNull().default(false),
+  bodyWaterRatio: real("body_water_ratio").default(0.55),
   healthEnabled: integer("health_enabled", { mode: "boolean" }).notNull().default(false),
   lastSync: integer("last_sync"),
   healthWeightKg: real("health_weight_kg"),

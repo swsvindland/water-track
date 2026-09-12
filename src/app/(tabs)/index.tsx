@@ -44,13 +44,7 @@ export default function Today() {
   const step = settings.units === "us" ? 1 : 10;
   const maxSize = Math.min(
     5000 / factor,
-    Math.ceil(
-      Math.max(
-        settings.units === "us" ? 32 : 1000,
-        savedMl / factor,
-        ...(JSON.parse(settings.presets) as number[]).map((ml) => ml / factor)
-      ) / step
-    ) * step
+    Math.ceil(Math.max(settings.units === "us" ? 32 : 1000, savedMl / factor) / step) * step
   );
   const [height, setHeight] = useState(650);
   const compact = height < 700;

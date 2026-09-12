@@ -1,0 +1,1 @@
+ALTER TABLE `preferences` ADD `bac_enabled` integer DEFAULT false NOT NULL;

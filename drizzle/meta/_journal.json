@@ -36,6 +36,27 @@
       "when": 1789239996865,
       "tag": "0004_careful_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789246854172,
+      "tag": "0005_slow_garia",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1789246980558,
+      "tag": "0006_bumpy_gauntlet",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789247205384,
+      "tag": "0007_burly_mindworm",
+      "breakpoints": true
     }
   ]
 }

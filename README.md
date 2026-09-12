@@ -11,12 +11,12 @@ Built for iOS and Android with Expo. Private and local-first. Drink logs and pre
 - Log water, coffee, tea, pre-workout, energy drinks, and alcohol. Edit serving size, total caffeine, ABV, and local consumption time; edit or delete previous entries.
 - Today shows total fluid volume, progress toward a configurable non-alcoholic fluid goal, caffeine in mg, and pure alcohol in grams.
 - History provides calendar day, Monday–Sunday week, and month reports, daily volume charts, totals, averages, and editable logs. Current-period averages include elapsed calendar days, including days without drinks.
-- 11 languages with a system-language default; device locale determines initial metric/US units. Configure serving sizes, default water size, goal, and optional BAC profile. Internal storage always uses mL and kg.
+- 11 languages with a system-language default; device locale determines initial metric/US units. Configure default water size, goal, and optional BAC profile. Internal storage always uses mL and kg.
 - Optional health sync with weight import, foreground retries, and OS-scheduled background work.
 
 Hydration progress measures logged intake, not physiological hydration. Coffee and tea count; drinks containing alcohol do not contribute to the goal. The default goal of 2,500 mL is editable, not a personalized recommendation. Serving caffeine defaults are examples: users should check product labels.
 
-BAC uses a simplified Widmark calculation with the latest accessible health weight (manual weight as fallback) and an explicitly supplied body-water factor, immediate absorption, and elimination of 0.015 percentage points/hour. It includes alcohol before midnight and applies elimination once per elapsed interval. It is not a measurement and must never be used to decide whether to drive or whether someone is sober, including when displaying zero. With health sync enabled, event-time estimates are exported to Apple Health with metadata identifying them as calculated estimates.
+BAC estimates are disabled by default and can be enabled in settings. BAC uses a simplified Widmark calculation with the latest accessible health weight (manual weight as fallback) and a configurable body-water factor (defaulting to the lower profile, 0.55), immediate absorption, and elimination of 0.015 percentage points/hour. It includes alcohol before midnight and applies elimination once per elapsed interval. It is not a measurement and must never be used to decide whether to drive or whether someone is sober, including when displaying zero. With health sync enabled, event-time estimates are exported to Apple Health with metadata identifying them as calculated estimates.
 
 ## Run
 

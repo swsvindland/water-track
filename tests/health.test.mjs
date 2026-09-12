@@ -61,9 +61,18 @@ test("weight validation and fallback preserve manual settings", () => {
   for (const kg of [NaN, Infinity, 0, 19, 401])
     assert.equal(data.validHealthWeight(kg, Date.now()), false);
   assert.equal(data.validHealthWeight(75, Date.now() + 10000), false);
-  assert.equal(data.bacWeight({ healthEnabled: true, healthWeightKg: 75, weightKg: 80 }), 75);
-  assert.equal(data.bacWeight({ healthEnabled: false, healthWeightKg: 75, weightKg: 80 }), 80);
-  assert.equal(data.bacWeight({ healthEnabled: true, healthWeightKg: null, weightKg: 80 }), 80);
+  assert.equal(
+    data.bacWeight({ bacEnabled: true, healthEnabled: true, healthWeightKg: 75, weightKg: 80 }),
+    75
+  );
+  assert.equal(
+    data.bacWeight({ bacEnabled: true, healthEnabled: false, healthWeightKg: 75, weightKg: 80 }),
+    80
+  );
+  assert.equal(
+    data.bacWeight({ bacEnabled: true, healthEnabled: true, healthWeightKg: null, weightKg: 80 }),
+    80
+  );
 });
 
 function native(platform, provider) {
@@ -171,6 +180,7 @@ function syncHarness(provider, initialRows = [drink]) {
   const state = {
     prefs: {
       id: 1,
+      bacEnabled: true,
       healthEnabled: true,
       healthWeightKg: null,
       weightKg: 80,
@@ -295,4 +305,13 @@ test("turning sync off while weight is being read stops exports", async () => {
   await harness.syncHealth();
   assert.equal(writes, 0);
   assert.equal(harness.state.prefs.healthWeightKg, null);
+});
+
+test("disabled BAC ignores saved and health weights and clears exported estimates", () => {
+  const settings = { bacEnabled: false, healthEnabled: true, healthWeightKg: 75, weightKg: 80 };
+  const weight = data.bacWeight(settings);
+  assert.equal(weight, null);
+  assert.equal(metrics.estimateBac([drink], weight, 0.55, drink.consumedAt), null);
+  assert.equal(data.healthBacSamples([drink], weight, 0.55)[0].fraction, null);
+  assert.equal(data.bacWeight({ ...settings, bacEnabled: true }), 75);
 });

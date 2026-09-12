@@ -21,9 +21,6 @@ export async function initializeDatabase(sqlite: SQLiteDatabase) {
       language: "system",
       units: us ? "us" : "metric",
       defaultMl: us ? 236.5882365 : 250,
-      presets: JSON.stringify(
-        us ? [236.5882365, 354.88235475, 473.176473, 591.47059125] : [250, 330, 500, 750]
-      ),
     })
     .onConflictDoNothing()
     .run();
