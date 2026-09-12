@@ -128,7 +128,6 @@
   "disconnect": "Desconectar",
   "healthOff": "Sin conexión",
   "healthOn": "Conectado",
-  "healthNote": "Exporta líquidos sin alcohol y cafeína a Apple Salud; líquidos a Health Connect. No importa datos. Los cambios y eliminaciones se aplican al sincronizar.",
   "backgroundNote": "La sincronización en segundo plano depende del sistema operativo. Abrir la app también reintenta los cambios pendientes.",
   "healthUnavailable": "La sincronización requiere una compilación nativa en un dispositivo iOS o Android compatible.",
   "healthError": "No se pudo completar. Revisa los permisos de salud e inténtalo de nuevo. Los cambios están guardados.",
@@ -142,5 +141,8 @@
   "remaining": "restantes",
   "goalReached": "Meta diaria alcanzada",
   "back": "Volver",
-  "notFound": "Esta bebida ya no está disponible."
+  "notFound": "Esta bebida ya no está disponible.",
+  "healthApple": "Exporta líquidos sin alcohol, cafeína, bebidas estándar (14 g de alcohol) y estimaciones de alcoholemia al registrar bebidas a Apple Salud. Lee tu último peso. Las estimaciones no indican sobriedad ni aptitud para conducir.",
+  "healthAndroid": "Exporta líquidos sin alcohol y cafeína a Health Connect y lee el peso reciente para estimar la alcoholemia. Esta integración no permite exportar alcohol ni alcoholemia.",
+  "healthWeight": "Peso de Salud usado para la alcoholemia (el peso manual sirve de respaldo)"
 }

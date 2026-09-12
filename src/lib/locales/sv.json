@@ -128,7 +128,6 @@
   "disconnect": "Koppla från",
   "healthOff": "Inte ansluten",
   "healthOn": "Ansluten",
-  "healthNote": "Exporterar alkoholfri vätska och koffein till Apple Hälsa; vätska till Health Connect. Inga hälsodata importeras. Ändringar och borttagningar tillämpas vid nästa synkronisering.",
   "backgroundNote": "Bakgrundssynkronisering sker när operativsystemet tillåter. När appen öppnas försöker den också överföra väntande ändringar.",
   "healthUnavailable": "Hälsosynkronisering kräver en inbyggd appversion på en kompatibel iOS- eller Android-enhet.",
   "healthError": "Synkroniseringen kunde inte slutföras. Kontrollera hälsobehörigheter och försök igen. Väntande ändringar är sparade.",
@@ -142,5 +141,8 @@
   "remaining": "kvar",
   "goalReached": "Dagligt mål uppnått",
   "back": "Bakifrån",
-  "notFound": "Den här drycken finns inte längre."
+  "notFound": "Den här drycken finns inte längre.",
+  "healthApple": "Exporterar alkoholfri vätska, koffein, standardglas (14 g alkohol) och uppskattad alkoholhalt vid dryckestillfällena till Apple Hälsa. Läser din senaste vikt. Uppskattningar avgör inte nykterhet eller körförmåga.",
+  "healthAndroid": "Exporterar alkoholfri vätska och koffein till Health Connect och läser aktuell vikt för alkoholuppskattning. Export av alkohol och blodalkohol stöds inte i denna integration.",
+  "healthWeight": "Hälsovikt för alkoholuppskattning (manuell vikt används som reserv)"
 }

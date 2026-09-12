@@ -7,13 +7,15 @@ import { desc, eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Drink, type Preferences } from "@/db/schema";
 import { languagePreference, resolveLanguage, translate, type Message } from "./i18n";
+import { bacWeight } from "./health-data";
 import { OZ_ML } from "./metrics";
-import { registerBackgroundSync, syncHealth } from "./health";
+import { registerBackgroundSync, unregisterBackgroundSync, syncHealth } from "./health";
 
 type State = {
   rows: Drink[];
   settings: Preferences;
   now: number;
+  bacWeightKg: number | null;
   t: (key: Message) => string;
   number: (n: number, digits?: number) => string;
   volume: (ml: number) => string;
@@ -54,12 +56,15 @@ export function AppProvider({ children }: PropsWithChildren) {
       subscription.remove();
     };
   }, []);
+  const drinkRevisions = records.data.map((drink) => `${drink.id}:${drink.revision}`).join(",");
   useEffect(() => {
     if (settings?.healthEnabled) {
       void registerBackgroundSync().catch(() => {});
       void syncHealth().catch(() => {});
+    } else if (settings?.healthEnabled === false) {
+      void unregisterBackgroundSync().catch(() => {});
     }
-  }, [settings?.healthEnabled, records.updatedAt]);
+  }, [settings?.healthEnabled, settings?.weightKg, settings?.bodyWaterRatio, drinkRevisions]);
   if (records.error || prefs.error)
     return (
       <View className="flex-1 justify-center p-6 bg-background">
@@ -83,6 +88,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         rows: records.data,
         settings,
         now,
+        bacWeightKg: bacWeight(settings),
         locale,
         number,
         volume,

@@ -7,10 +7,10 @@ import { useApp } from "@/lib/store";
 import { estimateBac, inDay, totals } from "@/lib/metrics";
 
 export default function TodayDetails() {
-  const { rows, settings, now, t, volume, locale } = useApp();
+  const { rows, bacWeightKg, settings, now, t, volume, locale } = useApp();
   const active = rows.filter((drink) => !drink.deleted);
   const today = active.filter((drink) => inDay(drink.consumedAt, now));
-  const bac = estimateBac(active, settings.weightKg, settings.bodyWaterRatio, now);
+  const bac = estimateBac(active, bacWeightKg, settings.bodyWaterRatio, now);
   return (
     <Screen title={t("today")} subtitle={t("details")}>
       <Button variant="ghost" onPress={() => router.back()}>

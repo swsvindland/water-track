@@ -24,7 +24,12 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.watertrack.app",
-      "permissions": ["android.permission.health.WRITE_HYDRATION"]
+      "permissions": [
+        "android.permission.health.WRITE_HYDRATION",
+        "android.permission.health.WRITE_NUTRITION",
+        "android.permission.health.READ_WEIGHT",
+        "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -48,8 +53,8 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "Water Track connects your drink log to Apple Health.",
-          "NSHealthUpdateUsageDescription": "Export the fluid volume and caffeine you log to Apple Health.",
+          "NSHealthShareUsageDescription": "Water Track reads your latest body weight to estimate blood alcohol content.",
+          "NSHealthUpdateUsageDescription": "Water Track saves fluid intake, caffeine, standard alcoholic drinks, and estimated blood alcohol content to Apple Health.",
           "background": false
         }
       ],

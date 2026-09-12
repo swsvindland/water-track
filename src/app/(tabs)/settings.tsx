@@ -1,11 +1,11 @@
 import { useLocales } from "expo-localization";
 import { useState } from "react";
 import { router } from "expo-router";
-import { Button, Card, RadioGroup, Select } from "heroui-native";
-import { ScrollView, View } from "react-native";
+import { Button, Card, RadioGroup, Select, Switch } from "heroui-native";
+import { Platform, ScrollView, View } from "react-native";
 import { eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
-import { preferences } from "@/db/schema";
+import { drinks, preferences } from "@/db/schema";
 import { useApp } from "@/lib/store";
 import { LB_KG, OZ_ML, parseNumber } from "@/lib/metrics";
 import { languages, languagePreference, resolveLanguage, translate } from "@/lib/i18n";
@@ -97,15 +97,21 @@ export default function Settings() {
     setMessage("");
     try {
       if (action === "disconnect") {
-        db.update(preferences).set({ healthEnabled: false }).where(eq(preferences.id, 1)).run();
+        db.update(preferences)
+          .set({ healthEnabled: false, healthError: null })
+          .where(eq(preferences.id, 1))
+          .run();
         await unregisterBackgroundSync();
       } else {
-        if (action === "connect") {
-          await connectHealth();
-          db.update(preferences).set({ healthEnabled: true }).where(eq(preferences.id, 1)).run();
-        }
-        await syncHealth();
+        // Permission prompts only follow an explicit switch/manual-sync action.
+        await connectHealth();
+        db.update(preferences)
+          .set({ healthEnabled: true, healthError: null, healthBacFingerprint: null })
+          .where(eq(preferences.id, 1))
+          .run();
+        db.update(drinks).set({ syncedRevision: 0 }).run();
         await registerBackgroundSync();
+        await syncHealth();
       }
       setMessage(t(action === "disconnect" ? "disconnectNote" : "syncDone"));
       setError(false);
@@ -229,6 +235,15 @@ export default function Settings() {
             keyboardType="decimal-pad"
             placeholder={t("optional")}
           />
+          {settings.healthEnabled && settings.healthWeightKg !== null && (
+            <Note>
+              {t("healthWeight")}: {round(settings.healthWeightKg / weightFactor)}{" "}
+              {units === "us" ? "lb" : "kg"}
+              {settings.healthWeightAt
+                ? ` · ${new Date(settings.healthWeightAt).toLocaleDateString(locale)}`
+                : ""}
+            </Note>
+          )}
           <View className="gap-3">
             <Heading>{t("factor")}</Heading>
             <Choices
@@ -250,7 +265,17 @@ export default function Settings() {
         <Card.Body className="gap-4">
           <Card.Title>{t("health")}</Card.Title>
           <Note>{t(settings.healthEnabled ? "healthOn" : "healthOff")}</Note>
-          <Note>{t("healthNote")}</Note>
+          <Note>{t(Platform.OS === "ios" ? "healthApple" : "healthAndroid")}</Note>
+          <View className="flex-row items-center justify-between gap-4">
+            <Heading>{t("health")}</Heading>
+            <Switch
+              accessibilityLabel={t("health")}
+              isSelected={settings.healthEnabled}
+              isDisabled={busy || !healthAvailable}
+              onSelectedChange={(enabled) => void health(enabled ? "connect" : "disconnect")}
+            />
+          </View>
+          {settings.healthEnabled && settings.healthError && <Note error>{t("healthError")}</Note>}
           <Note>{t("backgroundNote")}</Note>
           {settings.lastSync && (
             <Note>
@@ -264,37 +289,18 @@ export default function Settings() {
           )}
           {!healthAvailable && <Note>{t("healthUnavailable")}</Note>}
         </Card.Body>
-        <Card.Footer className="flex-col gap-2">
-          {settings.healthEnabled ? (
-            <>
-              <Button
-                className="w-full"
-                isDisabled={busy}
-                variant="outline"
-                onPress={() => void health("sync")}
-              >
-                {t("syncNow")}
-              </Button>
-              <Button
-                className="w-full"
-                isDisabled={busy}
-                variant="ghost"
-                onPress={() => void health("disconnect")}
-              >
-                {t("disconnect")}
-              </Button>
-            </>
-          ) : (
+        {settings.healthEnabled && (
+          <Card.Footer>
             <Button
               className="w-full"
-              isDisabled={busy || !healthAvailable}
+              isDisabled={busy}
               variant="outline"
-              onPress={() => void health("connect")}
+              onPress={() => void health("sync")}
             >
-              {t("connect")}
+              {t("syncNow")}
             </Button>
-          )}
-        </Card.Footer>
+          </Card.Footer>
+        )}
       </Card>
       <Note>{t("localNote")}</Note>
     </Screen>

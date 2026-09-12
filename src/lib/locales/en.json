@@ -128,7 +128,6 @@
   "disconnect": "Disconnect",
   "healthOff": "Not connected",
   "healthOn": "Connected",
-  "healthNote": "Export non-alcoholic fluid volume and caffeine to Apple Health; fluid volume to Health Connect. No health data is imported. Edits and deletions are reconciled on the next sync.",
   "backgroundNote": "Background sync runs when your operating system allows it. Opening the app also retries pending changes.",
   "healthUnavailable": "Health sync needs a native build on a supported iOS or Android device.",
   "healthError": "Sync couldn’t finish. Check health permissions and try again. Pending changes are saved.",
@@ -142,5 +141,8 @@
   "remaining": "remaining",
   "goalReached": "Daily goal reached",
   "back": "Back",
-  "notFound": "This drink is no longer available."
+  "notFound": "This drink is no longer available.",
+  "healthApple": "Exports non-alcoholic fluids, caffeine, standard drinks (14 g alcohol), and event-time BAC estimates to Apple Health. Reads your latest weight for BAC. Estimates are not sobriety or driving guidance.",
+  "healthAndroid": "Exports non-alcoholic fluids and caffeine to Health Connect and reads recent weight for BAC. Alcohol and BAC export are not available in this integration.",
+  "healthWeight": "Health weight used for BAC (manual weight is the fallback)"
 }

@@ -128,7 +128,6 @@
   "disconnect": "Verbinding verbreken",
   "healthOff": "Niet verbonden",
   "healthOn": "Verbonden",
-  "healthNote": "Exporteert alcoholvrij vocht en cafeïne naar Apple Gezondheid; vocht naar Health Connect. Er worden geen gezondheidsgegevens geïmporteerd. Bewerkingen en verwijderingen worden bij de volgende synchronisatie verwerkt.",
   "backgroundNote": "Achtergrondsynchronisatie vindt plaats wanneer je besturingssysteem dit toestaat. Openen van de app probeert openstaande wijzigingen opnieuw.",
   "healthUnavailable": "Gezondheidssynchronisatie vereist een native versie op een ondersteund iOS- of Android-apparaat.",
   "healthError": "Synchronisatie niet voltooid. Controleer gezondheidsmachtigingen en probeer opnieuw. Openstaande wijzigingen zijn opgeslagen.",
@@ -142,5 +141,8 @@
   "remaining": "resterend",
   "goalReached": "Dagdoel bereikt",
   "back": "Achterkant",
-  "notFound": "Dit drankje is niet meer beschikbaar."
+  "notFound": "Dit drankje is niet meer beschikbaar.",
+  "healthApple": "Exporteert alcoholvrij vocht, cafeïne, standaarddrankjes (14 g alcohol) en alcoholschattingen op drinktijdstippen naar Apple Gezondheid. Leest je laatste gewicht. Schattingen bepalen niet of je nuchter bent of kunt rijden.",
+  "healthAndroid": "Exporteert alcoholvrij vocht en cafeïne naar Health Connect en leest recent gewicht voor alcoholschattingen. Alcohol- en bloedalcoholexport zijn niet beschikbaar in deze integratie.",
+  "healthWeight": "Gezondheidsgewicht voor alcoholschatting (handmatig gewicht als reserve)"
 }

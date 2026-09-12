@@ -45,6 +45,10 @@ export const preferences = sqliteTable("preferences", {
   bodyWaterRatio: real("body_water_ratio"),
   healthEnabled: integer("health_enabled", { mode: "boolean" }).notNull().default(false),
   lastSync: integer("last_sync"),
+  healthWeightKg: real("health_weight_kg"),
+  healthWeightAt: integer("health_weight_at"),
+  healthError: text("health_error"),
+  healthBacFingerprint: text("health_bac_fingerprint"),
 });
 
 export type Drink = typeof drinks.$inferSelect;

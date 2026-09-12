@@ -33,7 +33,7 @@ import { estimateBac, inDay, totals, OZ_ML } from "@/lib/metrics";
 const SafeAreaView = withUniwind(NativeSafeAreaView);
 
 export default function Today() {
-  const { rows, settings, now, t, number, volume, locale } = useApp();
+  const { rows, bacWeightKg, settings, now, t, number, volume, locale } = useApp();
   const db = useDatabase();
   const { toast } = useToast();
   const foreground = useThemeColor("foreground");
@@ -55,7 +55,7 @@ export default function Today() {
   const [height, setHeight] = useState(650);
   const compact = height < 700;
   const active = rows.filter((d) => !d.deleted);
-  const bac = estimateBac(active, settings.weightKg, settings.bodyWaterRatio, now);
+  const bac = estimateBac(active, bacWeightKg, settings.bodyWaterRatio, now);
   const showBac = bac !== null && bac > 0;
   const pageSize = 6;
   const favorites = homeFavorites(JSON.parse(settings.favorites) as Favorite[]);

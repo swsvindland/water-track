@@ -6,9 +6,9 @@ import { bacHistory } from "@/lib/metrics";
 import { useApp } from "@/lib/store";
 
 export function BacSummary({ rows, now, bac }: { rows: Drink[]; now: number; bac: number }) {
-  const { settings, locale, t } = useApp();
+  const { settings, bacWeightKg, locale, t } = useApp();
   const accent = useThemeColor("accent");
-  const points = bacHistory(rows, settings.weightKg, settings.bodyWaterRatio, now);
+  const points = bacHistory(rows, bacWeightKg, settings.bodyWaterRatio, now);
   const peak = Math.max(0.001, ...points.map((point) => point.value));
   const coordinates = points.map((point) => ({
     x: 3 + ((point.time - (now - 6 * 3600000)) / (6 * 3600000)) * 174,

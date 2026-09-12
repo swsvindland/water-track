@@ -128,7 +128,6 @@
   "disconnect": "Trennen",
   "healthOff": "Nicht verbunden",
   "healthOn": "Verbunden",
-  "healthNote": "Exportiert alkoholfreie Flüssigkeit und Koffein zu Apple Health, Flüssigkeit zu Health Connect. Keine Gesundheitsdaten werden importiert. Änderungen und Löschungen werden beim nächsten Abgleich übernommen.",
   "backgroundNote": "Hintergrundabgleich erfolgt, wenn das Betriebssystem es erlaubt. Beim Öffnen der App werden ausstehende Änderungen erneut versucht.",
   "healthUnavailable": "Gesundheitssynchronisierung benötigt einen nativen Build auf einem unterstützten iOS- oder Android-Gerät.",
   "healthError": "Synchronisierung fehlgeschlagen. Prüfe Gesundheitsberechtigungen und versuche es erneut. Ausstehende Änderungen bleiben gespeichert.",
@@ -142,5 +141,8 @@
   "remaining": "verbleibend",
   "goalReached": "Tagesziel erreicht",
   "back": "Hinten",
-  "notFound": "Dieses Getränk ist nicht mehr verfügbar."
+  "notFound": "Dieses Getränk ist nicht mehr verfügbar.",
+  "healthApple": "Exportiert alkoholfreie Flüssigkeit, Koffein, Standardgetränke (14 g Alkohol) und Blutalkoholschätzungen zu den Trinkzeitpunkten nach Apple Health. Liest dein aktuelles Gewicht. Schätzungen beurteilen weder Nüchternheit noch Fahrtüchtigkeit.",
+  "healthAndroid": "Exportiert alkoholfreie Flüssigkeit und Koffein zu Health Connect und liest aktuelles Gewicht für die Blutalkoholschätzung. Alkohol- und Blutalkoholexport sind in dieser Integration nicht verfügbar.",
+  "healthWeight": "Gesundheitsgewicht für Blutalkohol (manuelles Gewicht als Ersatz)"
 }

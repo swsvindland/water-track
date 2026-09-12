@@ -79,3 +79,33 @@ test("appearance migration defaults to system and preserves existing preferences
   assert.equal(db.prepare("SELECT language FROM preferences").get().language, "system");
   db.close();
 });
+
+test("expanded health migration preserves manual weight and queues existing drinks for new exports", () => {
+  const db = new DatabaseSync(":memory:");
+  for (const file of [
+    "0000_fresh_doctor_faustus",
+    "0001_serious_vin_gonzales",
+    "0002_past_jane_foster",
+    "0003_sturdy_psylocke",
+  ]) {
+    db.exec(readFileSync(new URL(`../drizzle/${file}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(
+    "INSERT INTO preferences (id,language,units,presets,weight_kg,health_enabled) VALUES (1,'fr','metric','[250]',80,1)"
+  );
+  db.exec(
+    "INSERT INTO drinks (id,kind,volume_ml,consumed_at,updated_at,revision,synced_revision) VALUES ('old','water',250,1000,1000,3,3)"
+  );
+  db.exec(
+    readFileSync(new URL("../drizzle/0004_careful_katie_power.sql", import.meta.url), "utf8")
+  );
+  const prefs = db.prepare("SELECT * FROM preferences").get();
+  assert.equal(prefs.weight_kg, 80);
+  assert.equal(prefs.health_weight_kg, null);
+  assert.equal(prefs.health_error, null);
+  assert.equal(prefs.health_enabled, 1);
+  const record = db.prepare("SELECT * FROM drinks").get();
+  assert.equal(record.revision, 3);
+  assert.equal(record.synced_revision, 0);
+  db.close();
+});

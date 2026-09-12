@@ -128,7 +128,6 @@
   "disconnect": "Déconnecter",
   "healthOff": "Non connecté",
   "healthOn": "Connecté",
-  "healthNote": "Exporte le volume sans alcool et la caféine vers Apple Santé, et le volume de liquides vers Health Connect. Aucune donnée de santé n’est importée. Les modifications et suppressions sont appliquées à la prochaine synchronisation.",
   "backgroundNote": "La synchronisation en arrière-plan dépend du système. Ouvrir l’app relance aussi les modifications en attente.",
   "healthUnavailable": "La synchronisation santé nécessite une version native sur un appareil iOS ou Android compatible.",
   "healthError": "La synchronisation a échoué. Vérifiez les autorisations santé et réessayez. Les modifications en attente sont conservées.",
@@ -142,5 +141,8 @@
   "remaining": "restants",
   "goalReached": "Objectif quotidien atteint",
   "back": "Dos",
-  "notFound": "Cette boisson n’est plus disponible."
+  "notFound": "Cette boisson n’est plus disponible.",
+  "healthApple": "Exporte liquides sans alcool, caféine, verres standard (14 g d’alcool) et estimations d’alcoolémie aux heures des boissons vers Apple Santé. Lit votre dernier poids. Ces estimations ne permettent pas de juger la sobriété ou l’aptitude à conduire.",
+  "healthAndroid": "Exporte liquides sans alcool et caféine vers Health Connect et lit le poids récent pour l’alcoolémie. L’export d’alcool et d’alcoolémie n’est pas disponible dans cette intégration.",
+  "healthWeight": "Poids Santé utilisé pour l’alcoolémie (poids manuel à défaut)"
 }

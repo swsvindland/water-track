@@ -128,7 +128,6 @@
   "disconnect": "Scollega",
   "healthOff": "Non collegato",
   "healthOn": "Collegato",
-  "healthNote": "Esporta liquidi analcolici e caffeina in Apple Salute; liquidi in Health Connect. Non importa dati sanitari. Modifiche ed eliminazioni vengono applicate alla sincronizzazione successiva.",
   "backgroundNote": "La sincronizzazione in background avviene quando il sistema lo consente. Aprire l’app ritenta anche le modifiche in attesa.",
   "healthUnavailable": "La sincronizzazione salute richiede una versione nativa su un dispositivo iOS o Android supportato.",
   "healthError": "Sincronizzazione non completata. Controlla i permessi sanitari e riprova. Le modifiche in attesa sono salvate.",
@@ -142,5 +141,8 @@
   "remaining": "rimanenti",
   "goalReached": "Obiettivo giornaliero raggiunto",
   "back": "Retro",
-  "notFound": "Questa bevanda non è più disponibile."
+  "notFound": "Questa bevanda non è più disponibile.",
+  "healthApple": "Esporta liquidi analcolici, caffeina, bevande standard (14 g di alcol) e stime dell’alcolemia ai momenti delle bevande in Apple Salute. Legge il peso più recente. Le stime non indicano sobrietà o idoneità alla guida.",
+  "healthAndroid": "Esporta liquidi analcolici e caffeina in Health Connect e legge il peso recente per l’alcolemia. L’esportazione di alcol e alcolemia non è disponibile in questa integrazione.",
+  "healthWeight": "Peso da Salute usato per l’alcolemia (peso manuale come alternativa)"
 }

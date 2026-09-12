@@ -128,7 +128,6 @@
   "disconnect": "断开连接",
   "healthOff": "未连接",
   "healthOn": "已连接",
-  "healthNote": "将无酒精液体量和咖啡因导出至Apple健康，将液体量导出至Health Connect。不导入健康数据。编辑和删除将在下次同步时更新。",
   "backgroundNote": "后台同步在操作系统允许时运行。打开应用也会重试待同步的更改。",
   "healthUnavailable": "健康同步需要在受支持的iOS或Android设备上使用原生构建版本。",
   "healthError": "同步未完成。请检查健康权限后重试。待同步的更改已保存。",
@@ -142,5 +141,8 @@
   "remaining": "剩余",
   "goalReached": "已达成每日目标",
   "back": "背面",
-  "notFound": "此饮品已不可用。"
+  "notFound": "此饮品已不可用。",
+  "healthApple": "将无酒精液体、咖啡因、标准饮酒量（14g酒精）及饮酒时点的血液酒精浓度估算值导出至Apple健康，并读取最新体重用于估算。估算值不可用于判断清醒状态或能否驾驶。",
+  "healthAndroid": "将无酒精液体和咖啡因导出至Health Connect，并读取近期体重用于估算血液酒精浓度。此集成尚不支持导出酒精和血液酒精浓度。",
+  "healthWeight": "用于血液酒精浓度估算的健康体重（无数据时使用手动体重）"
 }
