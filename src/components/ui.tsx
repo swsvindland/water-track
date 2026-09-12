@@ -63,7 +63,11 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
   return (
     <TextField>
       <Label>{label}</Label>
-      <Input accessibilityLabel={label} {...props} />
+      <Input
+        className="border border-field-border android:border android:border-field-border"
+        accessibilityLabel={label}
+        {...props}
+      />
     </TextField>
   );
 }

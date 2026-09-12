@@ -49,12 +49,7 @@ function SystemButtonRoot({
   ...props
 }: ComponentProps<typeof Button>) {
   return (
-    <Button
-      {...props}
-      variant={variant}
-      animation="disable-all"
-      className={`min-h-12 rounded-md ${className}`}
-    >
+    <Button {...props} variant={variant} className={`min-h-12 rounded-md ${className}`}>
       {typeof children === "string" ? (
         <Button.Label className="text-sm font-medium">{children}</Button.Label>
       ) : (

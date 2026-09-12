@@ -142,7 +142,7 @@ export default function Favorites() {
           <Note>{t("favoriteHint")}</Note>
           <Button onPress={save}>{t("save")}</Button>
           <Button
-            variant="ghost"
+            variant="outline"
             onPress={() => {
               setEditing(null);
               setError("");

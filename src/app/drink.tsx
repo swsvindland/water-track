@@ -243,7 +243,10 @@ export default function DrinkEditor() {
       >
         <Label>{t("when")}</Label>
         <DateTimePicker.Select presentation="dialog">
-          <DateTimePicker.Trigger accessibilityLabel={t("when")}>
+          <DateTimePicker.Trigger
+            className="border border-field-border"
+            accessibilityLabel={t("when")}
+          >
             <DateTimePicker.Value />
             <DateTimePicker.TriggerIndicator />
           </DateTimePicker.Trigger>
@@ -262,7 +265,7 @@ export default function DrinkEditor() {
       <Button isDisabled={busy} onPress={save}>
         {t("save")}
       </Button>
-      <Button variant="ghost" onPress={() => router.back()}>
+      <Button variant="outline" onPress={() => router.back()}>
         {t("cancel")}
       </Button>
       {existing && (
