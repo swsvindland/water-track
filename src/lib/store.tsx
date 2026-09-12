@@ -6,7 +6,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { desc, eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Drink, type Preferences } from "@/db/schema";
-import { translate, type Message } from "./i18n";
+import { languagePreference, resolveLanguage, translate, type Message } from "./i18n";
 import { OZ_ML } from "./metrics";
 import { registerBackgroundSync, syncHealth } from "./health";
 
@@ -30,12 +30,10 @@ export function AppProvider({ children }: PropsWithChildren) {
     const appearance = settings?.appearance;
     Uniwind.setTheme(appearance === "light" || appearance === "dark" ? appearance : "system");
   }, [settings?.appearance]);
-  const language =
-    settings?.language === "system"
-      ? deviceLocales[0]?.languageCode === "es"
-        ? "es"
-        : "en"
-      : (settings?.language ?? "en");
+  const language = resolveLanguage(
+    languagePreference(settings?.language),
+    deviceLocales[0]?.languageCode
+  );
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | undefined;
@@ -74,12 +72,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         <ActivityIndicator />
       </View>
     );
-  const locale =
-    settings.language === "system"
-      ? (deviceLocales[0]?.languageTag ?? "en-US")
-      : language === "es"
-        ? "es-ES"
-        : "en-US";
+  const locale = language === "zh" ? "zh-CN" : language;
   const number = (n: number, digits = 0) =>
     new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(n);
   const volume = (ml: number) =>

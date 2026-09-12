@@ -2,13 +2,13 @@ import { useLocales } from "expo-localization";
 import { useState } from "react";
 import { router } from "expo-router";
 import { Button, Card, RadioGroup, Select } from "heroui-native";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { preferences } from "@/db/schema";
 import { useApp } from "@/lib/store";
 import { LB_KG, OZ_ML, parseNumber } from "@/lib/metrics";
-import { translate } from "@/lib/i18n";
+import { languages, languagePreference, resolveLanguage, translate } from "@/lib/i18n";
 import {
   connectHealth,
   healthAvailable,
@@ -21,11 +21,10 @@ import { Screen, Choices, Field, Heading, Note } from "@/components/ui";
 export default function Settings() {
   const { settings, rows, locale } = useApp();
   const db = useDatabase();
-  const [language, setLanguage] = useState(settings.language);
+  const [language, setLanguage] = useState(languagePreference(settings.language));
   const [appearance, setAppearance] = useState(settings.appearance);
   const deviceLocales = useLocales();
-  const resolvedLanguage =
-    language === "system" ? (deviceLocales[0]?.languageCode === "es" ? "es" : "en") : language;
+  const resolvedLanguage = resolveLanguage(language, deviceLocales[0]?.languageCode);
   const [units, setUnits] = useState(settings.units);
   const factor = units === "us" ? OZ_ML : 1;
   const weightFactor = units === "us" ? LB_KG : 1;
@@ -127,10 +126,10 @@ export default function Settings() {
           <Select
             value={{
               value: language,
-              label: language === "en" ? "English" : language === "es" ? "Español" : t("system"),
+              label: language === "system" ? t("system") : languages[language],
             }}
             onValueChange={(option) => {
-              if (option) setLanguage(option.value);
+              if (option) setLanguage(languagePreference(option.value));
             }}
           >
             <Select.Trigger
@@ -143,9 +142,12 @@ export default function Settings() {
             <Select.Portal>
               <Select.Overlay />
               <Select.Content presentation="popover" width="trigger">
-                <Select.Item value="system" label={t("system")} />
-                <Select.Item value="en" label="English" />
-                <Select.Item value="es" label="Español" />
+                <ScrollView style={{ maxHeight: 300 }} keyboardShouldPersistTaps="handled">
+                  <Select.Item value="system" label={t("system")} />
+                  {Object.entries(languages).map(([value, label]) => (
+                    <Select.Item key={value} value={value} label={label} />
+                  ))}
+                </ScrollView>
               </Select.Content>
             </Select.Portal>
           </Select>

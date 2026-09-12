@@ -5,6 +5,7 @@ import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from "expo-sqli
 import { Suspense, useMemo, type PropsWithChildren } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
+import { languagePreference, resolveLanguage, translate } from "@/lib/i18n";
 import migrations from "../../drizzle/migrations";
 import * as schema from "./schema";
 
@@ -35,7 +36,12 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
       fallback={
         <View className="flex-1 items-center justify-center gap-4 bg-background">
           <ActivityIndicator />
-          <Text className="text-foreground">Opening your saved data…</Text>
+          <Text className="text-foreground">
+            {translate(
+              resolveLanguage(languagePreference(undefined), getLocales()[0]?.languageCode),
+              "loading"
+            )}
+          </Text>
         </View>
       }
     >
