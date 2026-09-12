@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Button, Card } from "heroui-native";
+import { Button, Card, Tabs } from "heroui-native";
 import { Text, View } from "react-native";
-import { Screen, Choices, Heading, Note } from "@/components/ui";
+import { Screen, Heading, Note } from "@/components/ui";
 import { DrinkList } from "@/components/drink-list";
 import { useApp } from "@/lib/store";
 import { inDay, shiftDays, startOfDay, totals } from "@/lib/metrics";
@@ -35,14 +35,23 @@ export default function History() {
     new Date(d).toLocaleDateString(locale, { month: "short", day: "numeric" });
   return (
     <Screen title={t("history")}>
-      <Choices
+      <Tabs
         value={mode}
-        onChange={(value) => {
+        onValueChange={(value) => {
+          if (value !== "day" && value !== "week" && value !== "month") return;
           setMode(value);
           setOffset(0);
         }}
-        options={(["day", "week", "month"] as const).map((value) => ({ value, label: t(value) }))}
-      />
+      >
+        <Tabs.List>
+          <Tabs.Indicator />
+          {(["day", "week", "month"] as const).map((value) => (
+            <Tabs.Trigger key={value} value={value} className="flex-1">
+              <Tabs.Label>{t(value)}</Tabs.Label>
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs>
       <View className="gap-3">
         <Text className="text-xl font-medium text-foreground">
           {mode === "month"
