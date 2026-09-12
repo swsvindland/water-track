@@ -56,3 +56,26 @@ test("quick logging migration preserves records and persists favorites and selec
   assert.equal(db.prepare("SELECT quick_ml FROM preferences").get().quick_ml, 500);
   db.close();
 });
+
+test("appearance migration defaults to system and preserves existing preferences", () => {
+  const db = new DatabaseSync(":memory:");
+  for (const file of [
+    "0000_fresh_doctor_faustus",
+    "0001_serious_vin_gonzales",
+    "0002_past_jane_foster",
+  ]) {
+    db.exec(readFileSync(new URL(`../drizzle/${file}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec("INSERT INTO preferences (id,language,units,presets) VALUES (1,'es','us','[250,500]')");
+  db.exec(readFileSync(new URL("../drizzle/0003_sturdy_psylocke.sql", import.meta.url), "utf8"));
+  const prefs = db.prepare("SELECT * FROM preferences").get();
+  assert.equal(prefs.appearance, "system");
+  assert.equal(prefs.language, "es");
+  assert.equal(prefs.units, "us");
+  for (const appearance of ["light", "dark", "system"]) {
+    db.prepare("UPDATE preferences SET appearance=?,language='system' WHERE id=1").run(appearance);
+    assert.equal(db.prepare("SELECT appearance FROM preferences").get().appearance, appearance);
+  }
+  assert.equal(db.prepare("SELECT language FROM preferences").get().language, "system");
+  db.close();
+});

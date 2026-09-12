@@ -1,6 +1,7 @@
+import { useLocales } from "expo-localization";
 import { useState } from "react";
 import { router } from "expo-router";
-import { Button, Card } from "heroui-native";
+import { Button, Card, RadioGroup, Select } from "heroui-native";
 import { View } from "react-native";
 import { eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
@@ -21,6 +22,10 @@ export default function Settings() {
   const { settings, rows, locale } = useApp();
   const db = useDatabase();
   const [language, setLanguage] = useState(settings.language);
+  const [appearance, setAppearance] = useState(settings.appearance);
+  const deviceLocales = useLocales();
+  const resolvedLanguage =
+    language === "system" ? (deviceLocales[0]?.languageCode === "es" ? "es" : "en") : language;
   const [units, setUnits] = useState(settings.units);
   const factor = units === "us" ? OZ_ML : 1;
   const weightFactor = units === "us" ? LB_KG : 1;
@@ -37,7 +42,7 @@ export default function Settings() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
-  const t = (key: Parameters<typeof translate>[1]) => translate(language, key);
+  const t = (key: Parameters<typeof translate>[1]) => translate(resolvedLanguage, key);
   function changeUnits(next: string) {
     if (next === units) return;
     const nextFactor = next === "us" ? OZ_ML : 1;
@@ -71,6 +76,7 @@ export default function Settings() {
       db.update(preferences)
         .set({
           language,
+          appearance,
           units,
           goalMl,
           defaultMl,
@@ -115,69 +121,130 @@ export default function Settings() {
   }
   return (
     <Screen title={t("settings")} subtitle={t("preferencesNote")}>
-      <Button variant="outline" onPress={() => router.push("/favorites")}>
-        {t("manage")}
-      </Button>
-      <View className="gap-3">
-        <Heading>{t("language")}</Heading>
-        <Choices
-          value={language}
-          onChange={setLanguage}
-          options={[
-            { value: "en", label: "English" },
-            { value: "es", label: "Español" },
-          ]}
-        />
-      </View>
-      <View className="gap-3">
-        <Heading>{t("units")}</Heading>
-        <Choices
-          value={units}
-          onChange={changeUnits}
-          options={[
-            { value: "metric", label: `${t("metric")} · mL / kg` },
-            { value: "us", label: `${t("us")} · fl oz / lb` },
-          ]}
-        />
-      </View>
-      <Field
-        label={`${t("goal")} (${units === "us" ? "fl oz" : "mL"})`}
-        value={goal}
-        onChangeText={setGoal}
-        keyboardType="decimal-pad"
-      />
-      <Field
-        label={`${t("defaultSize")} (${units === "us" ? "fl oz" : "mL"})`}
-        value={size}
-        onChangeText={setSize}
-        keyboardType="decimal-pad"
-      />
-      <Field label={t("presets")} value={sizes} onChangeText={setSizes} />
-      <Note>{t("presetsHint")}</Note>
-      <Heading>{t("bacProfile")}</Heading>
-      <Field
-        label={`${t("weight")} (${units === "us" ? "lb" : "kg"})`}
-        value={weight}
-        onChangeText={setWeight}
-        keyboardType="decimal-pad"
-        placeholder={t("optional")}
-      />
-      <View className="gap-3">
-        <Heading>{t("factor")}</Heading>
-        <Choices
-          value={ratio}
-          onChange={setRatio}
-          options={[
-            { value: "", label: t("factorNone") },
-            { value: "0.55", label: t("factorLow") },
-            { value: "0.68", label: t("factorHigh") },
-          ]}
-        />
-        <Note>{t("factorNote")}</Note>
-      </View>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("language")}</Card.Title>
+          <Select
+            value={{
+              value: language,
+              label: language === "en" ? "English" : language === "es" ? "Español" : t("system"),
+            }}
+            onValueChange={(option) => {
+              if (option) setLanguage(option.value);
+            }}
+          >
+            <Select.Trigger
+              className="border border-field-border"
+              accessibilityLabel={t("language")}
+            >
+              <Select.Value placeholder={t("system")} />
+              <Select.TriggerIndicator />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Overlay />
+              <Select.Content presentation="popover" width="trigger">
+                <Select.Item value="system" label={t("system")} />
+                <Select.Item value="en" label="English" />
+                <Select.Item value="es" label="Español" />
+              </Select.Content>
+            </Select.Portal>
+          </Select>
+        </Card.Body>
+      </Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("appearance")}</Card.Title>
+          <Select
+            value={{
+              value: appearance,
+              label: t(appearance === "light" || appearance === "dark" ? appearance : "system"),
+            }}
+            onValueChange={(option) => {
+              if (option) setAppearance(option.value);
+            }}
+          >
+            <Select.Trigger
+              className="border border-field-border"
+              accessibilityLabel={t("appearance")}
+            >
+              <Select.Value placeholder={t("system")} />
+              <Select.TriggerIndicator />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Overlay />
+              <Select.Content presentation="popover" width="trigger">
+                <Select.Item value="system" label={t("system")} />
+                <Select.Item value="light" label={t("light")} />
+                <Select.Item value="dark" label={t("dark")} />
+              </Select.Content>
+            </Select.Portal>
+          </Select>
+        </Card.Body>
+      </Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("units")}</Card.Title>
+          <RadioGroup value={units} onValueChange={changeUnits} accessibilityLabel={t("units")}>
+            <RadioGroup.Item value="metric">{`${t("metric")} · mL / kg`}</RadioGroup.Item>
+            <RadioGroup.Item value="us">{`${t("us")} · fl oz / lb`}</RadioGroup.Item>
+          </RadioGroup>
+        </Card.Body>
+      </Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("hydration")}</Card.Title>
+          <Field
+            label={`${t("goal")} (${units === "us" ? "fl oz" : "mL"})`}
+            value={goal}
+            onChangeText={setGoal}
+            keyboardType="decimal-pad"
+          />
+          <Field
+            label={`${t("defaultSize")} (${units === "us" ? "fl oz" : "mL"})`}
+            value={size}
+            onChangeText={setSize}
+            keyboardType="decimal-pad"
+          />
+          <Field label={t("presets")} value={sizes} onChangeText={setSizes} />
+          <Note>{t("presetsHint")}</Note>
+        </Card.Body>
+      </Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("manage")}</Card.Title>
+          <Button variant="outline" onPress={() => router.push("/favorites")}>
+            {t("manage")}
+          </Button>
+        </Card.Body>
+      </Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+        <Card.Body className="gap-4">
+          <Card.Title>{t("bacProfile")}</Card.Title>
+          <Field
+            label={`${t("weight")} (${units === "us" ? "lb" : "kg"})`}
+            value={weight}
+            onChangeText={setWeight}
+            keyboardType="decimal-pad"
+            placeholder={t("optional")}
+          />
+          <View className="gap-3">
+            <Heading>{t("factor")}</Heading>
+            <Choices
+              value={ratio}
+              onChange={setRatio}
+              options={[
+                { value: "", label: t("factorNone") },
+                { value: "0.55", label: t("factorLow") },
+                { value: "0.68", label: t("factorHigh") },
+              ]}
+            />
+            <Note>{t("factorNote")}</Note>
+          </View>
+        </Card.Body>
+      </Card>
       <Button onPress={save}>{t("save")}</Button>
       {!!message && <Note error={error}>{message}</Note>}
-      <Card>
+      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
         <Card.Body className="gap-4">
           <Card.Title>{t("health")}</Card.Title>
           <Note>{t(settings.healthEnabled ? "healthOn" : "healthOff")}</Note>

@@ -30,6 +30,7 @@ export const drinks = sqliteTable("drinks", {
 export const preferences = sqliteTable("preferences", {
   id: integer("id").primaryKey(),
   language: text("language").notNull(),
+  appearance: text("appearance").notNull().default("system"),
   units: text("units").notNull(),
   goalMl: real("goal_ml").notNull().default(2500),
   defaultMl: real("default_ml").notNull().default(250),

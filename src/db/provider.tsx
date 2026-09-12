@@ -17,7 +17,7 @@ export async function initializeDatabase(sqlite: SQLiteDatabase) {
   db.insert(schema.preferences)
     .values({
       id: 1,
-      language: locale?.languageCode === "es" ? "es" : "en",
+      language: "system",
       units: us ? "us" : "metric",
       defaultMl: us ? 236.5882365 : 250,
       presets: JSON.stringify(

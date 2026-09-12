@@ -1,0 +1,1 @@
+ALTER TABLE `preferences` ADD `appearance` text DEFAULT 'system' NOT NULL;

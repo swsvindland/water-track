@@ -1,3 +1,5 @@
+import { useLocales } from "expo-localization";
+import { Uniwind } from "uniwind";
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 import { AppState, ActivityIndicator, Text, View } from "react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -19,10 +21,21 @@ type State = {
 };
 const Context = createContext<State | null>(null);
 export function AppProvider({ children }: PropsWithChildren) {
+  const deviceLocales = useLocales();
   const db = useDatabase();
   const records = useLiveQuery(db.select().from(drinks).orderBy(desc(drinks.consumedAt)));
   const prefs = useLiveQuery(db.select().from(preferences).where(eq(preferences.id, 1)));
   const settings = prefs.data[0];
+  useEffect(() => {
+    const appearance = settings?.appearance;
+    Uniwind.setTheme(appearance === "light" || appearance === "dark" ? appearance : "system");
+  }, [settings?.appearance]);
+  const language =
+    settings?.language === "system"
+      ? deviceLocales[0]?.languageCode === "es"
+        ? "es"
+        : "en"
+      : (settings?.language ?? "en");
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | undefined;
@@ -52,7 +65,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   if (records.error || prefs.error)
     return (
       <View className="flex-1 justify-center p-6 bg-background">
-        <Text className="text-danger">{translate(settings?.language ?? "en", "readError")}</Text>
+        <Text className="text-danger">{translate(language, "readError")}</Text>
       </View>
     );
   if (!settings || !records.updatedAt)
@@ -61,7 +74,12 @@ export function AppProvider({ children }: PropsWithChildren) {
         <ActivityIndicator />
       </View>
     );
-  const locale = settings.language === "es" ? "es-ES" : "en-US";
+  const locale =
+    settings.language === "system"
+      ? (deviceLocales[0]?.languageTag ?? "en-US")
+      : language === "es"
+        ? "es-ES"
+        : "en-US";
   const number = (n: number, digits = 0) =>
     new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(n);
   const volume = (ml: number) =>
@@ -75,7 +93,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         locale,
         number,
         volume,
-        t: (key) => translate(settings.language, key),
+        t: (key) => translate(language, key),
       }}
     >
       {children}
