@@ -1,5 +1,6 @@
 {
-  "name": "water-track",
+  "name": "vector-hydration",
+  "description": "VECTOR HYDRATION — daily drink logging, fluid goals, caffeine tracking, and intake history. Private by default, with optional health sync.",
   "version": "1.0.0",
   "private": true,
   "main": "expo-router/entry",

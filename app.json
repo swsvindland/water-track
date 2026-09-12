@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "Water Track",
+    "name": "VECTOR HYDRATION",
+    "description": "Track your drinks. Know your intake. VECTOR HYDRATION brings daily fluid goals, caffeine tracking, and drink history together in one private, local-first app.",
     "slug": "water-track",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +10,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.watertrack.app",
+      "infoPlist": {
+        "CFBundleDisplayName": "HYDRATE"
+      },
+      "bundleIdentifier": "dev.svindland.vector.water",
       "icon": {
         "light": "./assets/images/icon.png",
         "dark": "./assets/images/icon-dark.png",
@@ -23,7 +27,7 @@
         "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.watertrack.app",
+      "package": "dev.svindland.vector.water",
       "permissions": [
         "android.permission.health.WRITE_HYDRATION",
         "android.permission.health.WRITE_NUTRITION",
@@ -53,8 +57,8 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "Water Track reads your latest body weight to estimate blood alcohol content.",
-          "NSHealthUpdateUsageDescription": "Water Track saves fluid intake, caffeine, standard alcoholic drinks, and estimated blood alcohol content to Apple Health.",
+          "NSHealthShareUsageDescription": "VECTOR HYDRATION reads your latest body weight to estimate blood alcohol content.",
+          "NSHealthUpdateUsageDescription": "VECTOR HYDRATION saves fluid intake, caffeine, standard alcoholic drinks, and estimated blood alcohol content to Apple Health.",
           "background": false
         }
       ],

@@ -1,6 +1,10 @@
-# Water Track
+# VECTOR HYDRATION
 
-A local-first Expo app for iOS and Android. Drink logs and preferences live in `water-track.db` using expo-sqlite and Drizzle. No account or server is required.
+**Track your drinks. Know your intake.**
+
+VECTOR HYDRATION puts daily fluid goals, caffeine tracking, and drink history in one place. Log a drink in a tap, follow your intake over time, and connect to Apple Health or Health Connect when you choose.
+
+Built for iOS and Android with Expo. Private and local-first. Drink logs and preferences live in `water-track.db` using expo-sqlite and Drizzle. No account or server is required.
 
 ## Features
 

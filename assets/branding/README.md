@@ -1,4 +1,4 @@
-# Water Track icon
+# VECTOR HYDRATION icon
 
 The water drop is Google's Material Icons `water_drop`, scaled and centered on the same cyan, dark, and tinted backgrounds as Body Track.
 
