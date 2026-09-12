@@ -11,7 +11,8 @@
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
-        "CFBundleDisplayName": "HYDRATE"
+        "CFBundleDisplayName": "HYDRATE",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "dev.svindland.vector.water",
       "icon": {
@@ -70,6 +71,12 @@
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b2dc5c96-2845-47fd-8d25-d406d748a583"
+      }
     }
   }
 }
