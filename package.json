@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
-    "test": "TZ=America/New_York node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "TZ=America/New_York node --experimental-strip-types --test tests/*.test.mjs",
+    "icons:generate": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.14",
@@ -67,6 +68,7 @@
     "eslint": "^9.39.4",
     "eslint-config-expo": "~57.0.2",
     "prettier": "^3.8.3",
+    "sharp": "^0.35.4",
     "typescript": "~6.0.3"
   },
   "packageManager": "pnpm@11.18.0",

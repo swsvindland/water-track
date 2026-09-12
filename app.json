@@ -9,12 +9,18 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.watertrack.app"
+      "bundleIdentifier": "com.watertrack.app",
+      "icon": {
+        "light": "./assets/images/icon.png",
+        "dark": "./assets/images/icon-dark.png",
+        "tinted": "./assets/images/icon-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#22d3ee",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.watertrack.app",
@@ -28,7 +34,12 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#22d3ee",
+          "imageWidth": 200,
+          "dark": {
+            "image": "./assets/images/splash-icon-dark.png",
+            "backgroundColor": "#071017"
+          }
         }
       ],
       "expo-status-bar",
@@ -47,6 +58,9 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
     }
   }
 }
