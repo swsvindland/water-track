@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useThemeColor } from "heroui-native";
-import { Pressable, Text, View } from "react-native";
+import { PressableFeedback, useThemeColor } from "heroui-native";
+import { Text, View } from "react-native";
 import type { ComponentProps } from "react";
 import type { Drink } from "@/db/schema";
 import { useApp } from "@/lib/store";
@@ -31,13 +31,19 @@ export function DrinkList({ rows }: { rows: Drink[] }) {
   return (
     <View>
       {rows.map((d) => (
-        <Pressable
+        <PressableFeedback
           key={d.id}
           accessibilityRole="button"
           accessibilityLabel={`${t("editDrink")}: ${d.name || t(d.kind as DrinkKind)}, ${volume(d.volumeMl)}`}
           onPress={() => router.push({ pathname: "/drink", params: { id: d.id } })}
-          className="flex-row items-center gap-4 py-4"
+          className="flex-row items-center gap-4 overflow-hidden rounded-md px-2 py-4"
         >
+          <PressableFeedback.Highlight
+            animation={{
+              backgroundColor: { value: accent },
+              opacity: { value: [0, 0.16] },
+            }}
+          />
           <View className="h-12 w-12 items-center justify-center rounded-2xl bg-surface-secondary">
             <Ionicons name={icons[d.kind as DrinkKind]} size={22} color={accent} />
           </View>
@@ -57,7 +63,7 @@ export function DrinkList({ rows }: { rows: Drink[] }) {
           <Text className="text-base font-medium tabular-nums text-foreground">
             {volume(d.volumeMl)}
           </Text>
-        </Pressable>
+        </PressableFeedback>
       ))}
     </View>
   );
