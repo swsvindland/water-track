@@ -1,49 +1,37 @@
-import { Ionicons } from "@expo/vector-icons";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native";
 import { useApp } from "@/lib/store";
-import { Tabs } from "expo-router";
-import type { ComponentProps, JSX } from "react";
-import type { ColorValue } from "react-native";
-
-type IoniconName = ComponentProps<typeof Ionicons>["name"];
-
-function TabIcon({ name, color }: { name: IoniconName; color: ColorValue }): JSX.Element {
-  return <Ionicons name={name} size={24} color={color} />;
-}
+import type { JSX } from "react";
 
 export default function TabsLayout(): JSX.Element {
   const { t } = useApp();
-  const [activeTint, background, muted] = useThemeColor(["link", "background", "muted"]);
+  const [activeTint, background] = useThemeColor(["link", "background"]);
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: activeTint,
-        tabBarInactiveTintColor: muted,
-        tabBarStyle: { backgroundColor: background },
-      }}
+    <NativeTabs
+      tintColor={activeTint}
+      backgroundColor={background}
+      labelVisibilityMode="labeled"
+      backBehavior="initialRoute"
     >
-      <Tabs.Screen
+      <NativeTabs.Trigger
         name="index"
-        options={{
-          title: t("today"),
-          tabBarIcon: ({ color }) => <TabIcon name="water-outline" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: t("history"),
-          tabBarIcon: ({ color }) => <TabIcon name="bar-chart-outline" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: t("settings"),
-          tabBarIcon: ({ color }) => <TabIcon name="options-outline" color={color} />,
-        }}
-      />
-    </Tabs>
+        contentStyle={{ backgroundColor: background }}
+        disableAutomaticContentInsets
+      >
+        <NativeTabs.Trigger.Label>{t("today")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={{ default: "drop", selected: "drop.fill" }} md="water_drop" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="history" contentStyle={{ backgroundColor: background }}>
+        <NativeTabs.Trigger.Label>{t("history")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
+          md="bar_chart"
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings" contentStyle={{ backgroundColor: background }}>
+        <NativeTabs.Trigger.Label>{t("settings")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="slider.horizontal.3" md="tune" />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
