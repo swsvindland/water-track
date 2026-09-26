@@ -5,7 +5,7 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 
-function load(file, mocks = {}) {
+function load(file, mocks = {}, globals = {}) {
   const url = new URL(`../src/lib/${file}.ts`, import.meta.url);
   const exports = {};
   const require = createRequire(url);
@@ -16,6 +16,7 @@ function load(file, mocks = {}) {
     exports,
     Date,
     require: (id) => (Object.hasOwn(mocks, id) ? mocks[id] : require(id)),
+    ...globals,
   });
   return exports;
 }
@@ -189,6 +190,9 @@ function syncHarness(provider, initialRows = [drink]) {
     },
     rows: initialRows.map((d) => ({ ...d, syncedRevision: 0 })),
   };
+  // Retry timers are captured rather than scheduled so tests control when they fire.
+  const timers = [];
+  const appState = { currentState: "active" };
   const fields = (table, names) => Object.fromEntries(names.map((name) => [name, { table, name }]));
   const schema = {
     drinks: fields("rows", ["id", "revision", "syncedRevision"]),
@@ -229,31 +233,39 @@ function syncHarness(provider, initialRows = [drink]) {
       },
     }),
   };
-  const mod = load("health", {
-    "expo-task-manager": { isTaskDefined: () => true },
-    "expo-background-task": {},
-    "expo-sqlite": { openDatabaseAsync: async () => ({ closeAsync: async () => {} }) },
-    "drizzle-orm/expo-sqlite": { drizzle: () => db },
-    "drizzle-orm": {
-      eq: predicate,
-      ne: (a, b) => predicate(a, b, true),
-      and:
-        (...filters) =>
-        (r) =>
-          filters.every((f) => f(r)),
-    },
-    "@/db/schema": schema,
-    "@/db/provider": { initializeDatabase: async () => {} },
-    "./health-native": {
-      healthAvailable: true,
-      healthAdapter: async (interactive, enabled) => {
-        assert.equal(interactive, false);
-        return provider(state, enabled);
+  const mod = load(
+    "health",
+    {
+      "expo-task-manager": { isTaskDefined: () => true },
+      "expo-background-task": {},
+      "react-native": { AppState: appState },
+      "expo-sqlite": { openDatabaseAsync: async () => ({ closeAsync: async () => {} }) },
+      "drizzle-orm/expo-sqlite": { drizzle: () => db },
+      "drizzle-orm": {
+        eq: predicate,
+        ne: (a, b) => predicate(a, b, true),
+        and:
+          (...filters) =>
+          (r) =>
+            filters.every((f) => f(r)),
       },
+      "@/db/schema": schema,
+      "@/db/provider": { initializeDatabase: async () => {} },
+      "./health-native": {
+        healthAvailable: true,
+        healthAdapter: async (interactive, enabled) => {
+          assert.equal(interactive, false);
+          return provider(state, enabled);
+        },
+      },
+      "./health-data": data,
     },
-    "./health-data": data,
-  });
-  return { ...mod, state };
+    {
+      setTimeout: (run, delay) => timers.push({ run, delay }),
+      clearTimeout: () => {},
+    }
+  );
+  return { ...mod, state, timers, appState };
 }
 
 test("sync keeps a concurrently edited revision pending and imports weight without replacing manual input", async () => {
@@ -305,6 +317,50 @@ test("turning sync off while weight is being read stops exports", async () => {
   await harness.syncHealth();
   assert.equal(writes, 0);
   assert.equal(harness.state.prefs.healthWeightKg, null);
+});
+
+test("failed syncs retry automatically with backoff while the app is open", async () => {
+  let fail = true;
+  const harness = syncHarness(() => ({
+    readWeight: async () => null,
+    write: async () => !fail,
+  }));
+  const idle = () =>
+    new Promise((resolve) => {
+      const unsubscribe = harness.subscribeHealthSync(() => {
+        if (harness.healthSyncing()) return;
+        unsubscribe();
+        resolve();
+      });
+    });
+  await assert.rejects(harness.syncHealth(), /partial/);
+  assert.equal(harness.healthSyncing(), false);
+  assert.deepEqual(
+    harness.timers.map((t) => t.delay),
+    [30000]
+  );
+  harness.timers[0].run();
+  assert.equal(harness.healthSyncing(), true);
+  await idle();
+  assert.deepEqual(
+    harness.timers.map((t) => t.delay),
+    [30000, 120000]
+  );
+  // A suspended app waits for the foreground sync instead of retrying.
+  harness.appState.currentState = "background";
+  harness.timers[1].run();
+  assert.equal(harness.healthSyncing(), false);
+  harness.appState.currentState = "active";
+  fail = false;
+  await harness.syncHealth();
+  assert.equal(harness.state.prefs.healthError, null);
+  assert.equal(harness.state.rows[0].syncedRevision, 1);
+  assert.equal(harness.timers.length, 2);
+  // Success resets the backoff for the next failure.
+  harness.state.rows[0].revision = 2;
+  fail = true;
+  await assert.rejects(harness.syncHealth(), /partial/);
+  assert.equal(harness.timers.at(-1).delay, 30000);
 });
 
 test("disabled BAC ignores saved and health weights and clears exported estimates", () => {

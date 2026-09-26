@@ -1,5 +1,6 @@
 import * as TaskManager from "expo-task-manager";
 import * as BackgroundTask from "expo-background-task";
+import { AppState } from "react-native";
 import { openDatabaseAsync } from "expo-sqlite";
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import { and, eq, ne } from "drizzle-orm";
@@ -9,20 +10,51 @@ import { healthAdapter, healthAvailable } from "./health-native";
 import { bacWeight, healthBacSamples } from "./health-data";
 export { healthAvailable } from "./health-native";
 const TASK = "water-track-health-export";
+const RETRY_DELAYS = [30_000, 120_000, 600_000, 1_800_000];
 
 let running: Promise<void> | null = null;
 let requested = false;
+let failures = 0;
+let retry: ReturnType<typeof setTimeout> | undefined;
+const listeners = new Set<() => void>();
+function notify() {
+  for (const listener of listeners) listener();
+}
+export function subscribeHealthSync(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+export function healthSyncing() {
+  return running !== null;
+}
 export function syncHealth() {
   requested = true;
   if (running) return running;
+  clearTimeout(retry);
   running = (async () => {
-    do {
-      requested = false;
-      await performSync();
-    } while (requested);
-  })().finally(() => {
-    running = null;
-  });
+    try {
+      do {
+        requested = false;
+        await performSync();
+      } while (requested);
+      failures = 0;
+    } catch (error) {
+      // Back off while the app stays open; foregrounding and log changes retry sooner.
+      retry = setTimeout(
+        () => {
+          if (AppState.currentState === "active") void syncHealth().catch(() => {});
+        },
+        RETRY_DELAYS[Math.min(failures++, RETRY_DELAYS.length - 1)]
+      );
+      throw error;
+    } finally {
+      running = null;
+      notify();
+    }
+  })();
+  notify();
   return running;
 }
 async function performSync() {

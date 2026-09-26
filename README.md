@@ -12,7 +12,7 @@ Built for iOS and Android with Expo. Private and local-first. Drink logs and pre
 - Today shows total fluid volume, progress toward a configurable non-alcoholic fluid goal, caffeine in mg, and pure alcohol in grams.
 - History provides calendar day, Monday–Sunday week, and month reports, daily volume charts, totals, averages, and editable logs. Current-period averages include elapsed calendar days, including days without drinks.
 - 11 languages with a system-language default; device locale determines initial metric/US units. Configure default water size, goal, and optional BAC profile. Internal storage always uses mL and kg.
-- Optional health sync with weight import, foreground retries, and OS-scheduled background work.
+- Optional automatic health sync with weight import, foreground retries, and OS-scheduled background work.
 
 Hydration progress measures logged intake, not physiological hydration. Coffee and tea count; drinks containing alcohol do not contribute to the goal. The default goal of 2,500 mL is editable, not a personalized recommendation. Serving caffeine defaults are examples: users should check product labels. Quick logging uses the selected size and scales each drink's caffeine from its reference serving (for example 150 mg per 16 fl oz White Monster or 63 mg per 1 fl oz espresso); alcohol is computed from volume × ABV × 0.789 g/mL.
 
@@ -39,7 +39,7 @@ The configured application ID is `com.watertrack.app`; adjust it for your signin
 
 ## Health sync
 
-The Health sync switch in Settings opts in immediately, independently of Save. Permission prompts occur only when enabling or manually syncing. Automatic sync never prompts.
+The Health sync switch in Settings opts in immediately, independently of Save. Permission prompts occur only when enabling; there is no manual sync, and automatic sync never prompts. Settings shows the current sync status (syncing, pending changes, up to date, or incomplete) and the last successful sync.
 
 | Platform       | Exports                                                                                   | Reads                                               |
 | -------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------- |
@@ -50,9 +50,9 @@ Weight import is read-only and stored separately from manual weight. With sync e
 
 Alcohol exports use the US/NIAAA standard of 14 g ethanol per drink, allowing fractional counts. BAC samples are recomputed for each alcohol-entry timestamp when logs, weight, or body-water factor change; deleted/edited entries remove obsolete samples. HealthKit percent units receive fractions (0.08% → 0.0008). The current React Native Health Connect bridge does not expose alcohol or BAC record types, so those remain local on Android. Exported fluid quantities use drink volume, not measured water composition.
 
-Stable UUIDs associate each drink with only its own exports. Sync removes the previous export before writing its current version; interrupted exports remain pending and can safely retry. Deletions use local tombstones so remote deletion can finish later. Revision checks avoid acknowledging newer edits accidentally. Disconnecting stops future exports, leaving already exported health records in place; reconnecting queues all records so newly granted types are backfilled. Denied write permissions leave work pending while permitted types are still attempted. Automatic and manual errors appear in Settings. Switching off persists the opt-out before unregistering background work and stops subsequent writes in an active sync.
+Stable UUIDs associate each drink with only its own exports. Sync removes the previous export before writing its current version; interrupted exports remain pending and can safely retry. Deletions use local tombstones so remote deletion can finish later. Revision checks avoid acknowledging newer edits accidentally. Disconnecting stops future exports, leaving already exported health records in place; reconnecting queues all records so newly granted types are backfilled. Denied write permissions leave work pending while permitted types are still attempted. Sync errors appear in Settings. Switching off persists the opt-out before unregistering background work and stops subsequent writes in an active sync.
 
-Background tasks are scheduled at a minimum 15-minute interval but execution is controlled by iOS/Android, may be delayed, and is not guaranteed after force-quitting. Foregrounding the app and changing logs also retry exports. iOS requires a physical device to validate background scheduling. Native permissions, background execution, and remote edit/delete behavior require device testing before release. Google Play health declarations and an appropriate published privacy policy are needed for distribution.
+Background tasks are scheduled at a minimum 15-minute interval but execution is controlled by iOS/Android, may be delayed, and is not guaranteed after force-quitting. Foregrounding the app and changing logs also trigger exports, and a failed sync retries automatically while the app is open (after 30 seconds, 2 minutes, and 10 minutes, then every 30 minutes). iOS requires a physical device to validate background scheduling. Native permissions, background execution, and remote edit/delete behavior require device testing before release. Google Play health declarations and an appropriate published privacy policy are needed for distribution.
 
 ## Verification
 
