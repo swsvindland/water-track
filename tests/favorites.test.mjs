@@ -5,7 +5,9 @@ import {
   favoriteColor,
   favoriteColors,
   drinkCatalog,
+  favoriteSections,
   homeFavorites,
+  isPopularDrink,
   popularDrinks,
   savedFavorites,
 } from "../src/lib/favorites.ts";
@@ -76,26 +78,17 @@ test("visibility persists independently of recipes and can be enabled again", ()
     reopened.find((drink) => drink.id === energy.id),
     { ...energy, showOnHome: false }
   );
-  const enabled = reopened.map((drink) => ({ ...drink, showOnHome: drink.id === "tea" }));
+  const enabled = reopened.map((drink) => ({ ...drink, showOnHome: drink.id === "green-tea" }));
   assert.deepEqual(
     homeFavorites(enabled).map((drink) => drink.id),
-    ["tea"]
+    ["green-tea"]
   );
-  assert.equal(favoriteIntake(homeFavorites(enabled)[0], 4 * OZ_ML).caffeineMg, 23.5);
+  assert.equal(favoriteIntake(homeFavorites(enabled)[0], 4 * OZ_ML).caffeineMg, 14);
 });
 
 test("expanded presets have unique IDs and valid recipes for every drink group", () => {
   assert.equal(new Set(popularDrinks.map((drink) => drink.id)).size, popularDrinks.length);
-  for (const kind of [
-    "water",
-    "juice",
-    "energy",
-    "coffee",
-    "tea",
-    "milk",
-    "alcohol",
-    "preworkout",
-  ]) {
+  for (const kind of favoriteSections) {
     assert.ok(
       popularDrinks.some((drink) => drink.kind === kind),
       kind
@@ -143,10 +136,9 @@ test("branded and brewed caffeine presets match label values at label sizes", ()
     ["red-bull-original", 20, 189],
     ["celsius-original", 12, 200],
     ["alani-nu-energy", 12, 200],
-    ["coffee", 8, 95],
+    ["drip-coffee", 8, 95],
     ["espresso", 1, 63],
     ["americano", 8, 126],
-    ["tea", 8, 47],
     ["black-tea", 8, 47],
     ["green-tea", 8, 28],
   ]) {
@@ -166,23 +158,91 @@ test("alcohol presets are one US standard drink and ABV scales with the logged s
 });
 
 test("saved presets follow corrected recipes unless someone customized them", () => {
-  const seeded =
-    '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},' +
-    '{"id":"energy","kind":"energy","name":"","ml":473,"caffeine":160,"abv":0},' +
-    '{"id":"coffee","kind":"coffee","name":"","ml":240,"caffeine":95,"abv":0,"color":"plum"},' +
-    '{"id":"tea","kind":"tea","name":"","ml":240,"caffeine":55,"abv":0},' +
-    '{"id":"espresso","kind":"coffee","name":"Espresso","ml":30,"caffeine":63,"abv":0,"showOnHome":false},' +
-    '{"id":"mine","kind":"coffee","name":"Mine","ml":240,"caffeine":95,"abv":0}]';
-  const [water, energy, coffee, tea, espresso, mine] = savedFavorites(seeded);
+  const saved = JSON.stringify([
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    {
+      id: "drip-coffee",
+      kind: "coffee",
+      name: "Drip coffee",
+      ml: 240,
+      caffeine: 95,
+      abv: 0,
+      color: "plum",
+    },
+    {
+      id: "espresso",
+      kind: "coffee",
+      name: "Espresso",
+      ml: 30,
+      caffeine: 63,
+      abv: 0,
+      showOnHome: false,
+    },
+    { id: "green-tea", kind: "tea", name: "Green tea", ml: 240, caffeine: 35, abv: 0 },
+    { id: "mine", kind: "coffee", name: "Mine", ml: 240, caffeine: 95, abv: 0 },
+  ]);
+  const [water, drip, espresso, greenTea, mine] = savedFavorites(saved);
   assert.deepEqual(water, preset("water"));
-  assert.deepEqual(energy, preset("energy"));
-  assert.deepEqual(coffee, { ...preset("coffee"), color: "plum" });
-  assert.equal(tea.caffeine, 55);
-  assert.equal(tea.ml, 240);
+  assert.deepEqual(drip, { ...preset("drip-coffee"), color: "plum" });
   assert.deepEqual(espresso, { ...preset("espresso"), showOnHome: false });
+  assert.equal(greenTea.caffeine, 35);
+  assert.equal(greenTea.ml, 240);
   assert.equal(mine.ml, 240);
   assert.equal(favoriteIntake(espresso, 3 * OZ_ML).caffeineMg, 189);
-  assert.ok(
-    drinkCatalog(savedFavorites(seeded)).some((drink) => drink.id === "monster-zero-ultra")
+  assert.ok(drinkCatalog(savedFavorites(saved)).some((drink) => drink.id === "monster-zero-ultra"));
+});
+
+test("favorites menu sections follow the requested order and cover every preset", () => {
+  assert.deepEqual(favoriteSections, [
+    "water",
+    "energy",
+    "coffee",
+    "tea",
+    "juice",
+    "milk",
+    "alcohol",
+  ]);
+  for (const drink of popularDrinks) assert.ok(favoriteSections.includes(drink.kind), drink.id);
+  const kindOrder = [...new Set(popularDrinks.map((drink) => drink.kind))];
+  assert.deepEqual(kindOrder, favoriteSections);
+});
+
+test("generic presets are retired and drip coffee leads the coffee section", () => {
+  for (const id of ["coffee", "tea", "energy", "preworkout", "alcohol"]) {
+    assert.equal(
+      popularDrinks.find((drink) => drink.id === id),
+      undefined,
+      id
+    );
+  }
+  assert.ok(!popularDrinks.some((drink) => drink.kind === "preworkout"));
+  assert.deepEqual(
+    popularDrinks.find((drink) => drink.kind === "coffee"),
+    { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 8 * OZ_ML, caffeine: 95, abv: 0 }
   );
+});
+
+test("seeded favorites match presets and legacy seeds stay on home as custom drinks", () => {
+  const seed = [
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 240, caffeine: 95, abv: 0 },
+  ];
+  // The database seed predates exact fl oz sizes; loading it resolves to the presets.
+  assert.deepEqual(
+    savedFavorites(JSON.stringify(seed)),
+    seed.map((favorite) => popularDrinks.find((drink) => drink.id === favorite.id))
+  );
+  const legacy = [
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    { id: "energy", kind: "energy", name: "", ml: 473, caffeine: 160, abv: 0 },
+    { id: "coffee", kind: "coffee", name: "", ml: 240, caffeine: 95, abv: 0 },
+    { id: "tea", kind: "tea", name: "", ml: 240, caffeine: 40, abv: 0 },
+  ];
+  const catalog = drinkCatalog(savedFavorites(JSON.stringify(legacy)));
+  assert.deepEqual(homeFavorites(catalog), legacy);
+  assert.deepEqual(
+    catalog.filter((drink) => !isPopularDrink(drink)).map((drink) => drink.id),
+    ["energy", "coffee", "tea"]
+  );
+  assert.equal(catalog.find((drink) => drink.id === "drip-coffee").showOnHome, false);
 });
