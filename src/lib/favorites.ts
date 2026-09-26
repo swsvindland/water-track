@@ -11,24 +11,26 @@ export type Favorite = {
   showOnHome?: boolean;
 };
 
-// Stable IDs match the original seeded favorites. Missing presets stay hidden so
-// upgrading never restores a drink that someone previously removed.
+// Sections in the favorites menu, top to bottom; every preset kind must appear here.
+export const favoriteSections: DrinkKind[] = [
+  "water",
+  "energy",
+  "coffee",
+  "tea",
+  "juice",
+  "milk",
+  "alcohol",
+];
+
+// Stable IDs match earlier seeded favorites. Missing presets stay hidden so upgrading
+// never restores a drink that someone previously removed. The generic coffee, tea,
+// energy, preworkout and alcohol presets were retired; records already saved under
+// those IDs are kept as custom drinks rather than dropped from the home screen.
 export const popularDrinks: Favorite[] = [
   { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
-  { id: "coffee", kind: "coffee", name: "", ml: 240, caffeine: 95, abv: 0 },
-  { id: "tea", kind: "tea", name: "", ml: 240, caffeine: 40, abv: 0 },
-  { id: "energy", kind: "energy", name: "", ml: 473, caffeine: 160, abv: 0 },
-  { id: "preworkout", kind: "preworkout", name: "", ml: 300, caffeine: 200, abv: 0 },
-  { id: "alcohol", kind: "alcohol", name: "", ml: 355, caffeine: 0, abv: 5 },
   { id: "sparkling-water", kind: "water", name: "Sparkling water", ml: 355, caffeine: 0, abv: 0 },
   { id: "seltzer", kind: "water", name: "Seltzer", ml: 355, caffeine: 0, abv: 0 },
   { id: "mineral-water", kind: "water", name: "Mineral water", ml: 500, caffeine: 0, abv: 0 },
-  { id: "orange-juice", kind: "juice", name: "Orange juice", ml: 240, caffeine: 0, abv: 0 },
-  { id: "apple-juice", kind: "juice", name: "Apple juice", ml: 240, caffeine: 0, abv: 0 },
-  { id: "grape-juice", kind: "juice", name: "Grape juice", ml: 240, caffeine: 0, abv: 0 },
-  { id: "cranberry-juice", kind: "juice", name: "Cranberry juice", ml: 240, caffeine: 0, abv: 0 },
-  { id: "pineapple-juice", kind: "juice", name: "Pineapple juice", ml: 240, caffeine: 0, abv: 0 },
-  { id: "grapefruit-juice", kind: "juice", name: "Grapefruit juice", ml: 240, caffeine: 0, abv: 0 },
   {
     id: "monster-original",
     kind: "energy",
@@ -61,6 +63,7 @@ export const popularDrinks: Favorite[] = [
     caffeine: 80,
     abv: 0,
   },
+  { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 240, caffeine: 95, abv: 0 },
   { id: "espresso", kind: "coffee", name: "Espresso", ml: 30, caffeine: 63, abv: 0 },
   { id: "americano", kind: "coffee", name: "Americano", ml: 240, caffeine: 126, abv: 0 },
   { id: "latte", kind: "coffee", name: "Latte", ml: 240, caffeine: 63, abv: 0 },
@@ -73,6 +76,12 @@ export const popularDrinks: Favorite[] = [
   { id: "oolong-tea", kind: "tea", name: "Oolong tea", ml: 240, caffeine: 38, abv: 0 },
   { id: "matcha", kind: "tea", name: "Matcha", ml: 240, caffeine: 70, abv: 0 },
   { id: "herbal-tea", kind: "tea", name: "Herbal tea", ml: 240, caffeine: 0, abv: 0 },
+  { id: "orange-juice", kind: "juice", name: "Orange juice", ml: 240, caffeine: 0, abv: 0 },
+  { id: "apple-juice", kind: "juice", name: "Apple juice", ml: 240, caffeine: 0, abv: 0 },
+  { id: "grape-juice", kind: "juice", name: "Grape juice", ml: 240, caffeine: 0, abv: 0 },
+  { id: "cranberry-juice", kind: "juice", name: "Cranberry juice", ml: 240, caffeine: 0, abv: 0 },
+  { id: "pineapple-juice", kind: "juice", name: "Pineapple juice", ml: 240, caffeine: 0, abv: 0 },
+  { id: "grapefruit-juice", kind: "juice", name: "Grapefruit juice", ml: 240, caffeine: 0, abv: 0 },
   { id: "cows-milk", kind: "milk", name: "Cow’s milk", ml: 240, caffeine: 0, abv: 0 },
   { id: "soy-milk", kind: "milk", name: "Soy milk", ml: 240, caffeine: 0, abv: 0 },
   { id: "almond-milk", kind: "milk", name: "Almond milk", ml: 240, caffeine: 0, abv: 0 },

@@ -11,6 +11,7 @@ import { useApp } from "@/lib/store";
 import { defaults, kinds, OZ_ML, parseNumber, type DrinkKind } from "@/lib/metrics";
 import {
   drinkCatalog,
+  favoriteSections,
   isPopularDrink,
   favoriteColor,
   favoriteColorClasses,
@@ -163,7 +164,7 @@ export default function Favorites() {
         <>
           <Note>{t("favoritesVisibilityHint")}</Note>
           {[
-            ...kinds
+            ...favoriteSections
               .map((kind) => ({
                 title: t(kind),
                 drinks: favorites.filter((drink) => isPopularDrink(drink) && drink.kind === kind),
