@@ -34,6 +34,8 @@ await render("adaptive-icon-monochrome", { scale: 0.8 });
 await render("splash-icon");
 await render("splash-icon-dark", { color: blue });
 await render("favicon", { background: blue, size: 64 });
+// Android status-bar notification icons are white silhouettes on transparency.
+await render("notification-icon", { color: "#ffffff", size: 96, scale: 0.85 });
 
 // A review sheet uses launcher masks only here; production backgrounds stay square.
 const variants = [

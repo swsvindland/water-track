@@ -8,6 +8,7 @@ import { DatabaseProvider } from "@/db/provider";
 
 import { AppProvider } from "@/lib/store";
 import "@/lib/health";
+import "@/lib/notifications";
 import "../global.css";
 
 export { ErrorBoundary } from "expo-router";

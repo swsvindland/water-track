@@ -49,6 +49,16 @@ export const preferences = sqliteTable("preferences", {
   healthWeightAt: integer("health_weight_at"),
   healthError: text("health_error"),
   healthBacFingerprint: text("health_bac_fingerprint"),
+  remindersEnabled: integer("reminders_enabled", { mode: "boolean" }).notNull().default(false),
+  // Seven { wake, bed, off? } entries in local minutes, indexed like Date#getDay() (Sunday first).
+  reminderSchedule: text("reminder_schedule")
+    .notNull()
+    .default(
+      '[{"wake":420,"bed":1320},{"wake":420,"bed":1320},{"wake":420,"bed":1320},{"wake":420,"bed":1320},{"wake":420,"bed":1320},{"wake":420,"bed":1320},{"wake":420,"bed":1320}]'
+    ),
+  reminderMorningGlasses: integer("reminder_morning_glasses").notNull().default(2),
+  reminderWindDown: integer("reminder_wind_down").notNull().default(120),
+  reminderDescription: text("reminder_description"),
 });
 
 export type Drink = typeof drinks.$inferSelect;

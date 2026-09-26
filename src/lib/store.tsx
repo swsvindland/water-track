@@ -6,10 +6,11 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { desc, eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Drink, type Preferences } from "@/db/schema";
-import { languagePreference, resolveLanguage, translate, type Message } from "./i18n";
+import { languagePreference, localeTag, resolveLanguage, translate, type Message } from "./i18n";
 import { bacWeight } from "./health-data";
-import { OZ_ML } from "./metrics";
+import { formatVolume } from "./metrics";
 import { registerBackgroundSync, unregisterBackgroundSync, syncHealth } from "./health";
+import { registerReminderRefresh, syncReminders, unregisterReminderRefresh } from "./notifications";
 
 type State = {
   rows: Drink[];
@@ -49,6 +50,8 @@ export function AppProvider({ children }: PropsWithChildren) {
       if (state === "active") {
         startClock();
         void syncHealth().catch(() => {});
+        // Also picks up permission changes made in system settings.
+        void syncReminders().catch(() => {});
       }
     });
     return () => {
@@ -71,6 +74,27 @@ export function AppProvider({ children }: PropsWithChildren) {
     settings?.bodyWaterRatio,
     drinkRevisions,
   ]);
+  useEffect(() => {
+    if (settings?.remindersEnabled) void registerReminderRefresh().catch(() => {});
+    else if (settings?.remindersEnabled === false) {
+      void unregisterReminderRefresh().catch(() => {});
+      void syncReminders().catch(() => {});
+    }
+  }, [settings?.remindersEnabled]);
+  // Reminders fire only when behind plan, so any intake or plan change reschedules them.
+  useEffect(() => {
+    if (settings?.remindersEnabled) void syncReminders().catch(() => {});
+  }, [
+    settings?.remindersEnabled,
+    settings?.reminderSchedule,
+    settings?.reminderMorningGlasses,
+    settings?.reminderWindDown,
+    settings?.goalMl,
+    settings?.defaultMl,
+    settings?.units,
+    language,
+    drinkRevisions,
+  ]);
   if (records.error || prefs.error)
     return (
       <View className="flex-1 justify-center p-6 bg-background">
@@ -83,11 +107,10 @@ export function AppProvider({ children }: PropsWithChildren) {
         <ActivityIndicator />
       </View>
     );
-  const locale = language === "zh" ? "zh-CN" : language;
+  const locale = localeTag(language);
   const number = (n: number, digits = 0) =>
     new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(n);
-  const volume = (ml: number) =>
-    settings.units === "us" ? `${number(ml / OZ_ML, 1)} fl oz` : `${number(ml)} mL`;
+  const volume = (ml: number) => formatVolume(ml, settings.units, locale);
   return (
     <Context.Provider
       value={{

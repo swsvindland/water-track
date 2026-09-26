@@ -18,6 +18,7 @@ import {
 import { connectHealth, healthAvailable, healthSyncing, subscribeHealthSync } from "@/lib/health";
 import { Screen, Field, Heading, Note } from "@/components/ui";
 import { SystemLabel } from "@/components/system";
+import { ReminderSettings } from "@/components/reminder-settings";
 
 export default function Settings() {
   const { settings, locale } = useApp();
@@ -180,6 +181,7 @@ export default function Settings() {
           />
         </Card.Body>
       </Card>
+      <ReminderSettings />
       <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
         <Card.Body className="gap-4">
           <Card.Title>{t("manage")}</Card.Title>

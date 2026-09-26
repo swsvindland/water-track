@@ -25,6 +25,13 @@ export const defaults: Record<DrinkKind, { ml: number; caffeine: number; abv: nu
   alcohol: { ml: 355, caffeine: 0, abv: 5 },
 };
 export type Intake = { volumeMl: number; caffeineMg: number; abv: number; consumedAt: number };
+export function formatVolume(ml: number, units: string, locale: string) {
+  const us = units === "us";
+  const value = new Intl.NumberFormat(locale, { maximumFractionDigits: us ? 1 : 0 }).format(
+    us ? ml / OZ_ML : ml
+  );
+  return `${value} ${us ? "fl oz" : "mL"}`;
+}
 // Pure ethanol weighs 0.789 g/mL.
 export const alcoholGrams = (d: Intake) => d.volumeMl * (d.abv / 100) * 0.789;
 export function totals(rows: Intake[]) {
