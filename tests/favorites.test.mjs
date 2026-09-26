@@ -5,7 +5,9 @@ import {
   favoriteColor,
   favoriteColors,
   drinkCatalog,
+  favoriteSections,
   homeFavorites,
+  isPopularDrink,
   popularDrinks,
 } from "../src/lib/favorites.ts";
 
@@ -74,26 +76,17 @@ test("visibility persists independently of recipes and can be enabled again", ()
     reopened.find((drink) => drink.id === energy.id),
     { ...energy, showOnHome: false }
   );
-  const enabled = reopened.map((drink) => ({ ...drink, showOnHome: drink.id === "tea" }));
+  const enabled = reopened.map((drink) => ({ ...drink, showOnHome: drink.id === "green-tea" }));
   assert.deepEqual(
     homeFavorites(enabled).map((drink) => drink.id),
-    ["tea"]
+    ["green-tea"]
   );
-  assert.equal(favoriteIntake(homeFavorites(enabled)[0], 120).caffeineMg, 20);
+  assert.equal(favoriteIntake(homeFavorites(enabled)[0], 120).caffeineMg, 14);
 });
 
 test("expanded presets have unique IDs and valid recipes for every drink group", () => {
   assert.equal(new Set(popularDrinks.map((drink) => drink.id)).size, popularDrinks.length);
-  for (const kind of [
-    "water",
-    "juice",
-    "energy",
-    "coffee",
-    "tea",
-    "milk",
-    "alcohol",
-    "preworkout",
-  ]) {
+  for (const kind of favoriteSections) {
     assert.ok(
       popularDrinks.some((drink) => drink.kind === kind),
       kind
@@ -112,4 +105,60 @@ test("branded caffeine and spirit strength survive serving changes", () => {
   assert.equal(favoriteIntake(redBull, 500).caffeineMg, 160);
   const whiskey = popularDrinks.find((drink) => drink.id === "whiskey");
   assert.equal(favoriteIntake(whiskey, 88).abv, 40);
+});
+
+test("favorites menu sections follow the requested order and cover every preset", () => {
+  assert.deepEqual(favoriteSections, [
+    "water",
+    "energy",
+    "coffee",
+    "tea",
+    "juice",
+    "milk",
+    "alcohol",
+  ]);
+  for (const drink of popularDrinks) assert.ok(favoriteSections.includes(drink.kind), drink.id);
+  const kindOrder = [...new Set(popularDrinks.map((drink) => drink.kind))];
+  assert.deepEqual(kindOrder, favoriteSections);
+});
+
+test("generic presets are retired and drip coffee leads the coffee section", () => {
+  for (const id of ["coffee", "tea", "energy", "preworkout", "alcohol"]) {
+    assert.equal(
+      popularDrinks.find((drink) => drink.id === id),
+      undefined,
+      id
+    );
+  }
+  assert.ok(!popularDrinks.some((drink) => drink.kind === "preworkout"));
+  assert.deepEqual(
+    popularDrinks.find((drink) => drink.kind === "coffee"),
+    { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 240, caffeine: 95, abv: 0 }
+  );
+});
+
+test("seeded favorites match presets and legacy seeds stay on home as custom drinks", () => {
+  const seed = [
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 240, caffeine: 95, abv: 0 },
+  ];
+  for (const favorite of seed) {
+    assert.deepEqual(
+      popularDrinks.find((drink) => drink.id === favorite.id),
+      favorite
+    );
+  }
+  const legacy = [
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    { id: "energy", kind: "energy", name: "", ml: 473, caffeine: 160, abv: 0 },
+    { id: "coffee", kind: "coffee", name: "", ml: 240, caffeine: 95, abv: 0 },
+    { id: "tea", kind: "tea", name: "", ml: 240, caffeine: 40, abv: 0 },
+  ];
+  const catalog = drinkCatalog(legacy);
+  assert.deepEqual(homeFavorites(catalog), legacy);
+  assert.deepEqual(
+    catalog.filter((drink) => !isPopularDrink(drink)).map((drink) => drink.id),
+    ["energy", "coffee", "tea"]
+  );
+  assert.equal(catalog.find((drink) => drink.id === "drip-coffee").showOnHome, false);
 });

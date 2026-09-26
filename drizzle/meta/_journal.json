@@ -57,6 +57,13 @@
       "when": 1789247205384,
       "tag": "0007_burly_mindworm",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1790434307258,
+      "tag": "0008_moaning_power_man",
+      "breakpoints": true
     }
   ]
 }

@@ -184,3 +184,34 @@ test("BAC switch defaults off for existing and new profiles while preserving pro
   assert.equal(fresh.body_water_ratio, 0.55);
   db.close();
 });
+
+test("favorites seed migration keeps saved favorites and seeds water and drip coffee", () => {
+  const db = new DatabaseSync(":memory:");
+  const journal = JSON.parse(
+    readFileSync(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8")
+  );
+  for (const entry of journal.entries.filter((entry) => entry.idx < 8)) {
+    db.exec(readFileSync(new URL(`../drizzle/${entry.tag}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(`INSERT INTO preferences (id,language,units,weight_kg,bac_enabled,body_water_ratio)
+    VALUES (1,'en','metric',80,1,0.68);
+    INSERT INTO drinks (id,kind,volume_ml,consumed_at,updated_at)
+    VALUES ('existing','energy',473,1000,1000)`);
+  const before = db.prepare("SELECT * FROM preferences").get();
+  assert.deepEqual(
+    JSON.parse(before.favorites).map((favorite) => favorite.id),
+    ["water", "energy", "coffee", "tea"]
+  );
+  db.exec(readFileSync(new URL("../drizzle/0008_moaning_power_man.sql", import.meta.url), "utf8"));
+  assert.deepEqual(db.prepare("SELECT * FROM preferences").get(), before);
+  assert.equal(db.prepare("SELECT volume_ml FROM drinks WHERE id='existing'").get().volume_ml, 473);
+  db.exec("DELETE FROM preferences");
+  db.exec("INSERT INTO preferences (id,language,units) VALUES (1,'system','metric')");
+  const fresh = db.prepare("SELECT * FROM preferences").get();
+  assert.deepEqual(JSON.parse(fresh.favorites), [
+    { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
+    { id: "drip-coffee", kind: "coffee", name: "Drip coffee", ml: 240, caffeine: 95, abv: 0 },
+  ]);
+  assert.equal(fresh.bac_enabled, 0);
+  db.close();
+});
