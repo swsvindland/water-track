@@ -1,0 +1,7 @@
+{
+  "name": "schedule-intelligence",
+  "version": "1.0.0",
+  "private": true,
+  "description": "On-device Apple Intelligence schedule parsing for hydration reminders",
+  "main": "index.ts"
+}

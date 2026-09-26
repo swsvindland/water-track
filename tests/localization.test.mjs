@@ -12,7 +12,8 @@ const compiled = ts.transpileModule(readFileSync(sourceUrl, "utf8"), {
 }).outputText;
 const exports = {};
 runInNewContext(compiled, { exports, require: createRequire(sourceUrl) });
-const { languages, dictionaries, languagePreference, resolveLanguage, translate } = exports;
+const { languages, dictionaries, interpolate, languagePreference, resolveLanguage, translate } =
+  exports;
 
 test("all supported languages contain every translated message", () => {
   assert.deepEqual(Object.keys(languages), [
@@ -36,6 +37,21 @@ test("all supported languages contain every translated message", () => {
       assert.ok(translate(language, key).trim(), `${language}.${key}`);
     }
   }
+});
+
+test("translations keep every placeholder used by interpolation", () => {
+  const placeholders = (text) => (text.match(/\{\w+\}/g) ?? []).sort();
+  for (const key of Object.keys(dictionaries.en)) {
+    for (const language of Object.keys(languages)) {
+      assert.deepEqual(
+        placeholders(translate(language, key)),
+        placeholders(translate("en", key)),
+        `${language}.${key}`
+      );
+    }
+  }
+  assert.equal(interpolate("{count} h · {missing}", { count: 2 }), "2 h · {missing}");
+  assert.equal(interpolate("{amount}{amount}", { amount: "$&" }), "$&$&");
 });
 
 test("system language follows supported device languages and safely falls back to English", () => {

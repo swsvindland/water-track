@@ -40,6 +40,10 @@ export function resolveLanguage(
     : "en";
 }
 
+export function localeTag(language: Language) {
+  return language === "zh" ? "zh-CN" : language;
+}
+
 export const dictionaries = { en, es, fr, de, it, pt, nl, sv, ja, ko, zh } satisfies Record<
   Language,
   Record<keyof typeof en, string>
@@ -47,4 +51,9 @@ export const dictionaries = { en, es, fr, de, it, pt, nl, sv, ja, ko, zh } satis
 export type Message = keyof typeof en;
 export function translate(language: Language, key: Message): string {
   return dictionaries[language][key];
+}
+export function interpolate(text: string, values: Record<string, string | number>) {
+  return text.replace(/\{(\w+)\}/g, (match, name: string) =>
+    Object.hasOwn(values, name) ? String(values[name]) : match
+  );
 }

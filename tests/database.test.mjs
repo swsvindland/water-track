@@ -184,3 +184,28 @@ test("BAC switch defaults off for existing and new profiles while preserving pro
   assert.equal(fresh.body_water_ratio, 0.55);
   db.close();
 });
+
+test("reminders default off with a 7:00–22:00 week and preserve existing preferences", () => {
+  const db = new DatabaseSync(":memory:");
+  const journal = JSON.parse(
+    readFileSync(new URL("../drizzle/meta/_journal.json", import.meta.url), "utf8")
+  );
+  for (const entry of journal.entries.filter((entry) => entry.idx < 8)) {
+    db.exec(readFileSync(new URL(`../drizzle/${entry.tag}.sql`, import.meta.url), "utf8"));
+  }
+  db.exec(
+    "INSERT INTO preferences (id,language,units,goal_ml,default_ml,bac_enabled) VALUES (1,'sv','us',3000,236.5882365,1)"
+  );
+  const before = db.prepare("SELECT * FROM preferences").get();
+  db.exec(readFileSync(new URL("../drizzle/0008_serious_angel.sql", import.meta.url), "utf8"));
+  const prefs = db.prepare("SELECT * FROM preferences").get();
+  for (const [key, value] of Object.entries(before)) assert.equal(prefs[key], value, key);
+  assert.equal(prefs.reminders_enabled, 0);
+  assert.equal(prefs.reminder_morning_glasses, 2);
+  assert.equal(prefs.reminder_wind_down, 120);
+  assert.equal(prefs.reminder_description, null);
+  const week = JSON.parse(prefs.reminder_schedule);
+  assert.equal(week.length, 7);
+  assert.ok(week.every((day) => day.wake === 420 && day.bed === 1320 && !day.off));
+  db.close();
+});
