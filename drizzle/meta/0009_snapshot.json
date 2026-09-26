@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6fcfe3aa-9674-4568-b297-6d91e287aa52",
-  "prevId": "c023573e-fca4-420f-adf1-17b53b3cd285",
+  "id": "795923d5-87ee-4509-a01f-bd77053d7706",
+  "prevId": "6fcfe3aa-9674-4568-b297-6d91e287aa52",
   "tables": {
     "counters": {
       "name": "counters",
@@ -254,6 +254,45 @@
         },
         "health_bac_fingerprint": {
           "name": "health_bac_fingerprint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reminders_enabled": {
+          "name": "reminders_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "reminder_schedule": {
+          "name": "reminder_schedule",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'[{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320},{\"wake\":420,\"bed\":1320}]'"
+        },
+        "reminder_morning_glasses": {
+          "name": "reminder_morning_glasses",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 2
+        },
+        "reminder_wind_down": {
+          "name": "reminder_wind_down",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 120
+        },
+        "reminder_description": {
+          "name": "reminder_description",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

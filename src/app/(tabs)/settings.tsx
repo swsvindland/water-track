@@ -1,5 +1,5 @@
 import { useLocales } from "expo-localization";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { router } from "expo-router";
 import { Button, Card, RadioGroup, Select, Switch } from "heroui-native";
 import { Platform, ScrollView, View } from "react-native";
@@ -8,19 +8,20 @@ import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Preferences } from "@/db/schema";
 import { useApp } from "@/lib/store";
 import { LB_KG, OZ_ML, parseNumber } from "@/lib/metrics";
-import { languages, languagePreference, resolveLanguage, translate } from "@/lib/i18n";
 import {
-  connectHealth,
-  healthAvailable,
-  registerBackgroundSync,
-  syncHealth,
-  unregisterBackgroundSync,
-} from "@/lib/health";
+  languages,
+  languagePreference,
+  resolveLanguage,
+  translate,
+  type Message,
+} from "@/lib/i18n";
+import { connectHealth, healthAvailable, healthSyncing, subscribeHealthSync } from "@/lib/health";
 import { Screen, Field, Heading, Note } from "@/components/ui";
+import { SystemLabel } from "@/components/system";
 import { ReminderSettings } from "@/components/reminder-settings";
 
 export default function Settings() {
-  const { settings, rows, locale } = useApp();
+  const { settings, locale } = useApp();
   const db = useDatabase();
   const language = languagePreference(settings.language);
   const appearance = settings.appearance;
@@ -39,7 +40,6 @@ export default function Settings() {
   const ratio = String(settings.bodyWaterRatio ?? 0.55);
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
-  const [busy, setBusy] = useState(false);
   const t = (key: Parameters<typeof translate>[1]) => translate(resolvedLanguage, key);
   function persist(update: Partial<Preferences>) {
     try {
@@ -86,38 +86,6 @@ export default function Settings() {
       setError(true);
       const saved = settings[field];
       setDraft(saved === null ? "" : round(saved / (field === "weightKg" ? weightFactor : factor)));
-    }
-  }
-  async function health(action: "connect" | "sync" | "disconnect") {
-    setBusy(true);
-    setMessage("");
-    try {
-      if (action === "disconnect") {
-        db.update(preferences)
-          .set({ healthEnabled: false, healthError: null })
-          .where(eq(preferences.id, 1))
-          .run();
-        await unregisterBackgroundSync();
-      } else {
-        // Permission prompts only follow an explicit switch/manual-sync action.
-        await connectHealth();
-        db.update(preferences)
-          .set({ healthEnabled: true, healthError: null, healthBacFingerprint: null })
-          .where(eq(preferences.id, 1))
-          .run();
-        db.update(drinks).set({ syncedRevision: 0 }).run();
-        await registerBackgroundSync();
-        await syncHealth();
-      }
-      setMessage(t(action === "disconnect" ? "disconnectNote" : "syncDone"));
-      setError(false);
-    } catch (e) {
-      setMessage(
-        t(e instanceof Error && e.message === "unavailable" ? "healthUnavailable" : "healthError")
-      );
-      setError(true);
-    } finally {
-      setBusy(false);
     }
   }
   return (
@@ -269,48 +237,97 @@ export default function Settings() {
         </Card.Body>
       </Card>
       {!!message && <Note error={error}>{message}</Note>}
-      <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
-        <Card.Body className="gap-4">
-          <Card.Title>{t("health")}</Card.Title>
-          <Note>{t(settings.healthEnabled ? "healthOn" : "healthOff")}</Note>
-          <Note>{t(Platform.OS === "ios" ? "healthApple" : "healthAndroid")}</Note>
-          <View className="flex-row items-center justify-between gap-4">
-            <Heading>{t("health")}</Heading>
-            <Switch
-              accessibilityLabel={t("health")}
-              isSelected={settings.healthEnabled}
-              isDisabled={busy || !healthAvailable}
-              onSelectedChange={(enabled) => void health(enabled ? "connect" : "disconnect")}
-            />
-          </View>
-          {settings.healthEnabled && settings.healthError && <Note error>{t("healthError")}</Note>}
-          <Note>{t("backgroundNote")}</Note>
-          {settings.lastSync && (
-            <Note>
-              {t("lastSync")}: {new Date(settings.lastSync).toLocaleString(locale)}
-            </Note>
-          )}
-          {settings.healthEnabled && (
-            <Note>
-              {t("pending")}: {rows.filter((d) => d.revision !== d.syncedRevision).length}
-            </Note>
-          )}
-          {!healthAvailable && <Note>{t("healthUnavailable")}</Note>}
-        </Card.Body>
-        {settings.healthEnabled && (
-          <Card.Footer>
-            <Button
-              className="w-full"
-              isDisabled={busy}
-              variant="outline"
-              onPress={() => void health("sync")}
-            >
-              {t("syncNow")}
-            </Button>
-          </Card.Footer>
-        )}
-      </Card>
+      <HealthSync />
       <Note>{t("localNote")}</Note>
     </Screen>
+  );
+}
+
+function HealthSync() {
+  const { settings, rows, locale, t } = useApp();
+  const db = useDatabase();
+  const syncing = useSyncExternalStore(subscribeHealthSync, healthSyncing);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<{ key: Message; error: boolean } | null>(null);
+  const enabled = settings.healthEnabled;
+  const pending = rows.filter((d) => d.revision !== d.syncedRevision).length;
+  async function connect() {
+    setBusy(true);
+    setNotice(null);
+    try {
+      // Permission prompts only follow this explicit opt-in; automatic sync never prompts.
+      await connectHealth();
+      // Queue every drink before enabling so newly granted types are backfilled. The app
+      // provider registers background work and exports as soon as sync is enabled.
+      db.update(drinks).set({ syncedRevision: 0 }).run();
+      db.update(preferences)
+        .set({ healthEnabled: true, healthError: null, healthBacFingerprint: null })
+        .where(eq(preferences.id, 1))
+        .run();
+    } catch (e) {
+      setNotice({
+        key:
+          e instanceof Error && e.message === "unavailable"
+            ? "healthUnavailable"
+            : "healthConnectError",
+        error: true,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+  function disconnect() {
+    try {
+      db.update(preferences)
+        .set({ healthEnabled: false, healthError: null })
+        .where(eq(preferences.id, 1))
+        .run();
+      setNotice({ key: "disconnectNote", error: false });
+    } catch {
+      setNotice({ key: "saveError", error: true });
+    }
+  }
+  const status = !enabled
+    ? { label: t("healthOff"), dot: "bg-muted" }
+    : syncing
+      ? { label: t("syncing"), dot: "bg-accent" }
+      : settings.healthError
+        ? { label: t("syncIncomplete"), dot: "bg-danger" }
+        : pending
+          ? { label: `${t("pending")}: ${pending}`, dot: "bg-warning" }
+          : { label: t("syncDone"), dot: "bg-success" };
+  return (
+    <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
+      <Card.Body className="gap-4">
+        <View className="flex-row items-center justify-between gap-4">
+          <Card.Title className="flex-1">{t("health")}</Card.Title>
+          <Switch
+            accessibilityLabel={t("health")}
+            isSelected={enabled}
+            isDisabled={busy || !healthAvailable}
+            onSelectedChange={(next) => (next ? void connect() : disconnect())}
+          />
+        </View>
+        <Note>{t(Platform.OS === "ios" ? "healthApple" : "healthAndroid")}</Note>
+        {healthAvailable ? (
+          <View className="gap-2">
+            <View className="flex-row items-center gap-2">
+              <View className={`h-2 w-2 rounded-full ${status.dot}`} />
+              <SystemLabel>{status.label}</SystemLabel>
+            </View>
+            {enabled && settings.lastSync && (
+              <Note>
+                {t("lastSync")}: {new Date(settings.lastSync).toLocaleString(locale)}
+              </Note>
+            )}
+          </View>
+        ) : (
+          <Note>{t("healthUnavailable")}</Note>
+        )}
+        {enabled && settings.healthError && <Note error>{t("healthError")}</Note>}
+        {enabled && <Note>{t("backgroundNote")}</Note>}
+        {notice && <Note error={notice.error}>{t(notice.key)}</Note>}
+      </Card.Body>
+    </Card>
   );
 }

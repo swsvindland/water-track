@@ -17,8 +17,9 @@ export const defaults: Record<DrinkKind, { ml: number; caffeine: number; abv: nu
   water: { ml: 250, caffeine: 0, abv: 0 },
   juice: { ml: 240, caffeine: 0, abv: 0 },
   milk: { ml: 240, caffeine: 0, abv: 0 },
-  coffee: { ml: 240, caffeine: 95, abv: 0 },
-  tea: { ml: 240, caffeine: 40, abv: 0 },
+  // Brewed coffee and black tea per 8 fl oz cup (USDA FoodData Central).
+  coffee: { ml: 8 * OZ_ML, caffeine: 95, abv: 0 },
+  tea: { ml: 8 * OZ_ML, caffeine: 47, abv: 0 },
   preworkout: { ml: 300, caffeine: 200, abv: 0 },
   energy: { ml: 473, caffeine: 160, abv: 0 },
   alcohol: { ml: 355, caffeine: 0, abv: 5 },
@@ -31,6 +32,7 @@ export function formatVolume(ml: number, units: string, locale: string) {
   );
   return `${value} ${us ? "fl oz" : "mL"}`;
 }
+// Pure ethanol weighs 0.789 g/mL.
 export const alcoholGrams = (d: Intake) => d.volumeMl * (d.abv / 100) * 0.789;
 export function totals(rows: Intake[]) {
   return rows.reduce(
@@ -57,6 +59,13 @@ export function inDay(time: number, day: number) {
   const start = startOfDay(day);
   return time >= start && time < shiftDays(start, 1);
 }
+// Average elimination in BAC percentage points (g/100 mL) per hour.
+const ELIMINATION_PER_HOUR = 0.015;
+const eliminated = (ms: number) => (ms / 3600000) * ELIMINATION_PER_HOUR;
+// Widmark's r relates the dose to blood alcohol by mass (g/kg). BAC percentages are
+// g/100 mL, so the mass concentration is scaled by whole-blood density (1.055 g/mL).
+const bacRise = (d: Intake, weightKg: number, ratio: number) =>
+  (alcoholGrams(d) / (weightKg * 1000 * ratio)) * 1.055 * 100;
 // Widmark approximation with elimination applied once per elapsed interval.
 // Whole-dose absorption is assumed; this is not a measurement or a driving aid.
 export function estimateBac(
@@ -71,11 +80,11 @@ export function estimateBac(
   for (const d of rows
     .filter((d) => d.abv > 0 && d.consumedAt <= now)
     .sort((a, b) => a.consumedAt - b.consumedAt)) {
-    bac = Math.max(0, bac - (Math.max(0, d.consumedAt - previous) / 3600000) * 0.015);
-    bac += (alcoholGrams(d) / (weightKg * 1000 * ratio)) * 100;
+    bac = Math.max(0, bac - eliminated(Math.max(0, d.consumedAt - previous)));
+    bac += bacRise(d, weightKg, ratio);
     previous = d.consumedAt;
   }
-  return Math.max(0, bac - ((now - previous) / 3600000) * 0.015);
+  return Math.max(0, bac - eliminated(now - previous));
 }
 
 // A six-hour history with exact drink events and zero crossings, including
@@ -93,9 +102,9 @@ export function bacHistory(
   const points = [{ time: start, value: bac }];
   let previous = start;
   function advance(time: number) {
-    const zeroAt = previous + (bac / 0.015) * 3600000;
+    const zeroAt = previous + (bac / ELIMINATION_PER_HOUR) * 3600000;
     if (bac > 0 && zeroAt < time) points.push({ time: zeroAt, value: 0 });
-    bac = Math.max(0, bac - ((time - previous) / 3600000) * 0.015);
+    bac = Math.max(0, bac - eliminated(time - previous));
     points.push({ time, value: bac });
     previous = time;
   }
@@ -103,7 +112,7 @@ export function bacHistory(
     .filter((d) => d.abv > 0 && d.consumedAt > start && d.consumedAt <= now)
     .sort((a, b) => a.consumedAt - b.consumedAt)) {
     advance(drink.consumedAt);
-    bac += (alcoholGrams(drink) / (weightKg * 1000 * ratio)) * 100;
+    bac += bacRise(drink, weightKg, ratio);
     points.push({ time: drink.consumedAt, value: bac });
   }
   advance(now);

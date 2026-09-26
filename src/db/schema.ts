@@ -38,7 +38,7 @@ export const preferences = sqliteTable("preferences", {
   favorites: text("favorites")
     .notNull()
     .default(
-      '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},{"id":"energy","kind":"energy","name":"","ml":473,"caffeine":160,"abv":0},{"id":"coffee","kind":"coffee","name":"","ml":240,"caffeine":95,"abv":0},{"id":"tea","kind":"tea","name":"","ml":240,"caffeine":40,"abv":0}]'
+      '[{"id":"water","kind":"water","name":"","ml":250,"caffeine":0,"abv":0},{"id":"drip-coffee","kind":"coffee","name":"Drip coffee","ml":240,"caffeine":95,"abv":0}]'
     ),
   weightKg: real("weight_kg"),
   bacEnabled: integer("bac_enabled", { mode: "boolean" }).notNull().default(false),

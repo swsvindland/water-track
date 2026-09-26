@@ -10,6 +10,7 @@ import {
   favoriteColor,
   favoriteColorClasses,
   homeFavorites,
+  savedFavorites,
   type Favorite,
 } from "@/lib/favorites";
 import {
@@ -52,7 +53,7 @@ export default function Today() {
   const bac = estimateBac(active, bacWeightKg, settings.bodyWaterRatio, now);
   const showBac = bac !== null && bac > 0;
   const pageSize = 6;
-  const favorites = homeFavorites(JSON.parse(settings.favorites) as Favorite[]);
+  const favorites = homeFavorites(savedFavorites(settings.favorites));
   const pages = Math.max(1, Math.ceil(favorites.length / pageSize));
 
   const [error, setError] = useState("");
@@ -198,36 +199,36 @@ export default function Today() {
                   <View key={pageIndex} className="flex-1 gap-2">
                     {[0, 1, 2].map((rowIndex) => (
                       <View key={rowIndex} className="flex-1 flex-row gap-2">
-                        {favorites
-                          .slice(
-                            pageIndex * pageSize + rowIndex * 2,
-                            pageIndex * pageSize + rowIndex * 2 + 2
-                          )
-                          .map((favorite) => (
-                            <Button
-                              key={favorite.id}
-                              variant="secondary"
-                              className={`h-auto min-h-12 flex-1 flex-row items-center justify-between gap-2 px-3 py-2 ${favoriteColorClasses[favoriteColor(favorite)].background}`}
-                              accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
-                              onPress={() => log(favorite, Date.now())}
-                            >
-                              <Button.Label
-                                numberOfLines={2}
-                                className={`flex-1 text-base font-semibold text-left ${favoriteColorClasses[favoriteColor(favorite)].foreground}`}
-                              >
-                                {favorite.name || t(favorite.kind)}
-                              </Button.Label>
-                              <Ionicons
-                                name="add-circle-outline"
-                                size={22}
-                                color={foreground}
-                                accessible={false}
-                              />
-                            </Button>
-                          ))}
-                        {favorites.length === pageIndex * pageSize + rowIndex * 2 + 1 && (
-                          <View className="flex-1" />
-                        )}
+                        {[0, 1].map((column) => {
+                          const favorite = favorites[pageIndex * pageSize + rowIndex * 2 + column];
+                          // Yoga floors a flex basis at its padding, so size padding-free cells
+                          // rather than buttons, or a lone button outgrows its empty neighbor.
+                          return (
+                            <View key={column} className="flex-1">
+                              {favorite && (
+                                <Button
+                                  variant="secondary"
+                                  className={`h-auto min-h-12 flex-1 flex-row items-center justify-between gap-2 px-3 py-2 ${favoriteColorClasses[favoriteColor(favorite)].background}`}
+                                  accessibilityLabel={`${t("addDrink")}: ${favorite.name || t(favorite.kind)}, ${volume(selectedMl)}`}
+                                  onPress={() => log(favorite, Date.now())}
+                                >
+                                  <Button.Label
+                                    numberOfLines={2}
+                                    className={`flex-1 text-base font-semibold text-left ${favoriteColorClasses[favoriteColor(favorite)].foreground}`}
+                                  >
+                                    {favorite.name || t(favorite.kind)}
+                                  </Button.Label>
+                                  <Ionicons
+                                    name="add-circle-outline"
+                                    size={22}
+                                    color={foreground}
+                                    accessible={false}
+                                  />
+                                </Button>
+                              )}
+                            </View>
+                          );
+                        })}
                       </View>
                     ))}
                     {!favorites.length && <Note>{t("favoriteEmpty")}</Note>}
