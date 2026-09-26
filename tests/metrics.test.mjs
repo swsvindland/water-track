@@ -33,15 +33,28 @@ test("BAC requires profile and carries alcohol across midnight", () => {
   const d = drink();
   const now = d.consumedAt + 3600000;
   assert.equal(estimateBac([d], null, 0.68, now), null);
-  assert.ok(Math.abs(estimateBac([d], 70, 0.68, now) - (alcoholGrams(d) / 476 - 0.015)) < 1e-10);
+  assert.ok(
+    Math.abs(estimateBac([d], 70, 0.68, now) - ((alcoholGrams(d) * 1.055) / 476 - 0.015)) < 1e-10
+  );
 });
 test("BAC eliminates once per time interval and handles unsorted logs", () => {
   const a = drink(),
     b = drink({ consumedAt: a.consumedAt + 3600000 });
   const result = estimateBac([b, a], 70, 0.68, b.consumedAt);
-  assert.ok(Math.abs(result - ((2 * alcoholGrams(a)) / 476 - 0.015)) < 1e-10);
+  assert.ok(Math.abs(result - ((2 * alcoholGrams(a) * 1.055) / 476 - 0.015)) < 1e-10);
   assert.equal(estimateBac([a, b], 70, 0.68, b.consumedAt + 86400000), 0);
   assert.equal(estimateBac([b], 70, 0.68, a.consumedAt), 0);
+});
+test("BAC is reported in g/100 mL: Widmark mass concentration times blood density", () => {
+  // 14 g of ethanol (one US standard drink) for 70 kg at r = 0.68:
+  // 14 / (70,000 g × 0.68) = 0.0294 g/100 g, × 1.055 g/mL ≈ 0.0310 g/100 mL.
+  const standard = drink({ volumeMl: 14 / 0.789 / 0.05 });
+  assert.ok(Math.abs(alcoholGrams(standard) - 14) < 1e-10);
+  const peak = estimateBac([standard], 70, 0.68, standard.consumedAt);
+  assert.ok(Math.abs(peak - 0.031029) < 1e-6, String(peak));
+  // Two hours later, 0.030 percentage points have been eliminated.
+  const later = estimateBac([standard], 70, 0.68, standard.consumedAt + 2 * 3600000);
+  assert.ok(Math.abs(later - (peak - 0.03)) < 1e-10);
 });
 test("local day boundaries exclude exactly next midnight", () => {
   const d = drink().consumedAt;

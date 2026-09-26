@@ -11,12 +11,16 @@ export type Favorite = {
   showOnHome?: boolean;
 };
 
+// US fluid ounces in mL (OZ_ML), inlined so this module has no runtime imports.
+// Cup and shot caffeine values are quoted per US serving, so their sizes are exact.
+const floz = (n: number) => n * 29.5735295625;
+
 // Stable IDs match the original seeded favorites. Missing presets stay hidden so
 // upgrading never restores a drink that someone previously removed.
 export const popularDrinks: Favorite[] = [
   { id: "water", kind: "water", name: "", ml: 250, caffeine: 0, abv: 0 },
-  { id: "coffee", kind: "coffee", name: "", ml: 240, caffeine: 95, abv: 0 },
-  { id: "tea", kind: "tea", name: "", ml: 240, caffeine: 40, abv: 0 },
+  { id: "coffee", kind: "coffee", name: "", ml: floz(8), caffeine: 95, abv: 0 },
+  { id: "tea", kind: "tea", name: "", ml: floz(8), caffeine: 47, abv: 0 },
   { id: "energy", kind: "energy", name: "", ml: 473, caffeine: 160, abv: 0 },
   { id: "preworkout", kind: "preworkout", name: "", ml: 300, caffeine: 200, abv: 0 },
   { id: "alcohol", kind: "alcohol", name: "", ml: 355, caffeine: 0, abv: 5 },
@@ -35,6 +39,14 @@ export const popularDrinks: Favorite[] = [
     name: "Monster Original",
     ml: 473,
     caffeine: 160,
+    abv: 0,
+  },
+  {
+    id: "monster-zero-ultra",
+    kind: "energy",
+    name: "White Monster (Zero Ultra)",
+    ml: 473,
+    caffeine: 150,
     abv: 0,
   },
   {
@@ -61,17 +73,17 @@ export const popularDrinks: Favorite[] = [
     caffeine: 80,
     abv: 0,
   },
-  { id: "espresso", kind: "coffee", name: "Espresso", ml: 30, caffeine: 63, abv: 0 },
-  { id: "americano", kind: "coffee", name: "Americano", ml: 240, caffeine: 126, abv: 0 },
-  { id: "latte", kind: "coffee", name: "Latte", ml: 240, caffeine: 63, abv: 0 },
-  { id: "cappuccino", kind: "coffee", name: "Cappuccino", ml: 180, caffeine: 63, abv: 0 },
-  { id: "cold-brew", kind: "coffee", name: "Cold brew", ml: 240, caffeine: 150, abv: 0 },
-  { id: "decaf-coffee", kind: "coffee", name: "Decaf coffee", ml: 240, caffeine: 2, abv: 0 },
-  { id: "jasmine-tea", kind: "tea", name: "Jasmine tea", ml: 240, caffeine: 30, abv: 0 },
-  { id: "black-tea", kind: "tea", name: "Black tea", ml: 240, caffeine: 47, abv: 0 },
-  { id: "green-tea", kind: "tea", name: "Green tea", ml: 240, caffeine: 28, abv: 0 },
-  { id: "oolong-tea", kind: "tea", name: "Oolong tea", ml: 240, caffeine: 38, abv: 0 },
-  { id: "matcha", kind: "tea", name: "Matcha", ml: 240, caffeine: 70, abv: 0 },
+  { id: "espresso", kind: "coffee", name: "Espresso", ml: floz(1), caffeine: 63, abv: 0 },
+  { id: "americano", kind: "coffee", name: "Americano", ml: floz(8), caffeine: 126, abv: 0 },
+  { id: "latte", kind: "coffee", name: "Latte", ml: floz(8), caffeine: 63, abv: 0 },
+  { id: "cappuccino", kind: "coffee", name: "Cappuccino", ml: floz(6), caffeine: 63, abv: 0 },
+  { id: "cold-brew", kind: "coffee", name: "Cold brew", ml: floz(8), caffeine: 150, abv: 0 },
+  { id: "decaf-coffee", kind: "coffee", name: "Decaf coffee", ml: floz(8), caffeine: 2, abv: 0 },
+  { id: "jasmine-tea", kind: "tea", name: "Jasmine tea", ml: floz(8), caffeine: 30, abv: 0 },
+  { id: "black-tea", kind: "tea", name: "Black tea", ml: floz(8), caffeine: 47, abv: 0 },
+  { id: "green-tea", kind: "tea", name: "Green tea", ml: floz(8), caffeine: 28, abv: 0 },
+  { id: "oolong-tea", kind: "tea", name: "Oolong tea", ml: floz(8), caffeine: 38, abv: 0 },
+  { id: "matcha", kind: "tea", name: "Matcha", ml: floz(8), caffeine: 70, abv: 0 },
   { id: "herbal-tea", kind: "tea", name: "Herbal tea", ml: 240, caffeine: 0, abv: 0 },
   { id: "cows-milk", kind: "milk", name: "Cow’s milk", ml: 240, caffeine: 0, abv: 0 },
   { id: "soy-milk", kind: "milk", name: "Soy milk", ml: 240, caffeine: 0, abv: 0 },
@@ -87,6 +99,40 @@ export const popularDrinks: Favorite[] = [
   { id: "tequila", kind: "alcohol", name: "Tequila", ml: 44, caffeine: 0, abv: 40 },
   { id: "hard-seltzer", kind: "alcohol", name: "Hard seltzer", ml: 355, caffeine: 0, abv: 5 },
 ];
+
+// Recipes earlier releases shipped (and saved alongside visibility changes) for presets
+// that have since been corrected, as [ml, caffeine, abv]. A saved copy that still matches
+// was never customized, so it follows the current preset.
+const previousRecipes: Record<string, [number, number, number]> = {
+  coffee: [240, 95, 0],
+  tea: [240, 40, 0],
+  espresso: [30, 63, 0],
+  americano: [240, 126, 0],
+  latte: [240, 63, 0],
+  cappuccino: [180, 63, 0],
+  "cold-brew": [240, 150, 0],
+  "decaf-coffee": [240, 2, 0],
+  "jasmine-tea": [240, 30, 0],
+  "black-tea": [240, 47, 0],
+  "green-tea": [240, 28, 0],
+  "oolong-tea": [240, 38, 0],
+  matcha: [240, 70, 0],
+};
+
+export function savedFavorites(json: string): Favorite[] {
+  return (JSON.parse(json) as Favorite[]).map((saved) => {
+    const preset = popularDrinks.find((drink) => drink.id === saved.id);
+    const previous = previousRecipes[saved.id];
+    return preset &&
+      previous &&
+      saved.kind === preset.kind &&
+      saved.ml === previous[0] &&
+      saved.caffeine === previous[1] &&
+      saved.abv === previous[2]
+      ? { ...saved, ml: preset.ml, caffeine: preset.caffeine, abv: preset.abv }
+      : saved;
+  });
+}
 
 export function isPopularDrink(favorite: Favorite) {
   return popularDrinks.some((drink) => drink.id === favorite.id);
@@ -106,7 +152,8 @@ export function homeFavorites(saved: Favorite[]): Favorite[] {
 }
 
 export function favoriteIntake(favorite: Favorite, volumeMl: number) {
-  const caffeineMg = (favorite.caffeine * volumeMl) / favorite.ml;
+  // Scale by the size ratio so logging exactly the reference size returns its label value.
+  const caffeineMg = favorite.caffeine * (volumeMl / favorite.ml);
   if (
     !Number.isFinite(volumeMl) ||
     volumeMl < 1 ||

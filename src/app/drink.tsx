@@ -19,7 +19,7 @@ import { useApp } from "@/lib/store";
 import { defaults, kinds, OZ_ML, parseNumber, type DrinkKind } from "@/lib/metrics";
 import { Screen, Field, Note } from "@/components/ui";
 
-import { drinkCatalog, type Favorite } from "@/lib/favorites";
+import { drinkCatalog, savedFavorites, type Favorite } from "@/lib/favorites";
 
 function DrinkDropdown({
   label,
@@ -65,7 +65,7 @@ export default function DrinkEditor() {
   const { rows, settings, locale, t } = useApp();
   const db = useDatabase();
   const existing = rows.find((d) => d.id === params.id && !d.deleted);
-  const catalog = drinkCatalog(JSON.parse(settings.favorites) as Favorite[]);
+  const catalog = drinkCatalog(savedFavorites(settings.favorites));
   for (const group of kinds) {
     if (!catalog.some((drink) => drink.kind === group)) {
       catalog.push({ id: `group:${group}`, kind: group, name: "", ...defaults[group] });
@@ -132,7 +132,7 @@ export default function DrinkEditor() {
   }
   function save() {
     const volumeMl = parseNumber(amount) * factor,
-      caffeineMg = (drinkProfile.caffeine * volumeMl) / drinkProfile.ml,
+      caffeineMg = drinkProfile.caffeine * (volumeMl / drinkProfile.ml),
       strength = drinkProfile.abv,
       consumedAt = when;
     if (

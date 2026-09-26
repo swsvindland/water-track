@@ -12,6 +12,7 @@ import { defaults, kinds, OZ_ML, parseNumber, type DrinkKind } from "@/lib/metri
 import {
   drinkCatalog,
   isPopularDrink,
+  savedFavorites,
   favoriteColor,
   favoriteColorClasses,
   favoriteColors,
@@ -22,7 +23,7 @@ import {
 export default function Favorites() {
   const { settings, t, volume, number } = useApp();
   const db = useDatabase();
-  const favorites = drinkCatalog(JSON.parse(settings.favorites) as Favorite[]);
+  const favorites = drinkCatalog(savedFavorites(settings.favorites));
   const factor = settings.units === "us" ? OZ_ML : 1;
   const [editing, setEditing] = useState<Favorite | null>(null);
   const [color, setColor] = useState<FavoriteColor | undefined>();
