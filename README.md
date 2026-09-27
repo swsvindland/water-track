@@ -73,7 +73,7 @@ Local notifications cannot check intake when they fire. Instead, the app schedul
 
 ### Apple Intelligence schedule setup
 
-On iOS 26+ devices with Apple Intelligence enabled, you can describe your routine ("up at 6:30 on weekdays, weekends I sleep until 9 and go to bed around midnight"). A local Expo module (`modules/schedule-intelligence`) runs Apple's on-device Foundation Models with guided generation to produce seven wake-up and bedtime pairs, using the current schedule for days you don't mention. Output is validated. Days that aren't valid keep their previous times. The description never leaves the device. The option is hidden on Android, older iOS versions, and ineligible devices, and shows setup guidance when Apple Intelligence is off or still downloading. Building it requires Xcode 26. Older SDKs compile the module without the Foundation Models code.
+On iOS 26+ devices with Apple Intelligence enabled, you can describe your routine ("up at 6:30 on weekdays, weekends I sleep until 9 and go to bed around midnight"). A local Expo module (`modules/schedule-intelligence`) runs Apple's on-device Foundation Models with guided generation to produce seven wake-up and bedtime pairs, using the current schedule for days you don't mention. Common English descriptions ("7:30-8:30 weekdays, 9:30 to midnight weekends", "no reminders on Sundays") are read directly by `src/lib/routine.ts` without the model: times without am or pm are resolved to the most plausible day (a morning wake-up, a bedtime in the evening or after midnight), and anything containing a word it doesn't know goes to the model instead. Model output is validated, and a day that is invalid because am and pm were mixed up (for example a one-hour day or a noon bedtime) is repaired to the likeliest 12-hour reading. Days that still aren't valid keep their previous times. The description never leaves the device. The option is hidden on Android, older iOS versions, and ineligible devices, and shows setup guidance when Apple Intelligence is off or still downloading. Building it requires Xcode 26. Older SDKs compile the module without the Foundation Models code.
 
 ## Verification
 
@@ -85,7 +85,7 @@ pnpm db:check
 pnpm format:check
 ```
 
-Tests cover unit conversions, totals, local midnight and DST boundaries, BAC across multiple drinks and midnight, numeric/date validation, migration preservation, revision/deletion behavior, the reminder plan and scheduling rules, validation of Apple Intelligence output, and translation placeholders. Expo Router regenerates route types during `pnpm start` after adding routes.
+Tests cover unit conversions, totals, local midnight and DST boundaries, BAC across multiple drinks and midnight, numeric/date validation, migration preservation, revision/deletion behavior, the reminder plan and scheduling rules, plain-language schedule descriptions and validation and repair of Apple Intelligence output, and translation placeholders. Expo Router regenerates route types during `pnpm start` after adding routes.
 
 Device acceptance checks:
 

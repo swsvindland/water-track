@@ -244,7 +244,7 @@ test("Apple Intelligence prompts carry the current week and output is validated"
     schedule: [...everyDay({ wake: 390, bed: 1350 }).slice(0, 6), { wake: 540, bed: 0, off: true }],
     adjusted: false,
   });
-  generated[2] = { wake: 420, bed: 480 };
+  generated[2] = { wake: 420, bed: 1440 };
   generated[3] = { wake: "7", bed: 1320 };
   const adjusted = plain(reminders.scheduleFromModel(generated, current, 120));
   assert.equal(adjusted.adjusted, true);
@@ -255,4 +255,45 @@ test("Apple Intelligence prompts carry the current week and output is validated"
     schedule: plain(current),
     adjusted: true,
   });
+});
+
+test("model times that mix up am and pm are repaired before they are rejected", () => {
+  const current = everyDay({ wake: 420, bed: 1320 });
+  // "7:30 - 8:30 weekdays and 9:30 - midnight weekends" as the model tends to return it.
+  const generated = everyDay({ wake: 450, bed: 510, off: false });
+  generated[0] = { wake: 570, bed: 720, off: false };
+  generated[6] = { wake: 570, bed: 720, off: true };
+  generated[3] = { wake: 1170, bed: 1230 };
+  const result = plain(reminders.scheduleFromModel(generated, current, 120));
+  assert.equal(result.adjusted, false);
+  assert.deepEqual(result.schedule, [
+    { wake: 570, bed: 0 },
+    { wake: 450, bed: 1230 },
+    { wake: 450, bed: 1230 },
+    { wake: 450, bed: 1230 },
+    { wake: 450, bed: 1230 },
+    { wake: 450, bed: 1230 },
+    { wake: 570, bed: 0, off: true },
+  ]);
+  // Noon rather than half past midnight, and a 30-minute day becomes 12.5 hours.
+  const noon = plain(reminders.scheduleFromModel(everyDay({ wake: 30, bed: 120 }), current, 120));
+  assert.deepEqual(noon.schedule[0], { wake: 750, bed: 120 });
+  const short = plain(reminders.scheduleFromModel(everyDay({ wake: 420, bed: 450 }), current, 120));
+  assert.deepEqual(short.schedule[0], { wake: 420, bed: 1170 });
+  // Valid days are never reinterpreted, even short ones.
+  const evening = everyDay({ wake: 1140, bed: 60 });
+  assert.deepEqual(plain(reminders.scheduleFromModel(evening, current, 60)).schedule, evening);
+});
+
+test("the likeliest day is valid and closest to 16 hours awake", () => {
+  assert.deepEqual(plain(reminders.likeliestDay([450, 1170], [510, 1230], 120)), {
+    wake: 450,
+    bed: 1230,
+  });
+  // Ties go to the first candidates.
+  assert.deepEqual(plain(reminders.likeliestDay([600, 1320], [120, 840], 120)), {
+    wake: 600,
+    bed: 120,
+  });
+  assert.equal(reminders.likeliestDay([420], [480], 120), null);
 });

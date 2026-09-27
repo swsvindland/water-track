@@ -39,13 +39,13 @@ internal final class ModelUnavailableException: Exception {
 @available(iOS 26.0, *)
 @Generable
 struct GeneratedDay {
-  @Guide(description: "Hour the person wakes up, on a 24-hour clock", .range(0...23))
+  @Guide(description: "Hour the person wakes up, on a 24-hour clock: 7:30 in the morning is 7", .range(0...23))
   var wakeHour: Int
 
   @Guide(description: "Minute the person wakes up", .range(0...59))
   var wakeMinute: Int
 
-  @Guide(description: "Hour the person goes to bed, on a 24-hour clock; after midnight is 0, 1, 2", .range(0...23))
+  @Guide(description: "Hour the person goes to bed, on a 24-hour clock: 8:30 in the evening is 20, 10 pm is 22, midnight is 0, 1 am is 1", .range(0...23))
   var bedHour: Int
 
   @Guide(description: "Minute the person goes to bed", .range(0...59))

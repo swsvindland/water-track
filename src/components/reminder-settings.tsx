@@ -26,6 +26,7 @@ import {
   windDownOptions,
   type ReminderDay,
 } from "@/lib/reminders";
+import { parseRoutine } from "@/lib/routine";
 import { useApp } from "@/lib/store";
 import { SystemLabel, SystemPanel, SystemValue } from "@/components/system";
 import { TimePicker } from "@/components/time-picker";
@@ -156,11 +157,14 @@ export function ReminderSettings() {
     setThinking(true);
     setAiMessage(null);
     try {
-      const result = scheduleFromModel(
-        await generateSchedule(scheduleInstructions, schedulePrompt(text, schedule)),
-        schedule,
-        windDown
-      );
+      // Common English descriptions are read directly; anything else goes to the on-device model.
+      const result =
+        parseRoutine(text, schedule, windDown) ??
+        scheduleFromModel(
+          await generateSchedule(scheduleInstructions, schedulePrompt(text, schedule)),
+          schedule,
+          windDown
+        );
       if (
         persist({ reminderSchedule: JSON.stringify(result.schedule), reminderDescription: text })
       ) {
