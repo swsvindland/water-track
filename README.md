@@ -13,7 +13,8 @@ Built for iOS and Android with Expo. Private and local-first. Drink logs and pre
 - History provides calendar day, Monday–Sunday week, and month reports, daily volume charts, totals, averages, and editable logs. Current-period averages include elapsed calendar days, including days without drinks.
 - 11 languages with a system-language default; device locale determines initial metric/US units. Configure default water size, goal, and optional BAC profile. Internal storage always uses mL and kg.
 - Optional automatic health sync with weight import, foreground retries, and OS-scheduled background work.
-- Optional hydration reminders that follow your wake-up and bedtime schedule, nudge you hourly only when you are behind plan, and ease off before bed. On supported iPhones, Apple Intelligence can build the weekly schedule from a plain-language description.
+- Optional hydration reminders that follow your wake-up and bedtime schedule, nudge you hourly only when you are behind plan, and ease off before bed. Each reminder has a button that logs a glass of water without opening the app, on the phone, Apple Watch, or a Wear OS watch. On supported iPhones, Apple Intelligence can build the weekly schedule from a plain-language description.
+- An Apple Watch app shows today's progress toward the goal and your home favorites, four per page; swipe or turn the Digital Crown for more, and tap one to log it.
 
 Hydration progress measures logged intake, not physiological hydration. Coffee and tea count; drinks containing alcohol do not contribute to the goal. The default goal of 2,500 mL is editable, not a personalized recommendation. Serving caffeine defaults are examples: users should check product labels. Quick logging uses the selected size and scales each drink's caffeine from its reference serving (for example 150 mg per 16 fl oz White Monster or 63 mg per 1 fl oz espresso); alcohol is computed from volume × ABV × 0.789 g/mL.
 
@@ -69,11 +70,26 @@ The daily plan uses the non-alcoholic goal and the default water size:
 
 A check runs every hour from wake-up through the start of wind-down. A reminder is sent only if logged non-alcoholic intake since midnight of the wake-up day is behind the plan at that moment by more than half an hour's share of drinking; the wake-up reminder is sent unless the morning glasses are already logged. A bedtime after midnight keeps the previous day's plan running into the next morning.
 
+Each reminder has a "Log 250 mL of water" button (the default water size, in your units and language). It logs a glass of water at the moment it is tapped without opening the app, and reminders are then rescheduled. On iOS the drink is queued natively (`modules/watch-bridge`) and saved as soon as the app's JavaScript runs, so a tap is kept even if iOS suspends the app right away. Android saves it in a headless task and dismisses the notification. Apple Watch and Wear OS show the button on mirrored reminders; on Apple Watch with the watch app installed, the watch logs the drink and sends it to the iPhone.
+
 Local notifications cannot check intake when they fire. Instead, the app schedules up to 60 upcoming reminders (about four days), each assuming nothing else is logged. It reschedules them whenever drinks, reminder settings, goal, units, or language change, when the app returns to the foreground, and in OS-scheduled background work. It only reschedules notifications whose time or text changed. If the app goes unopened for several days, reminders stop once the scheduled ones run out.
 
 ### Apple Intelligence schedule setup
 
 On iOS 26+ devices with Apple Intelligence enabled, you can describe your routine ("up at 6:30 on weekdays, weekends I sleep until 9 and go to bed around midnight"). A local Expo module (`modules/schedule-intelligence`) runs Apple's on-device Foundation Models with guided generation to produce seven wake-up and bedtime pairs, using the current schedule for days you don't mention. Common English descriptions ("7:30-8:30 weekdays, 9:30 to midnight weekends", "no reminders on Sundays") are read directly by `src/lib/routine.ts` without the model: times without am or pm are resolved to the most plausible day (a morning wake-up, a bedtime in the evening or after midnight), and anything containing a word it doesn't know goes to the model instead. Model output is validated, and a day that is invalid because am and pm were mixed up (for example a one-hour day or a noon bedtime) is repaired to the likeliest 12-hour reading. Days that still aren't valid keep their previous times. The description never leaves the device. The option is hidden on Android, older iOS versions, and ineligible devices, and shows setup guidance when Apple Intelligence is off or still downloading. Building it requires Xcode 26. Older SDKs compile the module without the Foundation Models code.
+
+## Apple Watch
+
+The watch app lives in `targets/watch` (SwiftUI, watchOS 10+) and is added to the Xcode project during prebuild by [`@bacons/apple-targets`](https://github.com/EvanBacon/expo-apple-targets). It ships inside the iPhone app with the bundle ID `dev.svindland.vector.water.watchkitapp` and needs the iPhone app; there is no separate watch-only install. Set `ios.appleTeamId` in `app.json` (or sign the `HydrateWatch` target in Xcode) before building. EAS Build signs the extra target automatically.
+
+- The first page shows today's intake toward the goal and the first four home favorites; swipe or turn the Digital Crown for the next four, up to 24.
+- A tap logs that favorite at the iPhone's current home size, like the home screen. For 4 seconds a "Logged · Undo" banner can take it back before it is sent.
+- The iPhone sends today's total, goal, units, language, and favorites whenever they change. The watch adds drinks the iPhone hasn't recorded yet, so its total is right while the phone is out of reach, and stops adding each one once the iPhone's list includes it.
+- Drinks go to the iPhone as a message, which wakes the iPhone app so it saves them right away, and as queued user info that the system delivers later if the message can't be. The iPhone saves each drink ID once and validates everything it receives (`src/lib/quick-log.ts`).
+
+To run it, prebuild (`pnpm ios:build` or `npx expo prebuild -p ios`), open the workspace in Xcode, choose the `HydrateWatch` scheme and a paired watch simulator, and run the iPhone app once so the watch receives your favorites.
+
+There is no Wear OS app yet. On Android watches, reminders still show the "Log water" button, which runs on the phone.
 
 ## Verification
 
@@ -85,7 +101,7 @@ pnpm db:check
 pnpm format:check
 ```
 
-Tests cover unit conversions, totals, local midnight and DST boundaries, BAC across multiple drinks and midnight, numeric/date validation, migration preservation, revision/deletion behavior, the reminder plan and scheduling rules, plain-language schedule descriptions and validation and repair of Apple Intelligence output, and translation placeholders. Expo Router regenerates route types during `pnpm start` after adding routes.
+Tests cover unit conversions, validation of drinks from the watch and reminder buttons, the state sent to the watch, totals, local midnight and DST boundaries, BAC across multiple drinks and midnight, numeric/date validation, migration preservation, revision/deletion behavior, the reminder plan and scheduling rules, plain-language schedule descriptions and validation and repair of Apple Intelligence output, and translation placeholders. Expo Router regenerates route types during `pnpm start` after adding routes.
 
 Device acceptance checks:
 
@@ -97,6 +113,8 @@ Device acceptance checks:
 6. Verify background export on physical iOS/Android devices, with foreground retry after suspension.
 7. Enable reminders, allow and deny notification permission, and confirm the switch and system-settings guidance. Set a wake-up time a few minutes ahead, confirm the morning reminder, log the morning glasses, and verify later hourly reminders are skipped while on plan and resume when behind.
 8. On an Apple Intelligence iPhone, describe a weekday/weekend routine and confirm the per-day schedule. Confirm the option is hidden on Android and unsupported iPhones.
+9. With reminders on, tap "Log water" on a reminder on the phone with the app in the foreground, in the background, and force-quit; confirm one drink each time and that the notification goes away (Android). Repeat from an Apple Watch and a Wear OS watch.
+10. On Apple Watch, confirm favorites and the total match the iPhone, including after changing units, language, goal, home size, and favorites. Log from the watch with the iPhone nearby, out of range, and with the iPhone app force-quit; confirm each drink arrives once, the watch total doesn't double count, and Undo within 4 seconds sends nothing. Check the total resets at midnight.
 
 ## Database changes
 

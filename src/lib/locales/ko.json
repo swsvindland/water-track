@@ -176,5 +176,6 @@
   "reminderMorningTitle": "좋은 아침입니다",
   "reminderMorningBody": "물 {amount}로 하루를 시작하세요.",
   "reminderTitle": "물 마실 시간",
-  "reminderBody": "계획보다 {amount} 뒤처져 있습니다. 지금 한 잔 드세요."
+  "reminderBody": "계획보다 {amount} 뒤처져 있습니다. 지금 한 잔 드세요.",
+  "reminderAction": "물 {amount} 기록"
 }

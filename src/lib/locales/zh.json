@@ -176,5 +176,6 @@
   "reminderMorningTitle": "早上好",
   "reminderMorningBody": "用 {amount} 水开始新的一天。",
   "reminderTitle": "该喝水了",
-  "reminderBody": "你落后计划 {amount}。现在喝一杯吧。"
+  "reminderBody": "你落后计划 {amount}。现在喝一杯吧。",
+  "reminderAction": "记录 {amount} 水"
 }

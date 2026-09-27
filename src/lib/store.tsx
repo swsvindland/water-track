@@ -8,9 +8,12 @@ import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Drink, type Preferences } from "@/db/schema";
 import { languagePreference, localeTag, resolveLanguage, translate, type Message } from "./i18n";
 import { bacWeight } from "./health-data";
-import { formatVolume } from "./metrics";
+import { formatVolume, startOfDay } from "./metrics";
 import { registerBackgroundSync, unregisterBackgroundSync, syncHealth } from "./health";
 import { registerReminderRefresh, syncReminders, unregisterReminderRefresh } from "./notifications";
+import { watchState } from "./quick-log";
+import { resendWatchState, saveQueuedDrinks, sendWatchState } from "./watch";
+import { addQueueListener } from "../../modules/watch-bridge";
 
 type State = {
   rows: Drink[];
@@ -95,6 +98,43 @@ export function AppProvider({ children }: PropsWithChildren) {
     language,
     drinkRevisions,
   ]);
+  // Drinks from Apple Watch and reminder action buttons wait in a native queue until saved here.
+  const [watchRequest, setWatchRequest] = useState(0);
+  useEffect(() => {
+    const save = () => {
+      try {
+        saveQueuedDrinks(db);
+      } catch {
+        // The queue keeps unsaved drinks.
+      }
+    };
+    save();
+    const queue = addQueueListener(() => {
+      save();
+      resendWatchState();
+      setWatchRequest((count) => count + 1);
+    });
+    const app = AppState.addEventListener("change", (state) => {
+      if (state === "active") save();
+    });
+    return () => {
+      queue?.remove();
+      app.remove();
+    };
+  }, [db]);
+  const day = startOfDay(now);
+  useEffect(() => {
+    if (settings && records.updatedAt)
+      sendWatchState(
+        watchState({
+          rows: records.data,
+          settings,
+          now: Date.now(),
+          locale: localeTag(language),
+          t: (key) => translate(language, key),
+        })
+      );
+  }, [records.data, records.updatedAt, settings, language, day, watchRequest]);
   if (records.error || prefs.error)
     return (
       <View className="flex-1 justify-center p-6 bg-background">

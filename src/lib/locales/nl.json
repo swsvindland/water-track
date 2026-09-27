@@ -176,5 +176,6 @@
   "reminderMorningTitle": "Goedemorgen",
   "reminderMorningBody": "Begin je dag met {amount} water.",
   "reminderTitle": "Tijd voor water",
-  "reminderBody": "Je loopt {amount} achter op je plan. Drink nu een glas."
+  "reminderBody": "Je loopt {amount} achter op je plan. Drink nu een glas.",
+  "reminderAction": "{amount} water loggen"
 }

@@ -176,5 +176,6 @@
   "reminderMorningTitle": "God morgon",
   "reminderMorningBody": "Börja dagen med {amount} vatten.",
   "reminderTitle": "Dags för vatten",
-  "reminderBody": "Du ligger {amount} efter din plan. Drick ett glas nu."
+  "reminderBody": "Du ligger {amount} efter din plan. Drick ett glas nu.",
+  "reminderAction": "Logga {amount} vatten"
 }

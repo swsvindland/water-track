@@ -19,6 +19,7 @@
     "icons:generate": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^5.0.0",
     "@expo/metro-runtime": "~57.0.14",
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.14",
