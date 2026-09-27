@@ -8,6 +8,7 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:watch": "node scripts/install-watch-sim.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
