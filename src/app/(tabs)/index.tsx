@@ -29,7 +29,7 @@ import { withUniwind } from "uniwind";
 import { useApp } from "@/lib/store";
 import { HomeCarousel } from "@/components/home-carousel";
 import { BacSummary } from "@/components/bac-summary";
-import { estimateBac, inDay, totals, OZ_ML } from "@/lib/metrics";
+import { estimateBac, inDay, nearestSize, sizeOptions, totals } from "@/lib/metrics";
 
 const SafeAreaView = withUniwind(NativeSafeAreaView);
 
@@ -41,12 +41,7 @@ export default function Today() {
   const savedMl = settings.quickMl ?? settings.defaultMl;
   const [draftMl, setDraftMl] = useState<number | null>(null);
   const selectedMl = draftMl ?? savedMl;
-  const factor = settings.units === "us" ? OZ_ML : 1;
-  const step = settings.units === "us" ? 1 : 10;
-  const maxSize = Math.min(
-    5000 / factor,
-    Math.ceil(Math.max(settings.units === "us" ? 32 : 1000, savedMl / factor) / step) * step
-  );
+  const sizes = sizeOptions(settings.units, savedMl);
   const [height, setHeight] = useState(650);
   const compact = height < 700;
   const active = rows.filter((d) => !d.deleted);
@@ -244,15 +239,15 @@ export default function Today() {
               <SystemSlider
                 accessibilityLabel={t("size")}
                 accessibilityValue={{ text: volume(selectedMl) }}
-                value={selectedMl / factor}
-                minValue={Math.min(step, savedMl / factor)}
-                maxValue={maxSize}
-                step={step}
+                value={nearestSize(sizes, selectedMl)}
+                minValue={0}
+                maxValue={sizes.length - 1}
+                step={1}
                 onChange={(value) =>
-                  setDraftMl((typeof value === "number" ? value : value[0]) * factor)
+                  setDraftMl(sizes[Math.round(typeof value === "number" ? value : value[0])])
                 }
                 onChangeEnd={(value) =>
-                  selectSize((typeof value === "number" ? value : value[0]) * factor)
+                  selectSize(sizes[Math.round(typeof value === "number" ? value : value[0])])
                 }
               />
             </SystemPanel>

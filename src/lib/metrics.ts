@@ -32,6 +32,29 @@ export function formatVolume(ml: number, units: string, locale: string) {
   );
   return `${value} ${us ? "fl oz" : "mL"}`;
 }
+// Common serving sizes the home size slider snaps between: shots, cups, cans, pints, and bottles.
+export const sizeStops = {
+  us: [1, 2, 4, 6, 8, 12, 16, 20, 24, 28, 32, 40, 64],
+  metric: [25, 50, 100, 150, 200, 250, 300, 330, 400, 500, 600, 750, 1000, 1500, 2000],
+};
+// Serving sizes in mL, keeping `current` reachable even when it is a custom size between stops.
+export function sizeOptions(units: string, current: number) {
+  const us = units === "us";
+  const options = (us ? sizeStops.us : sizeStops.metric).map((size) => (us ? size * OZ_ML : size));
+  if (
+    Number.isFinite(current) &&
+    current > 0 &&
+    !options.some((ml) => Math.abs(ml - current) < 0.5)
+  )
+    options.push(current);
+  return options.sort((a, b) => a - b);
+}
+export function nearestSize(options: number[], ml: number) {
+  return options.reduce(
+    (best, option, index) => (Math.abs(option - ml) < Math.abs(options[best] - ml) ? index : best),
+    0
+  );
+}
 // Pure ethanol weighs 0.789 g/mL.
 export const alcoholGrams = (d: Intake) => d.volumeMl * (d.abv / 100) * 0.789;
 export function totals(rows: Intake[]) {

@@ -6,10 +6,12 @@ import {
   estimateBac,
   inDay,
   localDateTime,
+  nearestSize,
   OZ_ML,
   parseDateTime,
   parseNumber,
   shiftDays,
+  sizeOptions,
   startOfDay,
   totals,
 } from "../src/lib/metrics.ts";
@@ -112,4 +114,17 @@ test("BAC trend preserves drink jumps and flat zero intervals", () => {
   );
   assert.ok(points.at(-1).value < jump[1].value);
   assert.equal(bacHistory([first], 70, 0.68, first.consumedAt + 86400000).at(-1).value, 0);
+});
+
+test("size options snap to common serving sizes and keep a custom current size", () => {
+  const us = sizeOptions("us", 8 * OZ_ML);
+  assert.deepEqual(
+    us.map((ml) => Math.round(ml / OZ_ML)),
+    [1, 2, 4, 6, 8, 12, 16, 20, 24, 28, 32, 40, 64]
+  );
+  const metric = sizeOptions("metric", 355);
+  assert.equal(metric.length, 16);
+  assert.equal(metric[nearestSize(metric, 355)], 355);
+  assert.equal(metric[nearestSize(metric, 340)], 330);
+  assert.deepEqual(sizeOptions("metric", 250), sizeOptions("metric", Number.NaN));
 });
