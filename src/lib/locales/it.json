@@ -176,5 +176,6 @@
   "reminderMorningTitle": "Buongiorno",
   "reminderMorningBody": "Inizia la giornata con {amount} di acqua.",
   "reminderTitle": "È ora di bere",
-  "reminderBody": "Sei indietro di {amount} sul tuo piano. Bevi un bicchiere adesso."
+  "reminderBody": "Sei indietro di {amount} sul tuo piano. Bevi un bicchiere adesso.",
+  "reminderAction": "Registra {amount} d’acqua"
 }

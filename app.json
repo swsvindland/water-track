@@ -15,6 +15,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "dev.svindland.vector.water",
+      "appleTeamId": "9HAG9PT8LJ",
       "icon": {
         "light": "./assets/images/icon.png",
         "dark": "./assets/images/icon-dark.png",
@@ -70,7 +71,8 @@
           "background": false
         }
       ],
-      "react-native-health-connect"
+      "react-native-health-connect",
+      "@bacons/apple-targets"
     ],
     "experiments": {
       "typedRoutes": true,

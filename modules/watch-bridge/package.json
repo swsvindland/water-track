@@ -1,0 +1,7 @@
+{
+  "name": "watch-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Apple Watch sync and reminder quick logging for the iPhone app",
+  "main": "index.ts"
+}

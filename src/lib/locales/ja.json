@@ -176,5 +176,6 @@
   "reminderMorningTitle": "おはようございます",
   "reminderMorningBody": "{amount}の水で1日を始めましょう。",
   "reminderTitle": "水分補給の時間です",
-  "reminderBody": "プランより{amount}遅れています。今すぐ1杯飲みましょう。"
+  "reminderBody": "プランより{amount}遅れています。今すぐ1杯飲みましょう。",
+  "reminderAction": "水を{amount}記録"
 }
