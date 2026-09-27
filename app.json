@@ -72,7 +72,8 @@
         }
       ],
       "react-native-health-connect",
-      "@bacons/apple-targets"
+      "@bacons/apple-targets",
+      "./plugins/withSceneLifecycle"
     ],
     "experiments": {
       "typedRoutes": true,

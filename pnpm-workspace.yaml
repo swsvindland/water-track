@@ -5,3 +5,4 @@ allowBuilds:
   heroui-native-pro: true
   heroui-pro: true
   unrs-resolver: true
+  '@shopify/react-native-skia': true
