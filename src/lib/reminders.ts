@@ -75,6 +75,24 @@ export function validDay(day: ReminderDay, windDownMinutes: number) {
   return awake >= windDownMinutes + 60 && awake <= MAX_AWAKE_MINUTES;
 }
 
+// Picks the valid wake-up and bedtime pair closest to 16 hours awake. Earlier candidates win ties,
+// so callers list the usual reading of an ambiguous time first.
+export function likeliestDay(wakes: number[], beds: number[], windDownMinutes: number) {
+  let best: ReminderDay | null = null,
+    bestDistance = Infinity;
+  for (const wake of wakes) {
+    for (const bed of beds) {
+      const day = { wake, bed };
+      const distance = Math.abs(awakeMinutes(day) - 16 * 60);
+      if (validDay(day, windDownMinutes) && distance < bestDistance) {
+        best = day;
+        bestDistance = distance;
+      }
+    }
+  }
+  return best;
+}
+
 export function sameEveryDay(schedule: ReminderDay[]) {
   const [first] = schedule;
   return schedule.every(
@@ -179,6 +197,10 @@ export const scheduleInstructions = [
   "For every day from Sunday to Saturday, give the wake-up time and bedtime on a 24-hour clock.",
   "Weekdays are Monday to Friday; weekends are Saturday and Sunday.",
   "A bedtime after midnight is written as early-morning time, for example 00:30 or 01:00.",
+  "Times without am or pm: the wake-up time is in the morning and the bedtime is usually in the evening or just after midnight.",
+  "In a range like 7:30 - 8:30, the first time is the wake-up time and the second is the bedtime, so wake 07:30 and bed 20:30.",
+  "Midnight is 00:00 and noon is 12:00. Going to bed at midnight is bedHour 0.",
+  "Example: '7:30 - 8:30 weekdays and 9:30 - midnight weekends' gives Monday to Friday wake 07:30, bed 20:30, and Saturday and Sunday wake 09:30, bed 00:00.",
   "Keep the current schedule for any day the description does not mention.",
   "Set remindersOff to true only for days the person says should have no reminders.",
 ].join("\n");
@@ -196,12 +218,27 @@ export function schedulePrompt(description: string, schedule: ReminderDay[]) {
   ].join("\n");
 }
 
-// Model output is untrusted: invalid days keep their current times.
+// The model often mixes up am and pm, turning "7:30 - 8:30" into a one-hour day or midnight into
+// noon. An invalid day tries the same times 12 hours apart before giving up.
+function repairDay(day: ReminderDay, windDownMinutes: number): ReminderDay | null {
+  if (validDay(day, windDownMinutes)) return day;
+  // As in a description, a wake-up reads as morning first, except in the 12 o'clock hour.
+  const wake = day.wake % 720;
+  const repaired = likeliestDay(
+    wake < 60 ? [wake + 720, wake] : [wake, wake + 720],
+    [day.bed, (day.bed + 720) % DAY_MINUTES],
+    windDownMinutes
+  );
+  return repaired && (day.off ? { ...repaired, off: true } : repaired);
+}
+
+// Model output is untrusted: days that can't be repaired keep their current times.
 export function scheduleFromModel(value: unknown, current: ReminderDay[], windDownMinutes: number) {
   let adjusted = !Array.isArray(value) || value.length !== 7;
   const schedule = current.map((previous, index) => {
     const day = Array.isArray(value) ? normalizeDay(value[index]) : null;
-    if (day && validDay(day, windDownMinutes)) return day;
+    const repaired = day && repairDay(day, windDownMinutes);
+    if (repaired) return repaired;
     adjusted = true;
     return previous;
   });
