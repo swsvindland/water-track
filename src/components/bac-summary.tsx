@@ -1,54 +1,52 @@
-import { Text, View } from "react-native";
-import Svg, { Circle, Path } from "react-native-svg";
-import { useThemeColor } from "heroui-native";
+import { View } from "react-native";
+import { Label, Sparkline, Text, Value, useKitFormat } from "@/vector";
 import type { Drink } from "@/db/schema";
 import { bacHistory } from "@/lib/metrics";
 import { useApp } from "@/lib/store";
 
+const WINDOW_MS = 6 * 3600000;
+/** Local wall-clock time as an ISO date-time without a zone, which the kit charts read as local. */
+const localIso = (time: number) =>
+  new Date(time - new Date(time).getTimezoneOffset() * 60000).toISOString().slice(0, 19);
+
 export function BacSummary({ rows, now, bac }: { rows: Drink[]; now: number; bac: number }) {
-  const { settings, bacWeightKg, locale, t } = useApp();
-  const accent = useThemeColor("accent");
-  const points = bacHistory(rows, bacWeightKg, settings.bodyWaterRatio, now);
-  const peak = Math.max(0.001, ...points.map((point) => point.value));
-  const coordinates = points.map((point) => ({
-    x: 3 + ((point.time - (now - 6 * 3600000)) / (6 * 3600000)) * 174,
-    y: 37 - (point.value / peak) * 34,
+  const { settings, bacWeightKg, t } = useApp();
+  const format = useKitFormat();
+  // BAC in percent with three fixed decimals ("0.050%").
+  const percent = (value: number) => format.percent(value / 100, 3, { fixed: true });
+  const points = bacHistory(rows, bacWeightKg, settings.bodyWaterRatio, now).map((point) => ({
+    day: localIso(point.time),
+    value: point.value,
   }));
-  const path = coordinates
-    .map((point, index) => `${index ? "L" : "M"}${point.x},${point.y}`)
-    .join(" ");
-  const end = coordinates[coordinates.length - 1];
-  const format = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3,
-  });
-  const label = bac < 0.001 ? `< ${format.format(0.001)}%` : `${format.format(bac)}%`;
+  const value = bac < 0.001 ? t("bacBelow", { value: percent(0.001) }) : percent(bac);
   return (
-    <View className="flex-row items-center gap-4 pt-1">
-      <View className="flex-1">
-        <Text className="text-sm text-muted">{t("bac")}</Text>
-        <Text className="text-xl font-semibold tabular-nums text-foreground">{label}</Text>
+    <View className="flex-row items-center gap-4">
+      <View className="flex-1 gap-1">
+        <Label>{t("bac")}</Label>
+        <Value value={value} size="m" />
       </View>
+      {/* The readout beside it is the value; the trend is one image for screen readers. */}
       <View
-        className="flex-1"
+        className="flex-1 gap-1"
         accessible
         accessibilityRole="image"
-        accessibilityLabel={`${t("bacTrend")}. ${t("now")}: ${label}`}
+        accessibilityLabel={t("bacTrend")}
       >
-        <Svg
-          width="100%"
+        <Sparkline
+          points={points}
           height={40}
-          viewBox="0 0 180 40"
-          preserveAspectRatio="none"
-          accessible={false}
-        >
-          <Path d={`${path} L177,40 L3,40 Z`} fill={accent} fillOpacity={0.1} />
-          <Path d={path} fill="none" stroke={accent} strokeWidth={2} strokeLinejoin="round" />
-          {end && <Circle cx={end.x} cy={end.y} r={3} fill={accent} />}
-        </Svg>
-        <View className="flex-row justify-between">
-          <Text className="text-xs text-muted">{t("sixHoursAgo")}</Text>
-          <Text className="text-xs text-muted">{t("now")}</Text>
+          zero
+          minSpan={0.001}
+          from={localIso(now - WINDOW_MS)}
+          to={localIso(now)}
+        />
+        <View className="flex-row justify-between gap-2">
+          <Text variant="caption" tone="muted">
+            {t("sixHoursAgo")}
+          </Text>
+          <Text variant="caption" tone="muted">
+            {t("now")}
+          </Text>
         </View>
       </View>
     </View>

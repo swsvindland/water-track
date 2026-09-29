@@ -3,9 +3,7 @@ import { drizzle } from "drizzle-orm/expo-sqlite";
 import { migrate } from "drizzle-orm/expo-sqlite/migrator";
 import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from "expo-sqlite";
 import { Suspense, useMemo, type PropsWithChildren } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
 
-import { languagePreference, resolveLanguage, translate } from "@/lib/i18n";
 import migrations from "../../drizzle/migrations";
 import * as schema from "./schema";
 
@@ -29,19 +27,8 @@ export async function initializeDatabase(sqlite: SQLiteDatabase) {
 
 export function DatabaseProvider({ children }: PropsWithChildren) {
   return (
-    <Suspense
-      fallback={
-        <View className="flex-1 items-center justify-center gap-4 bg-background">
-          <ActivityIndicator />
-          <Text className="text-foreground">
-            {translate(
-              resolveLanguage(languagePreference(undefined), getLocales()[0]?.languageCode),
-              "loading"
-            )}
-          </Text>
-        </View>
-      }
-    >
+    // The splash (held in app/_layout) covers opening and migrating the database.
+    <Suspense fallback={null}>
       <SQLiteProvider
         databaseName="water-track.db"
         options={{ enableChangeListener: true }}
