@@ -17,14 +17,16 @@ struct ContentView: View {
         .overlay(alignment: .bottom) {
           if let drink = store.lastLogged {
             UndoBanner(state: state, drink: drink)
-              .transition(.move(edge: .bottom).combined(with: .opacity))
+              .transition(.opacity)
+              .vectorHiddenWhenDimmed()
           }
         }
-        .animation(.snappy, value: store.lastLogged?.id)
+        .animation(.easeOut(duration: 0.15), value: store.lastLogged?.id)
       } else {
         SetupView()
       }
     }
+    .vectorWatchTypeCap()
     .onChange(of: scenePhase) { _, phase in
       if phase == .active { store.sendDue() }
     }
@@ -69,6 +71,7 @@ private struct FavoritesPage: View {
       }
     }
     .padding(.horizontal, 2)
+    .modifier(LargeTypeScroll())
   }
 
   @ViewBuilder
@@ -88,12 +91,8 @@ private struct ProgressHeader: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 3) {
       Text(state.volume(totalMl))
-        .font(.system(.title3, design: .rounded).weight(.semibold))
-        .monospacedDigit()
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
-      ProgressView(value: state.goalMl > 0 ? min(totalMl / state.goalMl, 1) : 0)
-        .tint(.accentColor)
+        .vectorReadout(.title3, weight: .medium)
+      VectorMeter(fraction: state.goalMl > 0 ? totalMl / state.goalMl : 0, height: 6)
       HStack(spacing: 4) {
         Text(state.percent(totalMl))
         Spacer(minLength: 0)
@@ -113,38 +112,46 @@ private struct FavoriteButton: View {
   let favorite: WatchState.Favorite
 
   var body: some View {
-    let colors = Palette.colors(for: favorite.color)
+    // Neutral tile: kind glyph, name and volume. The favorite's stored `color` is ignored here.
     Button {
       WatchStore.shared.log(favorite)
     } label: {
       VStack(alignment: .leading, spacing: 2) {
+        Image(systemName: drinkSymbol(favorite.kind))
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+          .accessibilityHidden(true)
         Text(favorite.title)
-          .font(.system(.footnote, design: .rounded).weight(.semibold))
+          .font(.footnote.weight(.semibold))
           .lineLimit(2)
           .minimumScaleFactor(0.8)
         Spacer(minLength: 0)
         Text(state.volume(favorite.volumeMl))
-          .font(.caption2)
-          .opacity(0.8)
+          .font(VectorFont.readout(.caption2))
+          .monospacedDigit()
+          .foregroundStyle(.secondary)
           .lineLimit(1)
       }
-      .foregroundStyle(colors.foreground)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-      .padding(8)
-      .background(colors.background, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-      .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    .buttonStyle(PressStyle())
+    .vectorTileButton()
+    .vectorHiddenWhenDimmed()
     .accessibilityLabel("\(state.text.addDrink): \(favorite.title), \(state.volume(favorite.volumeMl))")
   }
 }
 
-private struct PressStyle: ButtonStyle {
-  func makeBody(configuration: Configuration) -> some View {
-    configuration.label
-      .scaleEffect(configuration.isPressed ? 0.94 : 1)
-      .opacity(configuration.isPressed ? 0.8 : 1)
-      .animation(.snappy(duration: 0.15), value: configuration.isPressed)
+/// Matches kindIcon in src/components/drink-list.tsx (SF names from src/vector/icons.ts).
+private func drinkSymbol(_ kind: String) -> String {
+  switch kind {
+  case "water": return "drop"
+  case "coffee": return "cup.and.saucer"
+  case "tea": return "leaf"
+  case "milk": return "mug"
+  case "juice": return "carrot"
+  case "energy": return "bolt"
+  case "preworkout": return "dumbbell"
+  case "alcohol": return "wineglass"
+  default: return "waterbottle"
   }
 }
 
@@ -157,19 +164,19 @@ private struct UndoBanner: View {
       WatchStore.shared.undo()
     } label: {
       HStack(spacing: 6) {
-        Image(systemName: "checkmark.circle.fill")
-          .foregroundStyle(.green)
+        Image(systemName: VectorSymbol.done)
+          .foregroundStyle(VectorColor.signal)
         Text(state.text.logged)
           .lineLimit(1)
         Spacer(minLength: 4)
         Text(state.text.undo)
           .fontWeight(.semibold)
-          .foregroundStyle(Color.accentColor)
+          .foregroundStyle(VectorColor.signal)
       }
       .font(.footnote)
       .padding(.horizontal, 12)
       .padding(.vertical, 8)
-      .background(.ultraThinMaterial, in: Capsule())
+      .vectorFloatingCapsule()
     }
     .buttonStyle(.plain)
     .padding(.horizontal, 4)
@@ -180,17 +187,17 @@ private struct UndoBanner: View {
 /// Shown until the iPhone app first sends favorites; it has no translations to share yet.
 private struct SetupView: View {
   private static let messages = [
-    "en": "Open HYDRATE on your iPhone to sync your favorites.",
-    "es": "Abre HYDRATE en tu iPhone para sincronizar tus favoritos.",
-    "fr": "Ouvrez HYDRATE sur votre iPhone pour synchroniser vos favoris.",
-    "de": "Öffne HYDRATE auf deinem iPhone, um deine Favoriten zu synchronisieren.",
-    "it": "Apri HYDRATE sul tuo iPhone per sincronizzare i preferiti.",
-    "pt": "Abra a HYDRATE no iPhone para sincronizar os seus favoritos.",
-    "nl": "Open HYDRATE op je iPhone om je favorieten te synchroniseren.",
-    "sv": "Öppna HYDRATE på din iPhone för att synka dina favoriter.",
-    "ja": "iPhoneでHYDRATEを開いて、お気に入りを同期してください。",
-    "ko": "iPhone에서 HYDRATE를 열어 즐겨찾기를 동기화하세요.",
-    "zh": "在 iPhone 上打开 HYDRATE 以同步你的收藏。",
+    "en": "Open Vector Hydration on your iPhone to sync your favorites.",
+    "es": "Abre Vector Hydration en tu iPhone para sincronizar tus favoritos.",
+    "fr": "Ouvrez Vector Hydration sur votre iPhone pour synchroniser vos favoris.",
+    "de": "Öffne Vector Hydration auf deinem iPhone, um deine Favoriten zu synchronisieren.",
+    "it": "Apri Vector Hydration sul tuo iPhone per sincronizzare i preferiti.",
+    "pt": "Abra a Vector Hydration no iPhone para sincronizar os seus favoritos.",
+    "nl": "Open Vector Hydration op je iPhone om je favorieten te synchroniseren.",
+    "sv": "Öppna Vector Hydration på din iPhone för att synka dina favoriter.",
+    "ja": "iPhoneでVector Hydrationを開いて、お気に入りを同期してください。",
+    "ko": "iPhone에서 Vector Hydration을 열어 즐겨찾기를 동기화하세요.",
+    "zh": "在 iPhone 上打开 Vector Hydration 以同步你的收藏。",
   ]
 
   var body: some View {
@@ -204,5 +211,20 @@ private struct SetupView: View {
         .multilineTextAlignment(.center)
     }
     .padding()
+    .modifier(LargeTypeScroll())
+  }
+}
+
+/// Pages keep their fixed layout at normal sizes and scroll at accessibility sizes, so nothing clips.
+private struct LargeTypeScroll: ViewModifier {
+  @Environment(\.dynamicTypeSize) private var typeSize
+
+  @ViewBuilder
+  func body(content: Content) -> some View {
+    if typeSize.isAccessibilitySize {
+      ScrollView { content }
+    } else {
+      content
+    }
   }
 }

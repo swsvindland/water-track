@@ -50,11 +50,13 @@ struct WatchState: Codable, Equatable {
   }
 
   func percent(_ ml: Double) -> String {
+    // The locale places the sign: "50 %" in fr, de and sv, "50%" in en.
     let formatter = NumberFormatter()
     formatter.locale = Locale(identifier: locale)
+    formatter.numberStyle = .percent
     formatter.maximumFractionDigits = 0
-    let value = goalMl > 0 ? min(100, (ml / goalMl * 100).rounded(.down)) : 0
-    return "\(formatter.string(from: NSNumber(value: value)) ?? "")%"
+    let value = goalMl > 0 ? min(1, (ml / goalMl * 100).rounded(.down) / 100) : 0
+    return formatter.string(from: NSNumber(value: value)) ?? ""
   }
 }
 
@@ -120,35 +122,3 @@ struct LoggedDrink: Codable, Equatable, Identifiable {
   }
 }
 
-extension Color {
-  init(hex: UInt32) {
-    self.init(
-      red: Double((hex >> 16) & 0xFF) / 255,
-      green: Double((hex >> 8) & 0xFF) / 255,
-      blue: Double(hex & 0xFF) / 255
-    )
-  }
-}
-
-/// Favorite tints from the dark theme in src/global.css.
-enum Palette {
-  private static let colors: [String: (background: UInt32, foreground: UInt32)] = [
-    "cyan": (0x0C2C35, 0x67D6E7),
-    "brown": (0x29211E, 0xD6B397),
-    "sage": (0x1B2A24, 0xA5C6AA),
-    "amber": (0x2C261B, 0xDFC083),
-    "violet": (0x252236, 0xBFB0E0),
-    "rose": (0x30212A, 0xDFA8BB),
-    "slate": (0x172630, 0xB0C3D0),
-    "blue": (0x192638, 0xA7C3E8),
-    "teal": (0x172E2B, 0x95CEC1),
-    "olive": (0x292C1C, 0xC3C98E),
-    "terracotta": (0x33241E, 0xE1B198),
-    "plum": (0x2D2030, 0xD2ACD1),
-  ]
-
-  static func colors(for name: String) -> (background: Color, foreground: Color) {
-    let pair = colors[name] ?? colors["slate"]!
-    return (Color(hex: pair.background), Color(hex: pair.foreground))
-  }
-}

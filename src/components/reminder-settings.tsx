@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { AppState, Linking, Text, View } from "react-native";
-import { Button, Card, Label, Select, Switch, TextArea, TextField } from "heroui-native";
+import { AppState, Linking, View } from "react-native";
 import { eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { preferences, type Preferences } from "@/db/schema";
-import { interpolate } from "@/lib/i18n";
+import type { Message } from "@/lib/i18n";
 import { shiftDays, startOfDay } from "@/lib/metrics";
 import {
   reminderPermission,
@@ -28,57 +27,79 @@ import {
 } from "@/lib/reminders";
 import { parseRoutine } from "@/lib/routine";
 import { useApp } from "@/lib/store";
-import { SystemLabel, SystemPanel, SystemValue } from "@/components/system";
-import { TimePicker } from "@/components/time-picker";
-import { Heading, Note } from "@/components/ui";
+import {
+  Button,
+  Callout,
+  ErrorText,
+  Field,
+  Heading,
+  Label,
+  Note,
+  Select,
+  Text,
+  TimeInput,
+  Value,
+  useKitFormat,
+} from "@/vector";
+import { FormSection, SwitchField } from "@/components/fields";
+import { useDates, useVolume } from "@/components/format";
 import {
   generateSchedule,
   scheduleIntelligenceAvailability,
 } from "../../modules/schedule-intelligence";
 
-function OptionSelect({
-  label,
-  value,
-  options,
-  isDisabled,
+/** The schedule stores minutes after midnight; kit TimeInput edits a Date. */
+const timeOf = (minutes: number) => new Date(2000, 0, 1, 0, minutes);
+const minutesOf = (date: Date) => date.getHours() * 60 + date.getMinutes();
+
+/**
+ * Wake-up and bedtime side by side, each labelled above its picker. Per day, screen readers hear the day with
+ * each ("Wake up, Monday"), since the day's name is only on the switch above the pair.
+ */
+function DayTimes({
+  day,
+  dayName,
+  disabled,
   onChange,
 }: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  isDisabled: boolean;
-  onChange: (value: string) => void;
+  day: ReminderDay;
+  dayName?: string;
+  disabled: boolean;
+  onChange: (patch: Partial<ReminderDay>) => void;
 }) {
+  const { t } = useApp();
   return (
-    <View className="gap-2">
-      <Label>{label}</Label>
-      <Select
-        isDisabled={isDisabled}
-        value={options.find((option) => option.value === value)}
-        onValueChange={(option) => {
-          if (option) onChange(option.value);
-        }}
-      >
-        <Select.Trigger className="border border-field-border" accessibilityLabel={label}>
-          <Select.Value placeholder={label} />
-          <Select.TriggerIndicator />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Overlay />
-          <Select.Content presentation="popover" width="trigger">
-            {options.map((option) => (
-              <Select.Item key={option.value} {...option} />
-            ))}
-          </Select.Content>
-        </Select.Portal>
-      </Select>
+    <View className="flex-row flex-wrap gap-3">
+      <View className="min-w-36 flex-1">
+        <TimeInput
+          label={t("wakeUp")}
+          accessibilityLabel={dayName ? t("wakeUpOnDay", { day: dayName }) : undefined}
+          value={timeOf(day.wake)}
+          minuteInterval={5}
+          disabled={disabled}
+          onChange={(date) => onChange({ wake: minutesOf(date) })}
+        />
+      </View>
+      <View className="min-w-36 flex-1">
+        <TimeInput
+          label={t("bedtime")}
+          accessibilityLabel={dayName ? t("bedtimeOnDay", { day: dayName }) : undefined}
+          value={timeOf(day.bed)}
+          minuteInterval={5}
+          disabled={disabled}
+          onChange={(date) => onChange({ bed: minutesOf(date) })}
+        />
+      </View>
     </View>
   );
 }
 
 export function ReminderSettings() {
-  const { settings, rows, now, locale, t, number, volume } = useApp();
+  const { settings, rows, now, t } = useApp();
   const db = useDatabase();
+  const format = useKitFormat();
+  const dates = useDates();
+  const volume = useVolume();
   const enabled = settings.remindersEnabled;
   const schedule = parseSchedule(settings.reminderSchedule);
   const windDown = settings.reminderWindDown;
@@ -89,7 +110,8 @@ export function ReminderSettings() {
   const [busy, setBusy] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [error, setError] = useState("");
-  const [aiMessage, setAiMessage] = useState<{ text: string; error: boolean } | null>(null);
+  // Sentences shown one per line, so no language has to join them with a space.
+  const [aiMessage, setAiMessage] = useState<{ keys: Message[]; error: boolean } | null>(null);
   useEffect(() => {
     // Permission and Apple Intelligence can change in system settings while the app is open.
     function refresh() {
@@ -170,12 +192,12 @@ export function ReminderSettings() {
       ) {
         setPerDay(!sameEveryDay(result.schedule));
         setAiMessage({
-          text: result.adjusted ? `${t("aiDone")} ${t("aiAdjusted")}` : t("aiDone"),
+          keys: result.adjusted ? ["aiDone", "aiAdjusted"] : ["aiDone"],
           error: false,
         });
       }
     } catch {
-      setAiMessage({ text: t("aiError"), error: true });
+      setAiMessage({ keys: ["aiError"], error: true });
     } finally {
       setThinking(false);
     }
@@ -193,29 +215,30 @@ export function ReminderSettings() {
     enabled && permission === "granted"
       ? upcomingReminders(recent, schedule, options, now, 1)[0]
       : undefined;
-  const clock = (time: number) =>
-    new Date(time).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
-  const weekday = (index: number, width: "short" | "long") =>
+  const clock = (time: number) => format.time(new Date(time));
+  const weekday = (index: number, width: "short" | "long") => {
     // 4 January 2026 is a Sunday, so index matches Date#getDay().
-    new Date(2026, 0, 4 + index).toLocaleDateString(locale, { weekday: width });
+    const day = new Date(2026, 0, 4 + index);
+    return width === "short" ? format.weekdayShort(day) : format.weekdayLong(day);
+  };
   const invalid = weekOrder.filter(
     (index) => !schedule[index].off && !validDay(schedule[index], windDown)
   );
   const hours = (minutes: number) =>
-    interpolate(t("hoursShort"), { count: number(minutes / 60, 1) });
+    t("hoursShort", { count: format.number(minutes / 60, 1, { fixed: false }) });
   const timeline = plan
     ? [
         plan.morningMl > 0 && {
           time: clock(plan.wakeAt),
-          text: interpolate(t("planStart"), { amount: volume(plan.morningMl) }),
+          text: t("planStart", { amount: volume.text(plan.morningMl) }),
         },
         plan.hourlyMl > 0 && {
           time: plan.morningMl > 0 ? "" : clock(plan.wakeAt),
-          text: interpolate(t("planSteady"), { amount: volume(plan.hourlyMl) }),
+          text: t("planSteady", { amount: volume.text(plan.hourlyMl) }),
         },
         {
           time: clock(plan.cutoffAt),
-          text: interpolate(t("planFinish"), { amount: volume(plan.goalMl) }),
+          text: t("planFinish", { amount: volume.text(plan.goalMl) }),
         },
         { time: clock(plan.bedAt), text: t("bedtime") },
       ].filter((row) => !!row)
@@ -224,183 +247,172 @@ export function ReminderSettings() {
     intelligence
   );
   return (
-    <Card className="rounded-md border border-border bg-surface p-6 shadow-none">
-      <Card.Body className="gap-4">
-        <Card.Title>{t("reminders")}</Card.Title>
-        <View className="flex-row items-center justify-between gap-4">
-          <Heading>{t("remindersEnabled")}</Heading>
-          <Switch
-            accessibilityLabel={t("remindersEnabled")}
-            isSelected={enabled}
-            isDisabled={busy}
-            onSelectedChange={(value) => void toggle(value)}
-          />
+    <FormSection eyebrow={t("reminders")}>
+      <SwitchField
+        label={t("remindersEnabled")}
+        value={enabled}
+        disabled={busy}
+        onChange={(value) => void toggle(value)}
+      />
+      <Note>{t("remindersNote")}</Note>
+      {(permission === "denied" || (enabled && permission === "undetermined")) && (
+        <View className="items-start gap-3">
+          <Callout tone="warning">{t("remindersDenied")}</Callout>
+          <Button
+            variant="secondary"
+            icon="external"
+            iconPosition="end"
+            onPress={() => void Linking.openSettings()}
+          >
+            {t("openSettings")}
+          </Button>
         </View>
-        <Note>{t("remindersNote")}</Note>
-        {(permission === "denied" || (enabled && permission === "undetermined")) && (
-          <View className="gap-3">
-            <Note error>{t("remindersDenied")}</Note>
-            <Button variant="outline" onPress={() => void Linking.openSettings()}>
-              {t("openSettings")}
-            </Button>
-          </View>
-        )}
-        <View className="gap-6" style={{ opacity: enabled ? 1 : 0.5 }}>
-          {showAi && (
-            <View className="gap-3">
-              {intelligence === "available" ? (
-                <>
-                  <TextField isDisabled={!enabled || thinking}>
-                    <Label>{t("describeRoutine")}</Label>
-                    <TextArea
-                      className="border border-field-border"
-                      accessibilityLabel={t("describeRoutine")}
-                      value={description}
-                      onChangeText={setDescription}
-                      placeholder={t("describeRoutineHint")}
-                      maxLength={500}
-                    />
-                  </TextField>
-                  <Button
-                    variant="secondary"
-                    isDisabled={!enabled || thinking || !description.trim()}
-                    onPress={() => void describe()}
-                  >
-                    {t(thinking ? "aiWorking" : "setUpWithAI")}
-                  </Button>
-                  {aiMessage && <Note error={aiMessage.error}>{aiMessage.text}</Note>}
-                </>
-              ) : (
-                <Note>{t(intelligence === "modelNotReady" ? "aiNotReady" : "aiNotEnabled")}</Note>
-              )}
-            </View>
-          )}
-          <View className="gap-3">
-            <Heading>{t("schedule")}</Heading>
-            <View className="flex-row items-center justify-between gap-4">
-              <Text className="flex-1 text-base text-foreground">{t("variesByDay")}</Text>
-              <Switch
-                accessibilityLabel={t("variesByDay")}
-                isSelected={perDay}
-                isDisabled={!enabled}
-                onSelectedChange={changePerDay}
+      )}
+      {showAi && (
+        <View className="gap-3">
+          {intelligence === "available" ? (
+            <>
+              <Field
+                label={t("describeRoutine")}
+                value={description}
+                onChange={setDescription}
+                placeholder={t("describeRoutineHint")}
+                maxLength={500}
+                multiline
+                disabled={!enabled || thinking}
               />
-            </View>
-            {perDay ? (
-              weekOrder.map((index) => {
-                const day = schedule[index];
-                const name = weekday(index, "long");
-                return (
-                  <View key={index} className="flex-row items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant={day.off ? "outline" : "secondary"}
-                      className="w-16"
-                      isDisabled={!enabled}
-                      accessibilityRole="switch"
-                      accessibilityLabel={interpolate(t("remindersOnDay"), { day: name })}
-                      accessibilityState={{ checked: !day.off }}
-                      onPress={() => updateDay(index, { off: !day.off })}
-                    >
-                      {weekday(index, "short")}
-                    </Button>
-                    <TimePicker
-                      label={`${name}, ${t("wakeUp")}`}
-                      minutes={day.wake}
-                      isDisabled={!enabled || !!day.off}
-                      onChange={(wake) => updateDay(index, { wake })}
-                    />
-                    <Text className="text-muted">–</Text>
-                    <TimePicker
-                      label={`${name}, ${t("bedtime")}`}
-                      minutes={day.bed}
-                      isDisabled={!enabled || !!day.off}
-                      onChange={(bed) => updateDay(index, { bed })}
-                    />
-                  </View>
-                );
-              })
-            ) : (
-              <>
-                <View className="flex-row items-center justify-between gap-4">
-                  <Text className="text-base text-foreground">{t("wakeUp")}</Text>
-                  <TimePicker
-                    label={t("wakeUp")}
-                    minutes={schedule[weekOrder[0]].wake}
-                    isDisabled={!enabled}
-                    onChange={(wake) => updateEveryDay({ wake })}
-                  />
-                </View>
-                <View className="flex-row items-center justify-between gap-4">
-                  <Text className="text-base text-foreground">{t("bedtime")}</Text>
-                  <TimePicker
-                    label={t("bedtime")}
-                    minutes={schedule[weekOrder[0]].bed}
-                    isDisabled={!enabled}
-                    onChange={(bed) => updateEveryDay({ bed })}
-                  />
-                </View>
-              </>
-            )}
-            {invalid.length > 0 && (
-              <Note error>
-                {perDay ? `${invalid.map((index) => weekday(index, "short")).join(", ")}: ` : ""}
-                {interpolate(t("invalidSchedule"), { min: number((windDown + 60) / 60, 1) })}
-              </Note>
-            )}
-          </View>
-          <View className="gap-3">
-            <OptionSelect
-              label={t("morningGlasses")}
-              value={String(settings.reminderMorningGlasses)}
-              options={morningGlassOptions.map((count) => ({
-                value: String(count),
-                label: count ? `${number(count)} × ${volume(settings.defaultMl)}` : number(0),
-              }))}
-              isDisabled={!enabled}
-              onChange={(value) => persist({ reminderMorningGlasses: Number(value) })}
-            />
-            <OptionSelect
-              label={t("windDown")}
-              value={String(windDown)}
-              options={windDownOptions.map((minutes) => ({
-                value: String(minutes),
-                label: hours(minutes),
-              }))}
-              isDisabled={!enabled}
-              onChange={(value) => persist({ reminderWindDown: Number(value) })}
-            />
-            <SystemPanel className="gap-2 p-3">
-              <SystemLabel>{t("planToday")}</SystemLabel>
-              {timeline.length ? (
-                timeline.map((row, index) => (
-                  <View key={index} className="flex-row items-baseline gap-3">
-                    <SystemValue className="w-20 text-sm">{row.time}</SystemValue>
-                    <Text className="flex-1 text-sm text-foreground">{row.text}</Text>
-                  </View>
-                ))
-              ) : (
-                <Note>{t("planOff")}</Note>
-              )}
-              {next && (
-                <Note>
-                  {interpolate(t("nextReminder"), {
-                    time:
-                      startOfDay(next.time) === startOfDay(now)
-                        ? clock(next.time)
-                        : new Date(next.time).toLocaleString(locale, {
-                            weekday: "short",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          }),
-                  })}
-                </Note>
-              )}
-            </SystemPanel>
-          </View>
+              <Button
+                variant="secondary"
+                loading={thinking}
+                loadingLabel={t("aiWorking")}
+                disabled={!enabled || !description.trim()}
+                onPress={() => void describe()}
+              >
+                {t("setUpWithAI")}
+              </Button>
+              {aiMessage &&
+                (aiMessage.error ? (
+                  <ErrorText message={t(aiMessage.keys[0])} />
+                ) : (
+                  <Callout tone="success">
+                    {aiMessage.keys.map((key) => (
+                      <Text key={key} variant="small">
+                        {t(key)}
+                      </Text>
+                    ))}
+                  </Callout>
+                ))}
+            </>
+          ) : (
+            <Note>{t(intelligence === "modelNotReady" ? "aiNotReady" : "aiNotEnabled")}</Note>
+          )}
         </View>
-        {!!error && <Note error>{error}</Note>}
-      </Card.Body>
-    </Card>
+      )}
+      <View className="gap-3">
+        <Heading level={3}>{t("schedule")}</Heading>
+        <SwitchField
+          label={t("variesByDay")}
+          value={perDay}
+          disabled={!enabled}
+          onChange={changePerDay}
+        />
+        {perDay ? (
+          weekOrder.map((index, position) => {
+            const day = schedule[index];
+            const name = weekday(index, "long");
+            return (
+              <View
+                key={index}
+                className={position ? "gap-2 border-t border-separator pt-3" : "gap-2"}
+              >
+                <SwitchField
+                  label={name}
+                  accessibilityLabel={t("remindersOnDay", { day: name })}
+                  value={!day.off}
+                  disabled={!enabled}
+                  onChange={(on) => updateDay(index, { off: !on })}
+                />
+                <DayTimes
+                  day={day}
+                  dayName={name}
+                  disabled={!enabled || !!day.off}
+                  onChange={(patch) => updateDay(index, patch)}
+                />
+              </View>
+            );
+          })
+        ) : (
+          <DayTimes
+            day={schedule[weekOrder[0]]}
+            disabled={!enabled}
+            onChange={(patch) => updateEveryDay(patch)}
+          />
+        )}
+        {invalid.length > 0 && (
+          // Per day, the Callout title names the days whose times do not fit.
+          <Callout
+            tone="danger"
+            title={
+              perDay ? format.list(invalid.map((index) => weekday(index, "short"))) : undefined
+            }
+          >
+            {t("invalidSchedule", {
+              min: format.number((windDown + 60) / 60, 1, { fixed: false }),
+            })}
+          </Callout>
+        )}
+      </View>
+      <Select
+        showTitle
+        title={t("morningGlasses")}
+        values={morningGlassOptions.map(String)}
+        value={String(settings.reminderMorningGlasses)}
+        label={(value) =>
+          Number(value)
+            ? t("glassesOf", {
+                count: format.number(Number(value)),
+                amount: volume.text(settings.defaultMl),
+              })
+            : format.number(0)
+        }
+        disabled={!enabled}
+        onChange={(value) => persist({ reminderMorningGlasses: Number(value) })}
+      />
+      <Select
+        showTitle
+        title={t("windDown")}
+        values={windDownOptions.map(String)}
+        value={String(windDown)}
+        label={(value) => hours(Number(value))}
+        disabled={!enabled}
+        onChange={(value) => persist({ reminderWindDown: Number(value) })}
+      />
+      <View className="gap-2 border-t border-separator pt-4">
+        <Label accessibilityRole="header">{t("planToday")}</Label>
+        {timeline.length ? (
+          timeline.map((row, index) => (
+            <View key={index} className="flex-row items-baseline gap-3">
+              <View className="min-w-20">{row.time ? <Value value={row.time} /> : null}</View>
+              <Text variant="small" className="flex-1">
+                {row.text}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <Note>{t("planOff")}</Note>
+        )}
+        {next && (
+          <Note>
+            {t("nextReminder", {
+              time:
+                startOfDay(next.time) === startOfDay(now)
+                  ? clock(next.time)
+                  : dates.weekdayTime(next.time),
+            })}
+          </Note>
+        )}
+      </View>
+      <ErrorText message={error} />
+    </FormSection>
   );
 }

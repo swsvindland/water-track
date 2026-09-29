@@ -1,3 +1,5 @@
+const tokens = require("../../src/vector/tokens.json");
+
 /** @type {import('@bacons/apple-targets/app.plugin').ConfigFunction} */
 module.exports = (config) => ({
   type: "watch",
@@ -6,6 +8,6 @@ module.exports = (config) => ({
   bundleIdentifier: ".watchkitapp",
   deploymentTarget: "10.0",
   icon: "../../assets/images/icon.png",
-  colors: { $accent: "#22d3ee" },
+  colors: { $accent: tokens.native.accent },
   frameworks: ["SwiftUI", "WatchConnectivity", "UserNotifications"],
 });

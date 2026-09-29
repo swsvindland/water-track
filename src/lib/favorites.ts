@@ -214,25 +214,3 @@ export function favoriteColor(favorite: Pick<Favorite, "kind" | "color">): Favor
     ? favorite.color!
     : (defaultColors[favorite.kind] ?? "slate");
 }
-
-// Static classes keep all palette tokens discoverable by Tailwind/Uniwind.
-export const favoriteColorClasses: Record<
-  FavoriteColor,
-  { background: string; foreground: string }
-> = {
-  cyan: { background: "bg-favorite-cyan", foreground: "text-favorite-cyan-foreground" },
-  brown: { background: "bg-favorite-brown", foreground: "text-favorite-brown-foreground" },
-  sage: { background: "bg-favorite-sage", foreground: "text-favorite-sage-foreground" },
-  amber: { background: "bg-favorite-amber", foreground: "text-favorite-amber-foreground" },
-  violet: { background: "bg-favorite-violet", foreground: "text-favorite-violet-foreground" },
-  rose: { background: "bg-favorite-rose", foreground: "text-favorite-rose-foreground" },
-  blue: { background: "bg-favorite-blue", foreground: "text-favorite-blue-foreground" },
-  teal: { background: "bg-favorite-teal", foreground: "text-favorite-teal-foreground" },
-  olive: { background: "bg-favorite-olive", foreground: "text-favorite-olive-foreground" },
-  terracotta: {
-    background: "bg-favorite-terracotta",
-    foreground: "text-favorite-terracotta-foreground",
-  },
-  plum: { background: "bg-favorite-plum", foreground: "text-favorite-plum-foreground" },
-  slate: { background: "bg-favorite-slate", foreground: "text-favorite-slate-foreground" },
-};

@@ -1,12 +1,21 @@
 import { useLocales } from "expo-localization";
+import * as SplashScreen from "expo-splash-screen";
 import { Uniwind } from "uniwind";
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
-import { AppState, ActivityIndicator, Text, View } from "react-native";
+import { AppState, Text, View } from "react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { desc, eq } from "drizzle-orm";
 import { useDatabase } from "@/db/provider";
 import { drinks, preferences, type Drink, type Preferences } from "@/db/schema";
-import { languagePreference, localeTag, resolveLanguage, translate, type Message } from "./i18n";
+import {
+  interpolate,
+  languagePreference,
+  localeTag,
+  resolveLanguage,
+  translate,
+  type Language,
+  type Message,
+} from "./i18n";
 import { bacWeight } from "./health-data";
 import { formatVolume, startOfDay } from "./metrics";
 import { registerBackgroundSync, unregisterBackgroundSync, syncHealth } from "./health";
@@ -20,7 +29,8 @@ type State = {
   settings: Preferences;
   now: number;
   bacWeightKg: number | null;
-  t: (key: Message) => string;
+  language: Language;
+  t: (key: Message, values?: Record<string, string | number>) => string;
   number: (n: number, digits?: number) => string;
   volume: (ml: number) => string;
   locale: string;
@@ -135,18 +145,20 @@ export function AppProvider({ children }: PropsWithChildren) {
         })
       );
   }, [records.data, records.updatedAt, settings, language, day, watchRequest]);
-  if (records.error || prefs.error)
+  const failed = !!(records.error || prefs.error);
+  const ready = !!settings && !!records.updatedAt;
+  // The splash (held in app/_layout) covers the first read, so there is no loading screen of its own.
+  useEffect(() => {
+    if (failed || ready) SplashScreen.hide();
+  }, [failed, ready]);
+  // Runs before the kit provider exists, so this one error state keeps React Native's Text.
+  if (failed)
     return (
       <View className="flex-1 justify-center p-6 bg-background">
         <Text className="text-danger">{translate(language, "readError")}</Text>
       </View>
     );
-  if (!settings || !records.updatedAt)
-    return (
-      <View className="flex-1 justify-center bg-background">
-        <ActivityIndicator />
-      </View>
-    );
+  if (!settings || !records.updatedAt) return null;
   const locale = localeTag(language);
   const number = (n: number, digits = 0) =>
     new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(n);
@@ -158,10 +170,12 @@ export function AppProvider({ children }: PropsWithChildren) {
         settings,
         now,
         bacWeightKg: bacWeight(settings),
+        language,
         locale,
         number,
         volume,
-        t: (key) => translate(language, key),
+        t: (key, values) =>
+          values ? interpolate(translate(language, key), values) : translate(language, key),
       }}
     >
       {children}

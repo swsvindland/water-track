@@ -1,14 +1,31 @@
 import { useState } from "react";
-import { Button, Card, Tabs } from "heroui-native";
-import { Text, View } from "react-native";
-import { Screen, Heading, Note } from "@/components/ui";
+import { View } from "react-native";
+import {
+  Button,
+  Choices,
+  Heading,
+  Label,
+  Meter,
+  Panel,
+  Screen,
+  SystemState,
+  Text,
+  Value,
+  useKitFormat,
+} from "@/vector";
 import { DrinkList } from "@/components/drink-list";
+import { useDates, useVolume } from "@/components/format";
 import { useApp } from "@/lib/store";
 import { inDay, shiftDays, startOfDay, totals } from "@/lib/metrics";
 
+const periods = ["day", "week", "month"] as const;
+
 export default function History() {
-  const { rows, now, t, volume, number, locale } = useApp();
-  const [mode, setMode] = useState<"day" | "week" | "month">("week");
+  const { rows, now, t } = useApp();
+  const format = useKitFormat();
+  const volume = useVolume();
+  const dates = useDates();
+  const [mode, setMode] = useState<(typeof periods)[number]>("week");
   const [offset, setOffset] = useState(0);
   const date = new Date(startOfDay(now));
   if (mode === "week") date.setDate(date.getDate() - ((date.getDay() + 6) % 7) + offset * 7);
@@ -31,99 +48,104 @@ export default function History() {
   }));
   const sum = totals(selected);
   const max = Math.max(1, ...daily.map((d) => totals(d.rows).fluid));
-  const dateLabel = (d: number) =>
-    new Date(d).toLocaleDateString(locale, { month: "short", day: "numeric" });
+  const period =
+    mode === "month"
+      ? format.monthYear(date)
+      : mode === "day"
+        ? format.date(date)
+        : format.dateRange(date, shiftDays(end, -1), { year: true });
   return (
     <Screen title={t("history")}>
-      <Tabs
+      <Choices
+        values={periods}
         value={mode}
-        onValueChange={(value) => {
-          if (value !== "day" && value !== "week" && value !== "month") return;
+        onChange={(value) => {
           setMode(value);
           setOffset(0);
         }}
-      >
-        <Tabs.List>
-          <Tabs.Indicator />
-          {(["day", "week", "month"] as const).map((value) => (
-            <Tabs.Trigger key={value} value={value} className="flex-1">
-              <Tabs.Label>{t(value)}</Tabs.Label>
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
-      </Tabs>
+        label={(value) => t(value)}
+        accessibilityLabel={t("period")}
+      />
       <View className="gap-3">
-        <Text className="text-xl font-medium text-foreground">
-          {mode === "month"
-            ? date.toLocaleDateString(locale, { month: "long", year: "numeric" })
-            : `${dateLabel(start)}${mode === "week" ? ` – ${dateLabel(shiftDays(end, -1))}` : ""} · ${date.getFullYear()}`}
-        </Text>
-        <View className="flex-row justify-between">
-          <Button variant="ghost" onPress={() => setOffset(offset - 1)}>
+        <Heading level={2}>{period}</Heading>
+        <View className="flex-row flex-wrap justify-between gap-2">
+          <Button variant="ghost" icon="back" onPress={() => setOffset(offset - 1)}>
             {t("previous")}
           </Button>
-          <Button variant="ghost" isDisabled={offset >= 0} onPress={() => setOffset(offset + 1)}>
+          <Button
+            variant="ghost"
+            icon="forward"
+            iconPosition="end"
+            disabled={offset >= 0}
+            onPress={() => setOffset(offset + 1)}
+          >
             {t("next")}
           </Button>
         </View>
       </View>
-      <Card>
-        <Card.Body className="gap-4">
-          <Card.Title>{t("periodTotal")}</Card.Title>
-          <Text className="text-4xl font-semibold tabular-nums text-foreground">
-            {volume(sum.fluid)}
-          </Text>
-          <Note>
-            {t("dailyAverage")}: {volume(sum.fluid / Math.max(1, days.length))}
-          </Note>
-          <View className="flex-row flex-wrap gap-6">
-            <View>
-              <Note>{t("caffeine")}</Note>
-              <Text className="text-xl font-medium text-foreground">{number(sum.caffeine)} mg</Text>
+      <Panel>
+        <Panel.Header eyebrow={t("periodTotal")} />
+        <Panel.Body className="gap-4">
+          <Value {...volume.parts(sum.fluid)} size="l" />
+          <View className="flex-row flex-wrap gap-x-6 gap-y-3">
+            <View className="gap-1">
+              <Label>{t("dailyAverage")}</Label>
+              <Value {...volume.parts(sum.fluid / Math.max(1, days.length))} />
             </View>
-            <View>
-              <Note>{t("pureAlcohol")}</Note>
-              <Text className="text-xl font-medium text-foreground">
-                {number(sum.alcohol, 1)} g
-              </Text>
+            <View className="gap-1">
+              <Label>{t("caffeine")}</Label>
+              <Value {...format.unitParts(sum.caffeine, "milligram")} />
+            </View>
+            <View className="gap-1">
+              <Label>{t("pureAlcohol")}</Label>
+              <Value {...format.unitParts(sum.alcohol, "gram", 1)} />
             </View>
           </View>
-        </Card.Body>
-      </Card>
-      <View className="gap-4">
-        <Heading>{t("trend")}</Heading>
-        {daily.map((d) => (
-          <View
-            key={d.date}
-            accessibilityLabel={`${dateLabel(d.date)}: ${volume(totals(d.rows).fluid)}`}
-            className="flex-row items-center gap-3"
-          >
-            <Text className="w-16 text-sm text-muted">{dateLabel(d.date)}</Text>
-            <View className="h-3 flex-1 overflow-hidden rounded-full bg-surface-secondary">
+        </Panel.Body>
+      </Panel>
+      <View className="gap-3">
+        <Heading level={3}>{t("trend")}</Heading>
+        {daily.map((d) => {
+          const fluid = totals(d.rows).fluid;
+          const day = format.monthDay(d.date);
+          return (
+            // The meter is the row's one screen-reader stop: the day, then its total.
+            <View key={d.date} className="min-h-6 flex-row items-center gap-3">
               <View
-                className="h-full rounded-full bg-accent"
-                style={{ width: `${(totals(d.rows).fluid / max) * 100}%` }}
-              />
+                className="min-w-16"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Text variant="readoutXS" tone="muted">
+                  {day}
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Meter
+                  value={fluid}
+                  max={max}
+                  accessibilityLabel={day}
+                  valueText={volume.text(fluid)}
+                />
+              </View>
+              <View
+                className="min-w-24 items-end"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Value {...volume.parts(fluid)} size="xs" />
+              </View>
             </View>
-            <Text className="w-24 text-right text-sm tabular-nums text-foreground">
-              {volume(totals(d.rows).fluid)}
-            </Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
-      {!selected.length && <Note>{t("noHistory")}</Note>}
+      {!selected.length && <SystemState kind="empty" message={t("noHistory")} />}
       {[...daily]
         .reverse()
         .filter((d) => d.rows.length)
         .map((d) => (
-          <View key={d.date}>
-            <Heading>
-              {new Date(d.date).toLocaleDateString(locale, {
-                weekday: "long",
-                month: "short",
-                day: "numeric",
-              })}
-            </Heading>
+          <View key={d.date} className="gap-2">
+            <Heading level={3}>{dates.weekdayDay(d.date)}</Heading>
             <DrinkList rows={d.rows} />
           </View>
         ))}
