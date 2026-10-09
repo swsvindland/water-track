@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "VECTOR HYDRATION",
-    "description": "Track your drinks. Know your intake. VECTOR HYDRATION brings daily fluid goals, caffeine tracking, and drink history together in one private, local-first app.",
+    "name": "Pendum Hydration",
+    "description": "Track your drinks. Know your intake. Pendum Hydration brings daily fluid goals, caffeine tracking, and drink history together in one private, local-first app.",
     "slug": "water-track",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,7 +12,7 @@
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
-        "CFBundleDisplayName": "HYDRATE",
+        "CFBundleDisplayName": "Pendum Hydration",
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "dev.svindland.vector.water",
@@ -84,14 +84,36 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "VECTOR HYDRATION reads your latest body weight to estimate blood alcohol content.",
-          "NSHealthUpdateUsageDescription": "VECTOR HYDRATION saves fluid intake, caffeine, standard alcoholic drinks, and estimated blood alcohol content to Apple Health.",
+          "NSHealthShareUsageDescription": "Pendum Hydration reads your latest body weight to estimate blood alcohol content.",
+          "NSHealthUpdateUsageDescription": "Pendum Hydration saves fluid intake, caffeine, standard alcoholic drinks, and estimated blood alcohol content to Apple Health.",
           "background": false
         }
       ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          },
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ],
       "react-native-health-connect",
+      "./plugins/with-health-rationale",
       "@bacons/apple-targets",
-      "./plugins/withSceneLifecycle"
+      [
+        "./plugins/with-vector-vault",
+        {
+          "app": "water",
+          "icloud": false,
+          "google": {
+            "iosClientId": null,
+            "android": false
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

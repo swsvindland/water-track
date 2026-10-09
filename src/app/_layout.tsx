@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DatabaseProvider } from "@/db/provider";
 import { duration, NavigationTheme, vectorHeroConfig } from "@/vector";
 import { VectorAdapter } from "@/vector-adapter";
+import { VaultRoot } from "@/vault";
 
 import { AppProvider } from "@/lib/store";
 import "@/lib/health";
@@ -52,6 +53,8 @@ export default function RootLayout(): JSX.Element | null {
                   <Stack.Screen name="drink" options={{ presentation: "modal" }} />
                 </Stack>
               </NavigationTheme>
+              {/* Starts the backup vault once the database above has been migrated. */}
+              <VaultRoot />
             </HeroUINativeProvider>
           </VectorAdapter>
         </AppProvider>

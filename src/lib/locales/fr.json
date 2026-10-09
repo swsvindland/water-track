@@ -132,7 +132,7 @@
   "lastSync": "Dernière synchronisation",
   "pending": "Modifications en attente",
   "disconnectNote": "La déconnexion arrête les prochains exports. Les données déjà exportées restent dans votre app de santé.",
-  "localNote": "Enregistré de façon privée sur cet appareil. La désinstallation supprime vos données locales.",
+  "localNote": "Enregistré de façon privée sur cet appareil. Utilisez « Exporter les données » dans Sauvegarde pour en garder une copie.",
   "optional": "Facultatif",
   "quickAdd": "Toucher pour enregistrer",
   "remaining": "restants",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, page {page} sur {count}",
-  "bacBelow": "Moins de {value}"
+  "bacBelow": "Moins de {value}",
+  "vaultDrinkCountOne": "{n} boisson",
+  "vaultDrinkCount": "{n} boissons",
+  "vaultSince": "Depuis le {date}"
 }

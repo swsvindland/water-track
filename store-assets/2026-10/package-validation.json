@@ -1,0 +1,17 @@
+{
+  "checked": "2026-10-04",
+  "passed": true,
+  "copyFieldsValidated": 13,
+  "copyExportsMatchListing": true,
+  "allUploadImagesOpaqueRGB": true,
+  "assetHashesMatch": true,
+  "nativeSourceHashesMatch": true,
+  "uploadAssetCount": 14,
+  "screenshotCounts": {
+    "apple/iphone-6.9": 5,
+    "google-play/phone": 5,
+    "apple/watch-46mm": 1
+  },
+  "visualReview": "All final phone screens and contact sheets reviewed; startup captures replaced. Watch screen reviewed where applicable.",
+  "releaseApproval": "Not submitted; see readiness.json and verification.md."
+}

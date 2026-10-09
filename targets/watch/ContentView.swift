@@ -112,17 +112,19 @@ private struct FavoriteButton: View {
   let favorite: WatchState.Favorite
 
   var body: some View {
-    // Neutral tile: kind glyph, name and volume. The favorite's stored `color` is ignored here.
+    // The favorite's hue tints the system tile; the glyph and name take its ink (design system §8.5).
+    let ink = favoriteInk(favorite.color)
     Button {
       WatchStore.shared.log(favorite)
     } label: {
       VStack(alignment: .leading, spacing: 2) {
         Image(systemName: drinkSymbol(favorite.kind))
           .font(.footnote)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(ink)
           .accessibilityHidden(true)
         Text(favorite.title)
           .font(.footnote.weight(.semibold))
+          .foregroundStyle(ink)
           .lineLimit(2)
           .minimumScaleFactor(0.8)
         Spacer(minLength: 0)
@@ -135,8 +137,27 @@ private struct FavoriteButton: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
     .vectorTileButton()
+    .tint(ink)
     .vectorHiddenWhenDimmed()
     .accessibilityLabel("\(state.text.addDrink): \(favorite.title), \(state.volume(favorite.volumeMl))")
+  }
+}
+
+/// The ink of a favorite hue; the iPhone sends favoriteColor() from src/lib/favorites.ts.
+private func favoriteInk(_ color: String) -> Color {
+  switch color {
+  case "cyan": return Color(vector: VectorTokens.favoriteCyanInk)
+  case "brown": return Color(vector: VectorTokens.favoriteBrownInk)
+  case "sage": return Color(vector: VectorTokens.favoriteSageInk)
+  case "amber": return Color(vector: VectorTokens.favoriteAmberInk)
+  case "violet": return Color(vector: VectorTokens.favoriteVioletInk)
+  case "rose": return Color(vector: VectorTokens.favoriteRoseInk)
+  case "blue": return Color(vector: VectorTokens.favoriteBlueInk)
+  case "teal": return Color(vector: VectorTokens.favoriteTealInk)
+  case "olive": return Color(vector: VectorTokens.favoriteOliveInk)
+  case "terracotta": return Color(vector: VectorTokens.favoriteTerracottaInk)
+  case "plum": return Color(vector: VectorTokens.favoritePlumInk)
+  default: return Color(vector: VectorTokens.favoriteSlateInk)
   }
 }
 
@@ -187,17 +208,17 @@ private struct UndoBanner: View {
 /// Shown until the iPhone app first sends favorites; it has no translations to share yet.
 private struct SetupView: View {
   private static let messages = [
-    "en": "Open Vector Hydration on your iPhone to sync your favorites.",
-    "es": "Abre Vector Hydration en tu iPhone para sincronizar tus favoritos.",
-    "fr": "Ouvrez Vector Hydration sur votre iPhone pour synchroniser vos favoris.",
-    "de": "Öffne Vector Hydration auf deinem iPhone, um deine Favoriten zu synchronisieren.",
-    "it": "Apri Vector Hydration sul tuo iPhone per sincronizzare i preferiti.",
-    "pt": "Abra a Vector Hydration no iPhone para sincronizar os seus favoritos.",
-    "nl": "Open Vector Hydration op je iPhone om je favorieten te synchroniseren.",
-    "sv": "Öppna Vector Hydration på din iPhone för att synka dina favoriter.",
-    "ja": "iPhoneでVector Hydrationを開いて、お気に入りを同期してください。",
-    "ko": "iPhone에서 Vector Hydration을 열어 즐겨찾기를 동기화하세요.",
-    "zh": "在 iPhone 上打开 Vector Hydration 以同步你的收藏。",
+    "en": "Open Pendum Hydration on your iPhone to sync your favorites.",
+    "es": "Abre Pendum Hydration en tu iPhone para sincronizar tus favoritos.",
+    "fr": "Ouvrez Pendum Hydration sur votre iPhone pour synchroniser vos favoris.",
+    "de": "Öffne Pendum Hydration auf deinem iPhone, um deine Favoriten zu synchronisieren.",
+    "it": "Apri Pendum Hydration sul tuo iPhone per sincronizzare i preferiti.",
+    "pt": "Abra a Pendum Hydration no iPhone para sincronizar os seus favoritos.",
+    "nl": "Open Pendum Hydration op je iPhone om je favorieten te synchroniseren.",
+    "sv": "Öppna Pendum Hydration på din iPhone för att synka dina favoriter.",
+    "ja": "iPhoneでPendum Hydrationを開いて、お気に入りを同期してください。",
+    "ko": "iPhone에서 Pendum Hydration을 열어 즐겨찾기를 동기화하세요.",
+    "zh": "在 iPhone 上打开 Pendum Hydration 以同步你的收藏。",
   ]
 
   var body: some View {

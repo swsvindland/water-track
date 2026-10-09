@@ -28,9 +28,9 @@ struct VectorRGB: Sendable {
     let hcDark: UInt32
 }
 
-// TOKENS:BEGIN — generated from src/vector/tokens.json by scripts/vector-kit.mjs gen (kit 1.2.2). Do not edit.
+// TOKENS:BEGIN — generated from src/vector/tokens.json by scripts/vector-kit.mjs gen (kit 1.3.2). Do not edit.
 enum VectorTokens {
-    static let version = "1.2.2"
+    static let version = "1.3.2"
     static let background = VectorRGB(light: 0xFFFFFF, dark: 0x071017, hcLight: 0xFFFFFF, hcDark: 0x071017)
     static let foreground = VectorRGB(light: 0x15212B, dark: 0xF3F6F7, hcLight: 0x071017, hcDark: 0xFFFFFF)
     static let surface = VectorRGB(light: 0xFFFFFF, dark: 0x0D171E, hcLight: 0xFFFFFF, hcDark: 0x0D171E)
@@ -47,6 +47,30 @@ enum VectorTokens {
     static let tint = VectorRGB(light: 0x007088, dark: 0x22D3EE, hcLight: 0x00566B, hcDark: 0xA5F3FC)
     static let foregroundSecondary = VectorRGB(light: 0x3E4D57, dark: 0xC8D1D6, hcLight: 0x071017, hcDark: 0xFFFFFF)
     static let borderStrong = VectorRGB(light: 0x7A8791, dark: 0x687B86, hcLight: 0x5F6D78, hcDark: 0x8A979F)
+    static let favoriteCyan = VectorRGB(light: 0xECFEFF, dark: 0x0C2C35, hcLight: 0xECFEFF, hcDark: 0x0C2C35)
+    static let favoriteCyanInk = VectorRGB(light: 0x007088, dark: 0x67D6E7, hcLight: 0x007088, hcDark: 0x67D6E7)
+    static let favoriteBrown = VectorRGB(light: 0xF4EEE9, dark: 0x29211E, hcLight: 0xF4EEE9, hcDark: 0x29211E)
+    static let favoriteBrownInk = VectorRGB(light: 0x725039, dark: 0xD6B397, hcLight: 0x725039, hcDark: 0xD6B397)
+    static let favoriteSage = VectorRGB(light: 0xEDF4EE, dark: 0x1B2A24, hcLight: 0xEDF4EE, hcDark: 0x1B2A24)
+    static let favoriteSageInk = VectorRGB(light: 0x46634A, dark: 0xA5C6AA, hcLight: 0x46634A, hcDark: 0xA5C6AA)
+    static let favoriteAmber = VectorRGB(light: 0xFAF2E3, dark: 0x2C261B, hcLight: 0xFAF2E3, hcDark: 0x2C261B)
+    static let favoriteAmberInk = VectorRGB(light: 0x7B5A20, dark: 0xDFC083, hcLight: 0x7B5A20, hcDark: 0xDFC083)
+    static let favoriteViolet = VectorRGB(light: 0xF1EEF8, dark: 0x252236, hcLight: 0xF1EEF8, hcDark: 0x252236)
+    static let favoriteVioletInk = VectorRGB(light: 0x65518A, dark: 0xBFB0E0, hcLight: 0x65518A, hcDark: 0xBFB0E0)
+    static let favoriteRose = VectorRGB(light: 0xF8EDF0, dark: 0x30212A, hcLight: 0xF8EDF0, hcDark: 0x30212A)
+    static let favoriteRoseInk = VectorRGB(light: 0x8A4C61, dark: 0xDFA8BB, hcLight: 0x8A4C61, hcDark: 0xDFA8BB)
+    static let favoriteSlate = VectorRGB(light: 0xEEF2F5, dark: 0x172630, hcLight: 0xEEF2F5, hcDark: 0x172630)
+    static let favoriteSlateInk = VectorRGB(light: 0x4E606F, dark: 0xB0C3D0, hcLight: 0x4E606F, hcDark: 0xB0C3D0)
+    static let favoriteBlue = VectorRGB(light: 0xEDF3FB, dark: 0x192638, hcLight: 0xEDF3FB, hcDark: 0x192638)
+    static let favoriteBlueInk = VectorRGB(light: 0x395D8A, dark: 0xA7C3E8, hcLight: 0x395D8A, hcDark: 0xA7C3E8)
+    static let favoriteTeal = VectorRGB(light: 0xEAF5F2, dark: 0x172E2B, hcLight: 0xEAF5F2, hcDark: 0x172E2B)
+    static let favoriteTealInk = VectorRGB(light: 0x31695F, dark: 0x95CEC1, hcLight: 0x31695F, hcDark: 0x95CEC1)
+    static let favoriteOlive = VectorRGB(light: 0xF2F3E8, dark: 0x292C1C, hcLight: 0xF2F3E8, hcDark: 0x292C1C)
+    static let favoriteOliveInk = VectorRGB(light: 0x626732, dark: 0xC3C98E, hcLight: 0x626732, hcDark: 0xC3C98E)
+    static let favoriteTerracotta = VectorRGB(light: 0xFAEFE8, dark: 0x33241E, hcLight: 0xFAEFE8, hcDark: 0x33241E)
+    static let favoriteTerracottaInk = VectorRGB(light: 0x8A5136, dark: 0xE1B198, hcLight: 0x8A5136, hcDark: 0xE1B198)
+    static let favoritePlum = VectorRGB(light: 0xF5EDF5, dark: 0x2D2030, hcLight: 0xF5EDF5, hcDark: 0x2D2030)
+    static let favoritePlumInk = VectorRGB(light: 0x7B4B79, dark: 0xD2ACD1, hcLight: 0x7B4B79, hcDark: 0xD2ACD1)
     static let markRadius: CGFloat = 2
     static let controlRadius: CGFloat = 4
 }

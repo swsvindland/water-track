@@ -132,7 +132,7 @@
   "lastSync": "마지막 동기화",
   "pending": "대기 중인 변경 사항",
   "disconnectNote": "연결을 해제하면 이후 내보내기가 중단됩니다. 이전에 내보낸 기록은 건강 앱에 남습니다.",
-  "localNote": "이 기기에 비공개로 저장됩니다. 앱을 삭제하면 로컬 기록이 지워집니다.",
+  "localNote": "이 기기에 비공개로 저장됩니다. 사본을 보관하려면 백업에서 “데이터 내보내기”를 사용하세요.",
   "optional": "선택 사항",
   "quickAdd": "탭하여 기록",
   "remaining": "남음",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, {count}페이지 중 {page}페이지",
-  "bacBelow": "{value} 미만"
+  "bacBelow": "{value} 미만",
+  "vaultDrinkCountOne": "음료 {n}건",
+  "vaultDrinkCount": "음료 {n}건",
+  "vaultSince": "{date}부터"
 }

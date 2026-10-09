@@ -2,7 +2,7 @@
   "kit": "1.2.1",
   "rules": {
     "lines": {
-      "src/app/(tabs)/index.tsx": 1
+      "src/components/favorite-tile.tsx": 1
     },
     "rn-text": {
       "src/lib/store.tsx": 1
@@ -12,7 +12,7 @@
     "src/lib/store.tsx"
   ],
   "reasons": {
-    "src/app/(tabs)/index.tsx#lines": "fixed slot (§3.5 exception): at normal text sizes the favourite grid gives every tile a fixed height, so a long name shrinks to 80% and stops at two lines; the tile's accessibility label carries it whole, and at accessibility sizes the screen scrolls with no limit (kit issue #65)",
+    "src/components/favorite-tile.tsx#lines": "fixed slot (§3.5 exception): at normal text sizes the favourite grid gives every tile a fixed height, so a long name shrinks to 80% and stops at two lines; the tile's accessibility label carries it whole, and at accessibility sizes the screen scrolls with no limit (kit issue #65)",
     "src/lib/store.tsx#rn-text": "read-error state renders before VectorProvider exists, so it keeps RN Text (KIT §5; stays allowlisted)",
     "src/lib/store.tsx#eslint": "read-error state renders before VectorProvider exists, so it keeps RN Text (KIT §5; stays allowlisted)"
   }

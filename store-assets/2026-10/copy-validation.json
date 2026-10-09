@@ -1,0 +1,80 @@
+{
+  "apple/name": {
+    "length": 27,
+    "limit": 30,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/subtitle": {
+    "length": 25,
+    "limit": 30,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/promotional-text": {
+    "length": 143,
+    "limit": 170,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/keywords": {
+    "length": 83,
+    "limit": 100,
+    "unit": "UTF-8 bytes",
+    "passed": true
+  },
+  "apple/description": {
+    "length": 2686,
+    "limit": 4000,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/release-notes": {
+    "length": 115,
+    "limit": 4000,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/rename-update-notes": {
+    "length": 41,
+    "limit": 4000,
+    "unit": "characters",
+    "passed": true
+  },
+  "apple/review-notes": {
+    "length": 1763,
+    "limit": 4000,
+    "unit": "characters",
+    "passed": true
+  },
+  "google-play/title": {
+    "length": 27,
+    "limit": 30,
+    "unit": "characters",
+    "passed": true
+  },
+  "google-play/short-description": {
+    "length": 73,
+    "limit": 80,
+    "unit": "characters",
+    "passed": true
+  },
+  "google-play/full-description": {
+    "length": 2393,
+    "limit": 4000,
+    "unit": "characters",
+    "passed": true
+  },
+  "google-play/release-notes": {
+    "length": 115,
+    "limit": 500,
+    "unit": "characters",
+    "passed": true
+  },
+  "google-play/rename-update-notes": {
+    "length": 41,
+    "limit": 500,
+    "unit": "characters",
+    "passed": true
+  }
+}

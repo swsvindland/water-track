@@ -24,6 +24,8 @@ import {
 import { ChoicesField, FormSection, SwitchField } from "@/components/fields";
 import { parseAmount, useVolume, useWeight } from "@/components/format";
 import { ReminderSettings } from "@/components/reminder-settings";
+import { VaultSection } from "@/vault";
+import { useVaultRestoreKey } from "@/vault-app-ui";
 
 const languageChoices = ["system", ...Object.keys(languages)] as LanguagePreference[];
 const appearances = ["system", "light", "dark"] as const;
@@ -31,6 +33,21 @@ const unitChoices = ["metric", "us"] as const;
 const ratios = ["0.55", "0.68"];
 
 export default function Settings() {
+  const { t } = useApp();
+  // A restore bumps the key, so the form's drafts start again from the restored preferences.
+  const restores = useVaultRestoreKey();
+  return (
+    <Screen title={t("settings")} subtitle={t("preferencesNote")}>
+      <SettingsForm key={restores} />
+      <HealthSync />
+      <VaultSection />
+      <Note>{t("localNote")}</Note>
+    </Screen>
+  );
+}
+
+/** Preferences and reminders: the drafts here (and in ReminderSettings) are seeded once from the stored values. */
+function SettingsForm() {
   const { settings, t } = useApp();
   const db = useDatabase();
   const format = useKitFormat();
@@ -103,7 +120,7 @@ export default function Settings() {
     }
   }
   return (
-    <Screen title={t("settings")} subtitle={t("preferencesNote")}>
+    <>
       <FormSection eyebrow={t("language")}>
         <Select
           title={t("language")}
@@ -197,9 +214,7 @@ export default function Settings() {
         <Note>{t("factorNote")}</Note>
       </FormSection>
       <ErrorText message={message} />
-      <HealthSync />
-      <Note>{t("localNote")}</Note>
-    </Screen>
+    </>
   );
 }
 

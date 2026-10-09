@@ -1,0 +1,41 @@
+{
+  "applied": [
+    {
+      "repository": "fitness-native",
+      "displayName": "Pendum One",
+      "bundleIdentifier": "dev.svindland.fitness",
+      "androidPackage": "dev.svindland.fitness",
+      "nativeBuildRequired": true
+    },
+    {
+      "repository": "body-track",
+      "displayName": "Pendum Body",
+      "bundleIdentifier": "dev.svindland.vector.body",
+      "androidPackage": "dev.svindland.vector.body",
+      "nativeBuildRequired": true
+    },
+    {
+      "repository": "lift-track",
+      "displayName": "Pendum Lift",
+      "bundleIdentifier": "dev.svindland.vector.lift",
+      "androidPackage": "dev.svindland.vector.lift",
+      "nativeBuildRequired": true
+    },
+    {
+      "repository": "macro-track",
+      "displayName": "Pendum Macros",
+      "bundleIdentifier": "dev.svindland.vector.macro",
+      "androidPackage": "dev.svindland.vector.macro",
+      "nativeBuildRequired": true
+    },
+    {
+      "repository": "water-track",
+      "displayName": "Pendum Hydration",
+      "bundleIdentifier": "dev.svindland.vector.water",
+      "androidPackage": "dev.svindland.vector.water",
+      "nativeBuildRequired": true
+    }
+  ],
+  "preserved": "Bundle IDs, packages, URL schemes, storage/backup identifiers and the Vector design system. Historical store packages retain their original branding.",
+  "externalStoreListingsChanged": false
+}

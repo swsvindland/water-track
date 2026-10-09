@@ -1,0 +1,68 @@
+[
+  {
+    "file": "apple/iphone-6.9/01-today.png",
+    "source": "raw/ios/01-today.png",
+    "source_sha256": "74c69a2ea20bc77043e8994920a84db5ed670104e2beab5d14be1896827e789d",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "apple/iphone-6.9/02-favorites.png",
+    "source": "raw/ios/02-favorites.png",
+    "source_sha256": "84165e434915c9f5bb0fa86e456c62ac66e69f452599b5ec0f2e38b942a5d2c4",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "apple/iphone-6.9/03-history.png",
+    "source": "raw/ios/03-history.png",
+    "source_sha256": "f8581e6a12b5dd7ff0dcacb6ae92d4351a85fab86f5370a0e8c8556e53166b89",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "apple/iphone-6.9/04-drink.png",
+    "source": "raw/ios/04-drink.png",
+    "source_sha256": "98a9374fabafe823600d79f19e078c352056862302d2d71d9382404ecd663ef8",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "apple/iphone-6.9/05-settings.png",
+    "source": "raw/ios/05-settings.png",
+    "source_sha256": "e6e9663c4ab927c1bfa8493281758cf6b25feb5aaa54c4a7ff825585885a3ddc",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "google-play/phone/01-today.png",
+    "source": "raw/android/01-today.png",
+    "source_sha256": "de9f9d0753f5b9c3bb58a0fc721f2f57277bebbd076e40ab3ae8f1324e352de5",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "google-play/phone/02-favorites.png",
+    "source": "raw/android/02-favorites.png",
+    "source_sha256": "d393983295cd846129c4be51a122b4f6cd25c01326a6eb7b56c9e0fa3d26445c",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "google-play/phone/03-history.png",
+    "source": "raw/android/03-history.png",
+    "source_sha256": "5c8e4ae9984acdde08e6d1dc2a040d49ba48a74908affe2a3ed339588997df3e",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "google-play/phone/04-drink.png",
+    "source": "raw/android/04-drink.png",
+    "source_sha256": "33bfd51e7f07b94200b90b4b28ffc228c21f653d210307ed80ded4485b0b1b3d",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "google-play/phone/05-settings.png",
+    "source": "raw/android/05-settings.png",
+    "source_sha256": "a897fd956088bdaf1eadafc1f4d962b7f1729abb7a8be51374bb712de2e3c646",
+    "treatment": "Native capture, proportional scaling and rounded frame. No app UI redrawn."
+  },
+  {
+    "file": "apple/watch-46mm/01-favorites.png",
+    "source": "raw/watch/01-favorites.png",
+    "source_sha256": "3260ced0229ac9bdaf0f45689a62e952087948df5463b99f76c5f114f2f56333",
+    "treatment": "Native watchOS capture with fictional cached companion data, exported as opaque RGB. No UI redrawn."
+  }
+]

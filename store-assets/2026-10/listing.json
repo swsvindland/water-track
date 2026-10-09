@@ -1,0 +1,88 @@
+{
+  "prepared": "2026-10-04",
+  "locale": "en-US",
+  "brand": "Pendum Hydration",
+  "apple": {
+    "name": "Pendum Hydration: Water Log",
+    "subtitle": "Drink tracker & reminders",
+    "promotional-text": "Build a daily drinking routine with one-tap favorites, caffeine totals, flexible reminders and Apple Watch logging. Your record stays personal.",
+    "keywords": "caffeine,coffee,tea,fluid,intake,daily,goal,habit,ml,ounce,history,journal,beverage",
+    "description": "Make room for a simple daily drinking routine.\n\nPendum Hydration brings quick drink logging, a daily fluid goal, caffeine totals and reminders together on your phone. Start without an account and keep your own intake history.\n\nLOG YOUR FAVORITES IN A TAP\nChoose a serving size and tap a favorite to log water, coffee, tea, juice, milk, energy drinks and more. Add custom drinks, set their caffeine or alcohol content, and choose what appears on your home screen. Edit, delete or backdate entries when needed.\n\nSEE YOUR DAY AND YOUR PATTERNS\nFollow logged non-alcoholic intake toward an adjustable daily goal. Coffee and tea count; alcoholic drinks do not. View day, week and month history with totals and daily averages. Caffeine and alcohol are shown separately.\n\nREMINDERS THAT FIT YOUR ROUTINE\nSet wake-up and bedtime for the week or for individual days. Optional reminders are planned around your intake goal and ease off before bed. Log water from a reminder action. The app updates the plan as you log; reminders use locally scheduled notifications and depend on device permissions and background availability.\n\nLOG FROM APPLE WATCH\nSee today's progress and log favorites from the companion Apple Watch app. It requires the iPhone app. On compatible iPhones with Apple Intelligence available, describe your routine to help set up your reminder schedule on the device.\n\nCONNECT WITH APPLE HEALTH\nWith your permission, save non-alcoholic fluid intake, caffeine and standard alcoholic drinks to Apple Health. When BAC estimates are enabled, calculated event-time estimates can also be saved. The app can read your latest accessible weight for the estimate.\n\nMAKE IT YOURS\nChoose mL or US fl oz, light or dark appearance, and your own serving sizes. Available in English, Spanish, French, German, Italian, Portuguese, Dutch, Swedish, Japanese, Korean and Simplified Chinese.\n\nONE PURCHASE. NO ACCOUNT.\nA paid download with no subscription or ads. Drink logging works offline. Your log is stored on your phone. There is no in-app backup or export; deleting the app may remove local records. Previously exported health records remain in the health service.\n\nKNOW WHAT THE NUMBERS MEAN\nGoal progress tracks logged fluid intake, not your body's hydration. Goals and default caffeine values are editable examples. Optional blood alcohol content (BAC) estimates are off by default. They are not measurements and must never be used to decide whether to drive or whether someone is sober, even when the estimate is zero.\n\nPendum Hydration is not a medical device and does not diagnose, treat, cure or prevent medical conditions. Consult a qualified healthcare professional for medical advice.",
+    "release-notes": "Meet Pendum Hydration: quick drink logging, daily fluid goals, caffeine totals and reminders that fit your routine."
+  },
+  "googlePlay": {
+    "title": "Pendum Hydration: Water Log",
+    "short-description": "Log water and drinks, track caffeine, and set reminders for your routine.",
+    "full-description": "Make room for a simple daily drinking routine.\n\nPendum Hydration brings quick drink logging, a daily fluid goal, caffeine totals and reminders together on your phone. Start without an account and keep your own intake history.\n\nLOG YOUR FAVORITES IN A TAP\nChoose a serving size and tap a favorite to log water, coffee, tea, juice, milk, energy drinks and more. Add custom drinks, set their caffeine or alcohol content, and choose what appears on your home screen. Edit, delete or backdate entries when needed.\n\nSEE YOUR DAY AND YOUR PATTERNS\nFollow logged non-alcoholic intake toward an adjustable daily goal. Coffee and tea count; alcoholic drinks do not. View day, week and month history with totals and daily averages. Caffeine and alcohol are shown separately.\n\nREMINDERS THAT FIT YOUR ROUTINE\nSet wake-up and bedtime for the week or for individual days. Optional reminders are planned around your intake goal and ease off before bed. Log water from a reminder action. The app updates the plan as you log; reminders use locally scheduled notifications and depend on device permissions and background availability.\n\nCONNECT WITH HEALTH CONNECT\nWith your permission, save non-alcoholic fluid intake and caffeine to Health Connect. The app can read your latest accessible weight for optional BAC estimates. Alcohol totals and BAC estimates remain in the Android app.\n\nMAKE IT YOURS\nChoose mL or US fl oz, light or dark appearance, and your own serving sizes. Available in English, Spanish, French, German, Italian, Portuguese, Dutch, Swedish, Japanese, Korean and Simplified Chinese.\n\nONE PURCHASE. NO ACCOUNT.\nA paid download with no subscription or ads. Drink logging works offline. Your log is stored on your phone. There is no in-app backup or export; deleting the app may remove local records. Previously exported health records remain in the health service.\n\nKNOW WHAT THE NUMBERS MEAN\nGoal progress tracks logged fluid intake, not your body's hydration. Goals and default caffeine values are editable examples. Optional blood alcohol content (BAC) estimates are off by default. They are not measurements and must never be used to decide whether to drive or whether someone is sober, even when the estimate is zero.\n\nPendum Hydration is not a medical device and does not diagnose, treat, cure or prevent medical conditions. Consult a qualified healthcare professional for medical advice.",
+    "release-notes": "Meet Pendum Hydration: quick drink logging, daily fluid goals, caffeine totals and reminders that fit your routine."
+  },
+  "category": "Health & Fitness",
+  "type": "App",
+  "skuSuggestion": "pendum-hydration",
+  "bundleIdentifier": "dev.svindland.vector.water",
+  "androidPackage": "dev.svindland.vector.water",
+  "configuredVersion": "1.0.0",
+  "pricing": {
+    "model": "paid download",
+    "usd": 4.99,
+    "subscription": false,
+    "inAppPurchases": false,
+    "trial": false,
+    "source": "vector-marketing/docs/sources/owner-decisions.md"
+  },
+  "urls": {
+    "support": {
+      "proposed": "https://getpendum.com/support",
+      "verifiedLive": false
+    },
+    "privacy": {
+      "proposed": "https://getpendum.com/privacy",
+      "verifiedLive": false
+    },
+    "marketing": {
+      "proposed": "https://getpendum.com/apps/hydration",
+      "verifiedLive": false
+    }
+  },
+  "ownerRequired": {
+    "supportEmail": null,
+    "reviewContactName": null,
+    "reviewContactEmail": null,
+    "reviewContactPhone": null,
+    "confirmedCopyrightHolder": null,
+    "territories": null,
+    "releaseDate": null
+  },
+  "screenshotCaptions": [
+    {
+      "file": "01-today",
+      "headline": "Every drink, in view.",
+      "subhead": "Follow your daily fluid goal.",
+      "route": ""
+    },
+    {
+      "file": "02-favorites",
+      "headline": "Your favorites. One tap.",
+      "subhead": "Set the drinks and sizes you reach for.",
+      "route": "favorites"
+    },
+    {
+      "file": "03-history",
+      "headline": "See your daily rhythm.",
+      "subhead": "Review intake across days, weeks and months.",
+      "route": "history"
+    },
+    {
+      "file": "04-drink",
+      "headline": "Keep your log accurate.",
+      "subhead": "Choose your drink, amount and time.",
+      "route": "drink"
+    },
+    {
+      "file": "05-settings",
+      "headline": "A routine that fits.",
+      "subhead": "Personal goals, units and settings.",
+      "route": "settings"
+    }
+  ]
+}

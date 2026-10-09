@@ -132,7 +132,7 @@
   "lastSync": "上次同步",
   "pending": "待同步更改",
   "disconnectNote": "断开连接将停止后续导出。已导出的记录会保留在健康应用中。",
-  "localNote": "数据私密保存在此设备上。卸载应用会删除本地记录。",
+  "localNote": "数据私密保存在此设备上。如需保留副本，请使用“备份”中的“导出数据”。",
   "optional": "选填",
   "quickAdd": "轻点记录",
   "remaining": "剩余",
@@ -189,5 +189,8 @@
   "unitPair": "{volume}/{weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}，第 {page} 页，共 {count} 页",
-  "bacBelow": "低于 {value}"
+  "bacBelow": "低于 {value}",
+  "vaultDrinkCountOne": "{n} 条饮品记录",
+  "vaultDrinkCount": "{n} 条饮品记录",
+  "vaultSince": "自 {date} 起"
 }

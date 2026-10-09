@@ -21,6 +21,7 @@ import {
   useKitFormat,
   useKitStrings,
 } from "@/vector";
+import { FavoriteTile } from "@/components/favorite-tile";
 import { parseAmount, useVolume } from "@/components/format";
 import { useDatabase } from "@/db/provider";
 import { preferences } from "@/db/schema";
@@ -28,13 +29,26 @@ import { useApp } from "@/lib/store";
 import { defaults, kinds, OZ_ML, type DrinkKind } from "@/lib/metrics";
 import {
   drinkCatalog,
+  favoriteColors,
   favoriteSections,
   isPopularDrink,
   savedFavorites,
   type Favorite,
+  type FavoriteColor,
 } from "@/lib/favorites";
 
-type Form = { name: string; kind: DrinkKind; amount: string; caffeine: string; abv: string };
+// "automatic" stores no colour, so the tile follows the drink type's default hue.
+type Hue = FavoriteColor | "automatic";
+const hues: readonly Hue[] = ["automatic", ...favoriteColors];
+
+type Form = {
+  name: string;
+  kind: DrinkKind;
+  color: Hue;
+  amount: string;
+  caffeine: string;
+  abv: string;
+};
 
 /** A catalog row: the drink and its facets, then Edit and the home-screen switch as separate controls. */
 function FavoriteRow({
@@ -85,7 +99,14 @@ export default function Favorites() {
   const favorites = drinkCatalog(savedFavorites(settings.favorites));
   const factor = settings.units === "us" ? OZ_ML : 1;
   const [editing, setEditing] = useState<Favorite | null>(null);
-  const blank: Form = { name: "", kind: "water", amount: "", caffeine: "", abv: "" };
+  const blank: Form = {
+    name: "",
+    kind: "water",
+    color: "automatic",
+    amount: "",
+    caffeine: "",
+    abv: "",
+  };
   const [form, setForm] = useState<Form>(blank);
   // The form as it opened: while it differs, the sheet holds its swipe and Android back.
   const [initial, setInitial] = useState<Form>(blank);
@@ -95,6 +116,7 @@ export default function Favorites() {
     const next: Form = {
       name: favorite.name || t(favorite.kind),
       kind: favorite.kind,
+      color: favoriteColors.find((hue) => hue === favorite.color) ?? "automatic",
       amount: format.editable(favorite.ml / factor),
       caffeine: format.editable(favorite.caffeine),
       abv: format.editable(favorite.abv),
@@ -138,8 +160,7 @@ export default function Favorites() {
       showOnHome: editing!.showOnHome ?? true,
       name: form.name.trim(),
       kind: form.kind,
-      // Tiles are neutral (no colour picker), but a stored colour still round-trips on save.
-      color: editing!.color,
+      color: form.color === "automatic" ? undefined : form.color,
       ml,
       caffeine: mg,
       abv: strength,
@@ -191,6 +212,23 @@ export default function Favorites() {
               abv: format.editable(defaults[kind].abv),
             })
           }
+        />
+        <Select
+          showTitle
+          title={t("favoriteButtonColor")}
+          values={hues}
+          value={form.color}
+          label={(value) => t(value === "automatic" ? "automaticColor" : value)}
+          onChange={(color) => update({ color })}
+        />
+        <FavoriteTile
+          favorite={{
+            name: form.name.trim(),
+            kind: form.kind,
+            color: form.color === "automatic" ? undefined : form.color,
+          }}
+          ml={editing.ml}
+          compact
         />
         <Field
           label={t("referenceSize")}

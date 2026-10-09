@@ -132,7 +132,7 @@
   "lastSync": "Laatst gesynchroniseerd",
   "pending": "Openstaande wijzigingen",
   "disconnectNote": "Verbreken stopt toekomstige exports. Eerder geëxporteerde gegevens blijven in je gezondheidsapp.",
-  "localNote": "Privé opgeslagen op dit apparaat. Verwijderen van de app wist je lokale gegevens.",
+  "localNote": "Privé opgeslagen op dit apparaat. Gebruik “Gegevens exporteren” onder Back-up om een kopie te bewaren.",
   "optional": "Optioneel",
   "quickAdd": "Tik om te registreren",
   "remaining": "resterend",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, pagina {page} van {count}",
-  "bacBelow": "Minder dan {value}"
+  "bacBelow": "Minder dan {value}",
+  "vaultDrinkCountOne": "{n} drankje",
+  "vaultDrinkCount": "{n} drankjes",
+  "vaultSince": "Sinds {date}"
 }

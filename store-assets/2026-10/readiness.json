@@ -1,0 +1,47 @@
+{
+  "prepared": "2026-10-04",
+  "copy": "complete (en-US)",
+  "iconsAndFeatureGraphic": "complete",
+  "iosScreenshots": {
+    "status": "complete",
+    "count": 5,
+    "folder": "apple/iphone-6.9",
+    "dimensions": [
+      1320,
+      2868
+    ]
+  },
+  "androidScreenshots": {
+    "status": "complete",
+    "count": 5,
+    "folder": "google-play/phone",
+    "dimensions": [
+      1080,
+      1920
+    ]
+  },
+  "watchScreenshots": {
+    "status": "complete",
+    "count": 1,
+    "folder": "apple/watch-46mm",
+    "dimensions": [
+      416,
+      496
+    ]
+  },
+  "phoneScreenshotSetsReady": true,
+  "additionalDeviceFormats": "No iPad support configured. Android tablet/desktop sets are not included.",
+  "nativeDebugBuilds": {
+    "ios": "passed",
+    "android": "passed"
+  },
+  "liveStoreChanges": false,
+  "releaseReady": false,
+  "remaining": [
+    "Owner contacts and confirmed rights holder",
+    "Publish support and privacy pages",
+    "Signed release build, version selection and physical-device health/background checks",
+    "Final privacy/health/content-rating answers in store consoles",
+    "Paired Apple Watch delivery and Health Connect cold/system entry points on release builds"
+  ]
+}

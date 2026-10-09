@@ -1,6 +1,7 @@
 /*
-  Vector Kit 1.2.2 — src/vector/tokens.css  (lineage: SIBYL)
-  Byte-identical in body-track, lift-track, macro-track, water-track. Hash-checked by scripts/vector-kit.mjs.
+  Vector Kit 1.3.2 — src/vector/tokens.css  (lineage: SIBYL)
+  Byte-identical in body-track, lift-track, macro-track, water-track and fitness-native. Hash-checked by
+  scripts/vector-kit.mjs.
   Canonical copy: /Users/sam/Development/VectorApps/vector-design/kit/src/vector/tokens.css. Never edit in an app repo.
 
   Included from each app's kit-owned src/global.css, AFTER the HeroUI imports so these values win:
@@ -14,7 +15,9 @@
   Uniwind follows relative @imports when it collects @variant light/dark variables
   (uniwind/src/bundler/artifacts/css/themes.ts: dependency.url.startsWith('.') -> recurse), and
   Tailwind compiles them with base = dirname(global.css). Verified offline against heroui-native 1.0.8 + uniwind 1.11
-  (@tailwindcss/node 4.3.2) and heroui-native 1.0.9 + uniwind 1.12 (@tailwindcss/node 4.3.3).
+  (@tailwindcss/node 4.3.2), heroui-native 1.0.9 + uniwind 1.12 (@tailwindcss/node 4.3.3) and heroui-native 1.0.10
+  + uniwind 1.12 (fitness-native). The TOKENS block ends with a web-only block (Uniwind's `web` variant) that pins
+  HeroUI's color-mix() colours as hex for its JS colour parser on react-native-web; native never sees it.
 
   The TOKENS block is generated from src/vector/tokens.json. The COMPONENTS block is hand-written and may only
   contain plain declarations on HeroUI slot classes (Uniwind drops ios:/android:/rtl:/focus: variants inside
@@ -25,7 +28,7 @@
   the class that actually sets the property.
 */
 
-/* TOKENS:BEGIN — generated from src/vector/tokens.json by scripts/vector-kit.mjs gen (kit 1.2.2). Do not edit. */
+/* TOKENS:BEGIN — generated from src/vector/tokens.json by scripts/vector-kit.mjs gen (kit 1.3.2). Do not edit. */
 @theme {
   /* Families: only the bundled faces (useFonts aliases). Tailwind font-medium/semibold/bold therefore
      select a family, not a weight; weights are explicit numbers in kit components and the COMPONENTS block. */
@@ -94,6 +97,30 @@
   --color-cat-1: var(--cat-1);
   --color-cat-2: var(--cat-2);
   --color-cat-3: var(--cat-3);
+  --color-favorite-cyan: var(--favorite-cyan);
+  --color-favorite-cyan-foreground: var(--favorite-cyan-foreground);
+  --color-favorite-brown: var(--favorite-brown);
+  --color-favorite-brown-foreground: var(--favorite-brown-foreground);
+  --color-favorite-sage: var(--favorite-sage);
+  --color-favorite-sage-foreground: var(--favorite-sage-foreground);
+  --color-favorite-amber: var(--favorite-amber);
+  --color-favorite-amber-foreground: var(--favorite-amber-foreground);
+  --color-favorite-violet: var(--favorite-violet);
+  --color-favorite-violet-foreground: var(--favorite-violet-foreground);
+  --color-favorite-rose: var(--favorite-rose);
+  --color-favorite-rose-foreground: var(--favorite-rose-foreground);
+  --color-favorite-slate: var(--favorite-slate);
+  --color-favorite-slate-foreground: var(--favorite-slate-foreground);
+  --color-favorite-blue: var(--favorite-blue);
+  --color-favorite-blue-foreground: var(--favorite-blue-foreground);
+  --color-favorite-teal: var(--favorite-teal);
+  --color-favorite-teal-foreground: var(--favorite-teal-foreground);
+  --color-favorite-olive: var(--favorite-olive);
+  --color-favorite-olive-foreground: var(--favorite-olive-foreground);
+  --color-favorite-terracotta: var(--favorite-terracotta);
+  --color-favorite-terracotta-foreground: var(--favorite-terracotta-foreground);
+  --color-favorite-plum: var(--favorite-plum);
+  --color-favorite-plum-foreground: var(--favorite-plum-foreground);
   --color-warning-hover: color-mix(in oklab, var(--warning) 90%, black);
   --color-field-hover: var(--surface-secondary);
 }
@@ -156,6 +183,30 @@
       --chart-3: var(--foreground-secondary);
       --chart-4: var(--separator);
       --chart-5: var(--warning);
+      --favorite-cyan: #ecfeff;
+      --favorite-cyan-foreground: #007088;
+      --favorite-brown: #f4eee9;
+      --favorite-brown-foreground: #725039;
+      --favorite-sage: #edf4ee;
+      --favorite-sage-foreground: #46634a;
+      --favorite-amber: #faf2e3;
+      --favorite-amber-foreground: #7b5a20;
+      --favorite-violet: #f1eef8;
+      --favorite-violet-foreground: #65518a;
+      --favorite-rose: #f8edf0;
+      --favorite-rose-foreground: #8a4c61;
+      --favorite-slate: #eef2f5;
+      --favorite-slate-foreground: #4e606f;
+      --favorite-blue: #edf3fb;
+      --favorite-blue-foreground: #395d8a;
+      --favorite-teal: #eaf5f2;
+      --favorite-teal-foreground: #31695f;
+      --favorite-olive: #f2f3e8;
+      --favorite-olive-foreground: #626732;
+      --favorite-terracotta: #faefe8;
+      --favorite-terracotta-foreground: #8a5136;
+      --favorite-plum: #f5edf5;
+      --favorite-plum-foreground: #7b4b79;
     }
     @variant dark {
       --background: #071017;
@@ -213,6 +264,82 @@
       --chart-3: var(--foreground-secondary);
       --chart-4: var(--separator);
       --chart-5: var(--warning);
+      --favorite-cyan: #0c2c35;
+      --favorite-cyan-foreground: #67d6e7;
+      --favorite-brown: #29211e;
+      --favorite-brown-foreground: #d6b397;
+      --favorite-sage: #1b2a24;
+      --favorite-sage-foreground: #a5c6aa;
+      --favorite-amber: #2c261b;
+      --favorite-amber-foreground: #dfc083;
+      --favorite-violet: #252236;
+      --favorite-violet-foreground: #bfb0e0;
+      --favorite-rose: #30212a;
+      --favorite-rose-foreground: #dfa8bb;
+      --favorite-slate: #172630;
+      --favorite-slate-foreground: #b0c3d0;
+      --favorite-blue: #192638;
+      --favorite-blue-foreground: #a7c3e8;
+      --favorite-teal: #172e2b;
+      --favorite-teal-foreground: #95cec1;
+      --favorite-olive: #292c1c;
+      --favorite-olive-foreground: #c3c98e;
+      --favorite-terracotta: #33241e;
+      --favorite-terracotta-foreground: #e1b198;
+      --favorite-plum: #2d2030;
+      --favorite-plum-foreground: #d2acd1;
+    }
+  }
+}
+
+/* Web only (Uniwind's `web` variant; native drops it). HeroUI reads these through useThemeColor, and on web its
+   colour parser rejects the color-mix() string the browser reports (Button press highlight, Toast): the same
+   colours as hex, mixed in OKLab from tokens.json as the browser mixes them (tokens.json heroDerived). */
+@layer theme {
+  :root {
+    @variant web {
+      @variant light {
+        --color-surface-hover: #eaebec;
+        --color-background-secondary: #f4f5f6;
+        --color-background-tertiary: #eaebec;
+        --color-default-hover: #e7ebee;
+        --color-accent-hover: #22bdd6;
+        --color-success-hover: #368056;
+        --color-warning-hover: #77540e;
+        --color-danger-hover: #ab474b;
+        --color-field-border-hover: #6f7c86fa;
+        --color-default-soft: #f1f5f780;
+        --color-default-soft-hover: #f1f5f799;
+        --color-accent-soft-hover: #22d3ee33;
+        --color-danger-soft-hover: #9f303933;
+        --color-warning-soft-hover: #8a621233;
+        --color-success-soft-hover: #17724533;
+        --color-separator-secondary: #d7dadc;
+        --color-separator-tertiary: #cdd0d3;
+        --color-border-secondary: #c5c9cc;
+        --color-border-tertiary: #a7acb1;
+      }
+      @variant dark {
+        --color-surface-hover: #1c252c;
+        --color-background-secondary: #0e171e;
+        --color-background-tertiary: #151f26;
+        --color-default-hover: #1c2a33;
+        --color-accent-hover: #22bdd6;
+        --color-success-hover: #51bf7e;
+        --color-warning-hover: #bc8e37;
+        --color-danger-hover: #d67d85;
+        --color-field-border-hover: #758791fa;
+        --color-default-soft: #15232c80;
+        --color-default-soft-hover: #15232c99;
+        --color-accent-soft-hover: #22d3ee33;
+        --color-danger-soft-hover: #f08a9333;
+        --color-warning-soft-hover: #d9a44133;
+        --color-success-soft-hover: #5ad58a33;
+        --color-separator-secondary: #29333a;
+        --color-separator-tertiary: #313b41;
+        --color-border-secondary: #384147;
+        --color-border-tertiary: #515a60;
+      }
     }
   }
 }

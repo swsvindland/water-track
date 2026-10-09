@@ -1,0 +1,15 @@
+Pendum Hydration is a paid-download Health & Fitness app with no sign-in, subscription or in-app purchases. No review account is needed; all core screens are accessible after installing the app. Health sync and notifications are optional.
+
+1. On Today, choose a serving size and tap a favorite. Open the log/details to edit or delete that drink.
+2. Open Edit favorites to configure visible drinks or add a custom favorite.
+3. Open History and try day, week and month. Backdate a drink to populate another day.
+4. In Settings, change the fluid goal, units, language and appearance. Enable reminders, allow notifications, and set a wake-up/bedtime schedule. Reminder actions log the default water size. Scheduled reminders are recalculated after app activity and may run out if the app is unopened for several days.
+5. Enable optional health sync. BAC is disabled by default; enable it only to review the estimate and its safety explanation. BAC must never be used for driving or sobriety decisions, including at zero.
+
+On iOS, non-alcoholic fluid volume, caffeine and standard alcoholic drinks are exported to Apple Health. Calculated event-time BAC estimates are exported when enabled.
+
+The Apple Watch app requires the paired iPhone app. Log a favorite on the watch and verify it arrives once on the phone. Optional routine-description setup requires a compatible iPhone with Apple Intelligence available; manual schedule setup works without it.
+
+Goal progress measures logged intake, not physiological hydration. BAC is a calculated estimate, not a measurement. The app is not a medical device. Background execution depends on the operating system.
+
+Store screenshots use fictional demonstration records. Drink amounts and goals in the screenshots are examples.

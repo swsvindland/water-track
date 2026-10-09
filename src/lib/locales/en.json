@@ -132,7 +132,7 @@
   "lastSync": "Last synced",
   "pending": "Pending changes",
   "disconnectNote": "Disconnecting stops future exports. Previously exported records remain in your health app.",
-  "localNote": "Saved privately on this device. Uninstalling removes your local records.",
+  "localNote": "Saved privately on this device. Use “Export data” under Backup to keep a copy.",
   "optional": "Optional",
   "quickAdd": "Tap to log",
   "remaining": "remaining",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, page {page} of {count}",
-  "bacBelow": "Under {value}"
+  "bacBelow": "Under {value}",
+  "vaultDrinkCountOne": "{n} drink",
+  "vaultDrinkCount": "{n} drinks",
+  "vaultSince": "Since {date}"
 }

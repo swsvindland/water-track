@@ -8,7 +8,11 @@ import migrations from "../../drizzle/migrations";
 import * as schema from "./schema";
 
 export async function initializeDatabase(sqlite: SQLiteDatabase) {
-  await sqlite.execAsync("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+  // Every connection (UI, Health and reminder tasks, a backup restore) waits for another's write
+  // instead of failing with "database is locked".
+  await sqlite.execAsync(
+    "PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;"
+  );
   const db = drizzle(sqlite, { schema });
   await migrate(db, migrations);
   const locale = getLocales()[0];

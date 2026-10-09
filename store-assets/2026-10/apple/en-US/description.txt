@@ -1,0 +1,29 @@
+Make room for a simple daily drinking routine.
+
+Pendum Hydration brings quick drink logging, a daily fluid goal, caffeine totals and reminders together on your phone. Start without an account and keep your own intake history.
+
+LOG YOUR FAVORITES IN A TAP
+Choose a serving size and tap a favorite to log water, coffee, tea, juice, milk, energy drinks and more. Add custom drinks, set their caffeine or alcohol content, and choose what appears on your home screen. Edit, delete or backdate entries when needed.
+
+SEE YOUR DAY AND YOUR PATTERNS
+Follow logged non-alcoholic intake toward an adjustable daily goal. Coffee and tea count; alcoholic drinks do not. View day, week and month history with totals and daily averages. Caffeine and alcohol are shown separately.
+
+REMINDERS THAT FIT YOUR ROUTINE
+Set wake-up and bedtime for the week or for individual days. Optional reminders are planned around your intake goal and ease off before bed. Log water from a reminder action. The app updates the plan as you log; reminders use locally scheduled notifications and depend on device permissions and background availability.
+
+LOG FROM APPLE WATCH
+See today's progress and log favorites from the companion Apple Watch app. It requires the iPhone app. On compatible iPhones with Apple Intelligence available, describe your routine to help set up your reminder schedule on the device.
+
+CONNECT WITH APPLE HEALTH
+With your permission, save non-alcoholic fluid intake, caffeine and standard alcoholic drinks to Apple Health. When BAC estimates are enabled, calculated event-time estimates can also be saved. The app can read your latest accessible weight for the estimate.
+
+MAKE IT YOURS
+Choose mL or US fl oz, light or dark appearance, and your own serving sizes. Available in English, Spanish, French, German, Italian, Portuguese, Dutch, Swedish, Japanese, Korean and Simplified Chinese.
+
+ONE PURCHASE. NO ACCOUNT.
+A paid download with no subscription or ads. Drink logging works offline. Your log is stored on your phone. There is no in-app backup or export; deleting the app may remove local records. Previously exported health records remain in the health service.
+
+KNOW WHAT THE NUMBERS MEAN
+Goal progress tracks logged fluid intake, not your body's hydration. Goals and default caffeine values are editable examples. Optional blood alcohol content (BAC) estimates are off by default. They are not measurements and must never be used to decide whether to drive or whether someone is sober, even when the estimate is zero.
+
+Pendum Hydration is not a medical device and does not diagnose, treat, cure or prevent medical conditions. Consult a qualified healthcare professional for medical advice.

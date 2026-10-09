@@ -1,0 +1,114 @@
+[
+  {
+    "file": "apple/iphone-6.9/01-today.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "bytes": 1000267,
+    "sha256": "d3e11824b825d987633ae02d4883813b1771202782911984fa2a87984b87838b"
+  },
+  {
+    "file": "apple/iphone-6.9/02-favorites.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "bytes": 1111516,
+    "sha256": "306144f6a69358b3f015a4f287da34731930bd1c40f670fca3215fd5d9ce47e4"
+  },
+  {
+    "file": "apple/iphone-6.9/03-history.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "bytes": 1078650,
+    "sha256": "74fc56606b540cf6bf616ae1dc6eb4ce7ebd98b4d375c3e87c90bcb6370ea813"
+  },
+  {
+    "file": "apple/iphone-6.9/04-drink.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "bytes": 943111,
+    "sha256": "9ac738bcecd930284bd2e8839225afe9e32f5e4df26327c1cc13883b9c6ddb72"
+  },
+  {
+    "file": "apple/iphone-6.9/05-settings.png",
+    "width": 1320,
+    "height": 2868,
+    "mode": "RGB",
+    "bytes": 1063204,
+    "sha256": "f68ec5d1b3968c4622fd8ac2673b7f41bc01f579475a6cf8a5c42823c260f5e3"
+  },
+  {
+    "file": "google-play/phone/01-today.png",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB",
+    "bytes": 789600,
+    "sha256": "e7fe45cec045aa0b13bc3db7df74f78ec24fcdfe6b534d88edff1869d0456533"
+  },
+  {
+    "file": "google-play/phone/02-favorites.png",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB",
+    "bytes": 839201,
+    "sha256": "995202d66c1e044d5dbb563d9216c97770dea9911e6103519054f25f2aade91e"
+  },
+  {
+    "file": "google-play/phone/03-history.png",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB",
+    "bytes": 811955,
+    "sha256": "c0360c752b4725c3bf305812f7ec9d084ed78f80d14e14f36c434e5d4404c7ca"
+  },
+  {
+    "file": "google-play/phone/04-drink.png",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB",
+    "bytes": 751509,
+    "sha256": "1e08e4361495e9b19b1f46a9c87f117cbc18536c18a0b8682e12a23fb8630e3a"
+  },
+  {
+    "file": "google-play/phone/05-settings.png",
+    "width": 1080,
+    "height": 1920,
+    "mode": "RGB",
+    "bytes": 780459,
+    "sha256": "bc649e53a3a132ceb3187de1870af24865cfe1f43d1d71858cdca1029d3c5a97"
+  },
+  {
+    "file": "apple/watch-46mm/01-favorites.png",
+    "width": 416,
+    "height": 496,
+    "mode": "RGB",
+    "bytes": 33488,
+    "sha256": "d9c09bfd63ef7bceb649cb4f8f4cfc893a046eaf0b07cd4be09a85e3f49ac78f"
+  },
+  {
+    "file": "apple/icon-1024.png",
+    "width": 1024,
+    "height": 1024,
+    "mode": "RGB",
+    "bytes": 29280,
+    "sha256": "3c9955eda99b445a1ef9a6af1df162ba135ca753f837952000648b2162a27649"
+  },
+  {
+    "file": "google-play/icon-512.png",
+    "width": 512,
+    "height": 512,
+    "mode": "RGB",
+    "bytes": 15589,
+    "sha256": "5c64c444b7aa9a6690587f645514f960d51e9b8eeff24c5b9b340bf158ad237f"
+  },
+  {
+    "file": "google-play/feature-graphic.png",
+    "width": 1024,
+    "height": 500,
+    "mode": "RGB",
+    "bytes": 39917,
+    "sha256": "aafb9ead426b805bb308c5a87612826db882b2241d60727cc1c53720996e05e3"
+  }
+]

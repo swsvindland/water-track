@@ -11,7 +11,6 @@ import { SafeAreaView as NativeTabSafeAreaView } from "react-native-screens/expe
 import {
   ErrorText,
   Heading,
-  Icon,
   IconButton,
   Label,
   LinkButton,
@@ -21,7 +20,6 @@ import {
   Screen,
   Slider,
   SystemState,
-  Text,
   Value,
   useKit,
   useKitFormat,
@@ -30,57 +28,10 @@ import {
 import { useApp } from "@/lib/store";
 import { HomeCarousel } from "@/components/home-carousel";
 import { BacSummary } from "@/components/bac-summary";
-import { kindIcon } from "@/components/drink-list";
+import { FavoriteTile } from "@/components/favorite-tile";
 import { useVolume } from "@/components/format";
 import { useUndoOverlay } from "@/components/undo-overlay";
 import { estimateBac, inDay, nearestSize, sizeOptions, totals } from "@/lib/metrics";
-
-/** A neutral quick-log tile: the drink-kind glyph, the name and the size one tap logs. */
-function FavoriteTile({
-  favorite,
-  ml,
-  fill,
-  compact,
-  onPress,
-}: {
-  favorite: Favorite;
-  ml: number;
-  fill: boolean;
-  compact: boolean;
-  onPress: () => void;
-}) {
-  const { t } = useApp();
-  const volume = useVolume();
-  const name = favorite.name || t(favorite.kind);
-  return (
-    <Panel
-      inset="none"
-      onPress={onPress}
-      accessibilityLabel={t("addDrinkLabel", { name, volume: volume.text(ml) })}
-      className={fill ? "flex-1" : undefined}
-    >
-      <View
-        className={`flex-row items-center gap-3 px-3 ${fill ? "flex-1" : "min-h-12"} ${compact ? "py-1.5" : "py-2"}`}
-      >
-        <Icon name={kindIcon[favorite.kind] ?? kindIcon.other} tone="muted" />
-        <View className="flex-1">
-          {/* A filled grid gives every tile a fixed slot, so a long name shrinks to 80% (as the kit's fit
-              does) before it stops at two lines. The tile's label always carries it whole. */}
-          <Text
-            variant="bodyStrong"
-            numberOfLines={fill ? 2 : undefined}
-            adjustsFontSizeToFit={fill}
-            minimumFontScale={fill ? 0.8 : undefined}
-          >
-            {name}
-          </Text>
-          {/* Short screens keep the name: the size is in the panel below and in the label. */}
-          {compact ? null : <Value {...volume.parts(ml)} size="xs" tone="muted" />}
-        </View>
-      </View>
-    </Panel>
-  );
-}
 
 export default function Today() {
   const { rows, bacWeightKg, settings, now, t } = useApp();

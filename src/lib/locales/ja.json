@@ -132,7 +132,7 @@
   "lastSync": "最終同期",
   "pending": "保留中の変更",
   "disconnectNote": "接続解除すると今後の出力が停止します。出力済みの記録はヘルスケアアプリに残ります。",
-  "localNote": "この端末内に非公開で保存されます。アンインストールするとローカルの記録が削除されます。",
+  "localNote": "この端末内に非公開で保存されます。コピーを残すには、「バックアップ」の「データを書き出す」を使用してください。",
   "optional": "任意",
   "quickAdd": "タップして記録",
   "remaining": "残り",
@@ -189,5 +189,8 @@
   "unitPair": "{volume}/{weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}、{page}/{count}ページ",
-  "bacBelow": "{value}未満"
+  "bacBelow": "{value}未満",
+  "vaultDrinkCountOne": "飲み物 {n} 件",
+  "vaultDrinkCount": "飲み物 {n} 件",
+  "vaultSince": "{date}から"
 }

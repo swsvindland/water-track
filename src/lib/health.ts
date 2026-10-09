@@ -15,6 +15,8 @@ const RETRY_DELAYS = [30_000, 120_000, 600_000, 1_800_000];
 let running: Promise<void> | null = null;
 let requested = false;
 let failures = 0;
+// Held by pauseWhenIdle while a backup restore replaces the drinks: no sync starts or exports meanwhile.
+let paused = 0;
 let retry: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 function notify() {
@@ -30,6 +32,7 @@ export function healthSyncing() {
   return running !== null;
 }
 export function syncHealth() {
+  if (paused > 0) return Promise.resolve();
   requested = true;
   if (running) return running;
   clearTimeout(retry);
@@ -57,6 +60,32 @@ export function syncHealth() {
   notify();
   return running;
 }
+/**
+ * Holds Health sync off while `work` runs (the vault's restore hook, src/vault-app.ts). The hold starts before
+ * anything is awaited, so no sync can start after this call, and a running sync stops at its next step. Waits at
+ * most `ms` for that sync to end, then fails without running `work`.
+ */
+export async function pauseWhenIdle<T>(work: () => Promise<T>, ms: number): Promise<T> {
+  paused++;
+  try {
+    if (running) {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const idle = await Promise.race([
+        running.then(
+          () => true,
+          () => true
+        ),
+        new Promise<false>((resolve) => {
+          timer = setTimeout(() => resolve(false), ms);
+        }),
+      ]).finally(() => clearTimeout(timer));
+      if (!idle) throw new Error("healthBusy");
+    }
+    return await work();
+  } finally {
+    paused--;
+  }
+}
 async function performSync() {
   const sqlite = await openDatabaseAsync("water-track.db", {
     enableChangeListener: true,
@@ -65,8 +94,8 @@ async function performSync() {
   try {
     await initializeDatabase(sqlite);
     const db = drizzle(sqlite);
-    if (!db.select().from(preferences).get()?.healthEnabled) return;
-    const enabled = () => !!db.select().from(preferences).get()?.healthEnabled;
+    const enabled = () => paused === 0 && !!db.select().from(preferences).get()?.healthEnabled;
+    if (!enabled()) return;
     const adapter = await healthAdapter(false, enabled);
     let incomplete = false;
     try {

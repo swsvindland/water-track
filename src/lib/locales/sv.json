@@ -132,7 +132,7 @@
   "lastSync": "Senast synkroniserat",
   "pending": "Väntande ändringar",
   "disconnectNote": "Frånkoppling stoppar framtida exporter. Tidigare exporterade poster finns kvar i din hälsoapp.",
-  "localNote": "Sparas privat på denna enhet. Avinstallation tar bort dina lokala poster.",
+  "localNote": "Sparas privat på denna enhet. Använd ”Exportera data” under Säkerhetskopiering för att spara en kopia.",
   "optional": "Valfritt",
   "quickAdd": "Tryck för att registrera",
   "remaining": "kvar",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, sida {page} av {count}",
-  "bacBelow": "Under {value}"
+  "bacBelow": "Under {value}",
+  "vaultDrinkCountOne": "{n} dryck",
+  "vaultDrinkCount": "{n} drycker",
+  "vaultSince": "Sedan {date}"
 }

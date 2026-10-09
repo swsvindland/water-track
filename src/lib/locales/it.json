@@ -132,7 +132,7 @@
   "lastSync": "Ultima sincronizzazione",
   "pending": "Modifiche in attesa",
   "disconnectNote": "Scollegare interrompe le esportazioni future. I dati già esportati restano nell’app salute.",
-  "localNote": "Salvato privatamente su questo dispositivo. La disinstallazione elimina i dati locali.",
+  "localNote": "Salvato privatamente su questo dispositivo. Usa «Esporta dati» in Backup per conservarne una copia.",
   "optional": "Facoltativo",
   "quickAdd": "Tocca per registrare",
   "remaining": "rimanenti",
@@ -189,5 +189,8 @@
   "unitPair": "{volume} / {weight}",
   "glassesOf": "{count} × {amount}",
   "pageOf": "{label}, pagina {page} di {count}",
-  "bacBelow": "Meno di {value}"
+  "bacBelow": "Meno di {value}",
+  "vaultDrinkCountOne": "{n} bevanda",
+  "vaultDrinkCount": "{n} bevande",
+  "vaultSince": "Dal {date}"
 }
